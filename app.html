@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sén Péi — mon espace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --terre:#1F0F09; --terre2:#2C1810; --panel:#33200f; --panel2:#3d2716;
+    --ocre:#E89A3C; --safran:#F6BE54; --brique:#D2602F; --corail:#FF7A47;
+    --creme:#F8EFE1; --muet:#CBB099; --ligne:rgba(255,233,210,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--creme);
+    background:radial-gradient(900px 480px at 80% -10%, rgba(255,122,71,.18), transparent 60%), var(--terre);
+    min-height:100vh;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:680px;margin:0 auto;padding:0 22px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:22px 0;border-bottom:1px solid var(--ligne)}
+  .brand{display:flex;flex-direction:column;line-height:1}
+  .logo{font-family:'Fraunces',serif;font-weight:700;font-size:26px;
+    background:linear-gradient(92deg,var(--safran),var(--brique));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sig{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muet);margin-top:4px}
+  #whoami{font-size:13px;color:var(--muet);display:flex;align-items:center;gap:12px}
+  .link{color:var(--safran);cursor:pointer;background:none;border:none;font-size:13px}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--terre2));border:1px solid var(--ligne);border-radius:18px;padding:26px;margin-top:26px}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:28px;margin-bottom:6px}
+  .sub{color:var(--muet);font-size:15px;margin-bottom:22px;line-height:1.5}
+  h2{font-family:'Fraunces',serif;font-weight:600;font-size:21px;margin-bottom:16px}
+
+  .tabs{display:flex;gap:8px;margin-bottom:20px}
+  .tab{flex:1;padding:11px;border-radius:11px;border:1px solid var(--ligne);background:transparent;color:var(--creme);font-size:14.5px;font-weight:500;cursor:pointer}
+  .tab.on{background:rgba(246,190,84,.14);border-color:rgba(246,190,84,.4);color:var(--safran)}
+
+  label{display:block;font-size:12.5px;letter-spacing:.3px;color:var(--muet);margin:14px 0 6px}
+  input,textarea,select{width:100%;background:rgba(255,233,210,.05);border:1px solid var(--ligne);border-radius:11px;
+    padding:12px 14px;color:var(--creme);font-size:15px;font-family:inherit}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--brique)}
+  textarea{min-height:84px;resize:vertical}
+  select option{background:#2C1810}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  .choice{display:flex;gap:10px;margin-bottom:6px}
+  .opt{flex:1;border:1px solid var(--ligne);border-radius:12px;padding:14px;text-align:center;cursor:pointer;font-size:14.5px}
+  .opt.on{border-color:var(--corail);background:rgba(255,122,71,.12);color:var(--corail);font-weight:600}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .chip{border:1px solid var(--ligne);border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer;user-select:none}
+  .chip.on{border-color:var(--safran);background:rgba(246,190,84,.14);color:var(--safran)}
+
+  .btn{width:100%;margin-top:22px;background:linear-gradient(92deg,var(--brique),var(--safran));color:#2a1206;border:none;
+    border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer}
+  .btn:disabled{opacity:.6;cursor:default}
+  .msg{margin-top:16px;font-size:14px;padding:12px 14px;border-radius:11px;display:none}
+  .msg.ok{display:block;background:rgba(110,180,120,.14);border:1px solid rgba(110,180,120,.4);color:#bfe6c4}
+  .msg.err{display:block;background:rgba(226,75,74,.12);border:1px solid rgba(226,75,74,.4);color:#f3b4b4}
+  .hide{display:none}
+  .hint{font-size:12.5px;color:var(--muet);margin-top:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><div class="logo">Sén Péi</div><div class="sig">un Monde Pixie</div></div>
+    <div id="whoami"></div>
+  </header>
+
+  <!-- AUTH -->
+  <section id="auth" class="card hide">
+    <h1>Rejoins la scène</h1>
+    <p class="sub">Crée ton compte ou connecte-toi pour gérer ta fiche sur Sén Péi.</p>
+    <div class="tabs">
+      <button class="tab on" id="tab-login">Connexion</button>
+      <button class="tab" id="tab-signup">Inscription</button>
+    </div>
+
+    <form id="form-login">
+      <label>Email</label><input type="email" id="login-email" required>
+      <label>Mot de passe</label><input type="password" id="login-pass" required>
+      <button class="btn" type="submit">Se connecter</button>
+    </form>
+
+    <form id="form-signup" class="hide">
+      <label>Je suis…</label>
+      <div class="choice">
+        <div class="opt on" data-type="lieu">🏛️ Un lieu / bar</div>
+        <div class="opt" data-type="artiste">🎤 Un artiste</div>
+      </div>
+      <label>Nom (du lieu ou de l'artiste)</label><input type="text" id="su-nom" required>
+      <label>Email</label><input type="email" id="su-email" required>
+      <label>Mot de passe</label><input type="password" id="su-pass" minlength="6" required>
+      <div class="hint">Au moins 6 caractères.</div>
+      <button class="btn" type="submit">Créer mon compte</button>
+    </form>
+    <div class="msg" id="auth-msg"></div>
+  </section>
+
+  <!-- ESPACE -->
+  <section id="espace" class="card hide">
+    <h1 id="hello">Mon espace</h1>
+    <p class="sub" id="espace-sub"></p>
+
+    <!-- FICHE LIEU -->
+    <div id="form-lieu" class="hide">
+      <h2>Ma fiche lieu</h2>
+      <label>Nom du lieu</label><input type="text" id="l-nom">
+      <div class="row">
+        <div><label>Type</label>
+          <select id="l-type">
+            <option value="">—</option>
+            <option>Salle de spectacle</option><option>Festival</option><option>Bar / café-concert</option>
+            <option>Kabar</option><option>Médiathèque</option><option>MJC / centre culturel</option>
+            <option>Comité des fêtes</option><option>Hôtel / restaurant</option><option>Autre</option>
+          </select>
+        </div>
+        <div><label>Zone</label>
+          <select id="l-zone"><option value="">—</option><option>Nord</option><option>Sud</option><option>Est</option><option>Ouest</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <div><label>Commune</label><input type="text" id="l-commune"></div>
+        <div><label>Jauge (nb de places)</label><input type="number" id="l-jauge" min="0"></div>
+      </div>
+      <label>Ce que vous programmez</label>
+      <div class="chips" id="l-disc"></div>
+      <label>Description</label><textarea id="l-desc" placeholder="Présentez votre lieu, votre programmation…"></textarea>
+      <div class="row">
+        <div><label>Contact</label><input type="text" id="l-contact" placeholder="email ou téléphone"></div>
+        <div><label>Site web</label><input type="text" id="l-site"></div>
+      </div>
+      <button class="btn" id="save-lieu">Enregistrer ma fiche</button>
+    </div>
+
+    <!-- FICHE ARTISTE -->
+    <div id="form-artiste" class="hide">
+      <h2>Ma fiche artiste</h2>
+      <label>Nom d'artiste / du groupe</label><input type="text" id="a-nom">
+      <label>Disciplines</label>
+      <div class="chips" id="a-disc"></div>
+      <label>Bio</label><textarea id="a-bio" placeholder="Présentez votre univers…"></textarea>
+      <label>Lien vidéo (obligatoire pour être visible)</label><input type="text" id="a-video" placeholder="YouTube, Vimeo, Insta…">
+      <div class="hint">C'est votre meilleure carte de visite : on vous voit jouer.</div>
+      <div class="row">
+        <div><label>Zone</label>
+          <select id="a-zone"><option value="">—</option><option>Nord</option><option>Sud</option><option>Est</option><option>Ouest</option><option>Toute l'île</option></select>
+        </div>
+        <div><label>Tarif indicatif</label><input type="text" id="a-tarif" placeholder="ex. à partir de…"></div>
+      </div>
+      <label>Où avez-vous déjà joué ? (références)</label><textarea id="a-ref" placeholder="ex. Kabardock, Cité des Arts, Sakifo…"></textarea>
+      <label>Disponibilités</label><input type="text" id="a-dispo" placeholder="ex. week-ends, à partir de mars…">
+      <button class="btn" id="save-artiste">Enregistrer ma fiche</button>
+    </div>
+
+    <div class="msg" id="espace-msg"></div>
+  </section>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+const SB_URL='https://acxfzftptzgdhaakldve.supabase.co'
+const SB_KEY='sb_publishable_7bsk8ewqRUebVTqLrqbiaQ_UX78uMfr'
+const sb=createClient(SB_URL, SB_KEY)
+
+const DISCIPLINES=['Maloya','Séga','Musique','Théâtre','Danse','Conte','Jeune public','Humour','DJ / électro','Cirque / rue']
+let signupType='lieu', profil=null, ficheId=null
+const $=id=>document.getElementById(id)
+const show=(el,on)=>el.classList.toggle('hide',!on)
+function flash(el,txt,ok){el.textContent=txt;el.className='msg '+(ok?'ok':'err')}
+
+// build discipline chips
+function buildChips(container){
+  container.innerHTML=''
+  DISCIPLINES.forEach(d=>{
+    const c=document.createElement('div');c.className='chip';c.textContent=d
+    c.onclick=()=>c.classList.toggle('on');container.appendChild(c)
+  })
+}
+function getChips(container){return [...container.querySelectorAll('.chip.on')].map(c=>c.textContent)}
+function setChips(container,vals){[...container.querySelectorAll('.chip')].forEach(c=>c.classList.toggle('on',(vals||[]).includes(c.textContent)))}
+buildChips($('l-disc')); buildChips($('a-disc'))
+
+// tabs
+$('tab-login').onclick=()=>{$('tab-login').classList.add('on');$('tab-signup').classList.remove('on');show($('form-login'),true);show($('form-signup'),false)}
+$('tab-signup').onclick=()=>{$('tab-signup').classList.add('on');$('tab-login').classList.remove('on');show($('form-login'),false);show($('form-signup'),true)}
+document.querySelectorAll('#form-signup .opt').forEach(o=>o.onclick=()=>{
+  document.querySelectorAll('#form-signup .opt').forEach(x=>x.classList.remove('on'));o.classList.add('on');signupType=o.dataset.type
+})
+
+// SIGN UP
+$('form-signup').addEventListener('submit',async e=>{
+  e.preventDefault()
+  const {data,error}=await sb.auth.signUp({
+    email:$('su-email').value.trim(), password:$('su-pass').value,
+    options:{data:{type:signupType, nom:$('su-nom').value.trim()}}
+  })
+  if(error){return flash($('auth-msg'),error.message,false)}
+  if(data.session){ await afterLogin(data.user) }
+  else { flash($('auth-msg'),"Compte créé ! Vérifie ta boîte mail pour confirmer, puis connecte-toi.",true) }
+})
+
+// LOGIN
+$('form-login').addEventListener('submit',async e=>{
+  e.preventDefault()
+  const {data,error}=await sb.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-pass').value})
+  if(error){return flash($('auth-msg'),error.message,false)}
+  await afterLogin(data.user)
+})
+
+async function ensureProfil(user){
+  let {data}=await sb.from('scene_profils').select('*').eq('id',user.id).maybeSingle()
+  if(!data){
+    const m=user.user_metadata||{}
+    const ins=await sb.from('scene_profils').insert({id:user.id,type:m.type||'artiste',nom:m.nom||'',email:user.email}).select().single()
+    data=ins.data
+  }
+  return data
+}
+
+async function loadFiche(){
+  const table=profil.type==='lieu'?'scene_lieux':'scene_artistes'
+  const {data}=await sb.from(table).select('*').eq('profil_id',profil.id).limit(1).maybeSingle()
+  if(!data){ficheId=null;return}
+  ficheId=data.id
+  if(profil.type==='lieu'){
+    $('l-nom').value=data.nom||'';$('l-type').value=data.type_lieu||'';$('l-zone').value=data.zone||''
+    $('l-commune').value=data.commune||'';$('l-jauge').value=data.jauge??'';$('l-desc').value=data.description||''
+    $('l-contact').value=data.contact||'';$('l-site').value=data.site_web||'';setChips($('l-disc'),data.disciplines)
+  }else{
+    $('a-nom').value=data.nom||'';$('a-bio').value=data.bio||'';$('a-video').value=data.video_url||''
+    $('a-zone').value=data.zone||'';$('a-tarif').value=data.tarif_indicatif||'';$('a-ref').value=data.references_jouees||''
+    $('a-dispo').value=data.dispo||'';setChips($('a-disc'),data.disciplines)
+  }
+}
+
+async function afterLogin(user){
+  profil=await ensureProfil(user)
+  show($('auth'),false);show($('espace'),true)
+  $('whoami').innerHTML=`${profil.nom||user.email} · <button class="link" id="logout">Déconnexion</button>`
+  $('logout').onclick=async()=>{await sb.auth.signOut();location.reload()}
+  const isLieu=profil.type==='lieu'
+  $('hello').textContent=isLieu?'Mon espace lieu':'Mon espace artiste'
+  $('espace-sub').textContent=isLieu?'Renseigne ta fiche : elle apparaîtra dans l’annuaire et tu pourras publier tes besoins.':'Renseigne ta fiche avec ta vidéo : c’est elle qui te rend visible des lieux.'
+  show($('form-lieu'),isLieu);show($('form-artiste'),!isLieu)
+  await loadFiche()
+}
+
+// SAVE LIEU
+$('save-lieu').onclick=async()=>{
+  const payload={profil_id:profil.id,nom:$('l-nom').value.trim(),type_lieu:$('l-type').value||null,zone:$('l-zone').value||null,
+    commune:$('l-commune').value.trim()||null,jauge:$('l-jauge').value?parseInt($('l-jauge').value):null,
+    disciplines:getChips($('l-disc')),description:$('l-desc').value.trim()||null,contact:$('l-contact').value.trim()||null,site_web:$('l-site').value.trim()||null}
+  if(!payload.nom)return flash($('espace-msg'),'Indique au moins le nom du lieu.',false)
+  const res=ficheId? await sb.from('scene_lieux').update(payload).eq('id',ficheId).select().single()
+                   : await sb.from('scene_lieux').insert(payload).select().single()
+  if(res.error)return flash($('espace-msg'),res.error.message,false)
+  ficheId=res.data.id;flash($('espace-msg'),'Fiche enregistrée ✓',true)
+}
+
+// SAVE ARTISTE
+$('save-artiste').onclick=async()=>{
+  const payload={profil_id:profil.id,nom:$('a-nom').value.trim(),disciplines:getChips($('a-disc')),
+    bio:$('a-bio').value.trim()||null,video_url:$('a-video').value.trim()||null,zone:$('a-zone').value||null,
+    tarif_indicatif:$('a-tarif').value.trim()||null,references_jouees:$('a-ref').value.trim()||null,dispo:$('a-dispo').value.trim()||null}
+  if(!payload.nom)return flash($('espace-msg'),'Indique au moins ton nom d’artiste.',false)
+  const res=ficheId? await sb.from('scene_artistes').update(payload).eq('id',ficheId).select().single()
+                   : await sb.from('scene_artistes').insert(payload).select().single()
+  if(res.error)return flash($('espace-msg'),res.error.message,false)
+  ficheId=res.data.id;flash($('espace-msg'),'Fiche enregistrée ✓',true)
+}
+
+// boot
+;(async()=>{
+  const {data}=await sb.auth.getSession()
+  if(data.session){ await afterLogin(data.session.user) }
+  else { show($('auth'),true) }
+})()
+</script>
+</body>
+</html>
