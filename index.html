@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sén Péi — le pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,500;9..144,0,600;9..144,1,500;9..144,0,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --terre:#1F0F09; --terre2:#2C1810; --panel:#3A2417;
+    --ocre:#E89A3C; --safran:#F6BE54; --brique:#D2602F; --corail:#FF7A47;
+    --creme:#F8EFE1; --muet:#CBB099; --ligne:rgba(255,233,210,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--creme);background:var(--terre);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 32px}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12.5px;letter-spacing:2px;text-transform:uppercase;color:var(--safran);margin-bottom:20px}
+  .eyebrow span{width:7px;height:7px;border-radius:50%;background:var(--corail)}
+  h2{font-family:'Fraunces',serif;font-weight:600;font-size:40px;line-height:1.08;letter-spacing:-.5px;margin-bottom:22px}
+  p.lead{font-size:18px;line-height:1.65;color:#EAD9C5;max-width:680px}
+  .sig{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muet)}
+
+  /* HERO */
+  .hero{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden}
+  .hero .bg{position:absolute;inset:0}
+  .hero .bg img{width:100%;height:100%;object-fit:cover;object-position:center}
+  .hero .veil{position:absolute;inset:0;background:
+      linear-gradient(90deg, rgba(15,8,5,.92) 0%, rgba(15,8,5,.55) 42%, rgba(15,8,5,.12) 70%, rgba(15,8,5,.4) 100%),
+      linear-gradient(180deg, rgba(15,8,5,.5) 0%, transparent 30%, transparent 60%, var(--terre) 99%)}
+  .hero .wrap{position:relative;z-index:2;padding-top:40px;padding-bottom:60px}
+  .logo{font-family:'Fraunces',serif;font-weight:700;font-size:30px;letter-spacing:-.5px;
+    background:linear-gradient(92deg,var(--safran),var(--brique));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero h1{font-family:'Fraunces',serif;font-weight:600;font-size:62px;line-height:1.01;letter-spacing:-1.5px;margin:26px 0 20px}
+  .hero h1 em{font-style:italic;color:var(--safran)}
+  .hero .one{font-size:19px;line-height:1.6;color:#EFE0CD;max-width:560px;margin-bottom:30px}
+  .scroll{font-size:13px;color:var(--muet);letter-spacing:1px}
+
+  section.block{padding:84px 0;position:relative}
+  .alt{background:var(--terre2)}
+
+  /* constat */
+  .pains{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+  .pain{background:rgba(255,233,210,.04);border:1px solid var(--ligne);border-radius:16px;padding:24px}
+  .pain i{font-style:normal;font-size:26px;display:block;margin-bottom:12px}
+  .pain b{font-family:'Fraunces',serif;font-size:19px;font-weight:600;display:block;margin-bottom:7px}
+  .pain span{font-size:14.5px;color:var(--muet);line-height:1.5}
+
+  /* solution two faces */
+  .faces{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:34px}
+  .face{border:1px solid var(--ligne);border-radius:18px;padding:28px;background:rgba(255,233,210,.04)}
+  .face .ic{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:23px;margin-bottom:16px}
+  .face.lieu .ic{background:rgba(246,190,84,.16);color:var(--safran)}
+  .face.art .ic{background:rgba(255,122,71,.18);color:var(--corail)}
+  .face h3{font-family:'Fraunces',serif;font-size:23px;font-weight:600;margin-bottom:12px}
+  .face ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+  .face li{font-size:15px;color:#E6D4C0;position:relative;padding-left:18px;line-height:1.5}
+  .face li:before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--brique)}
+  .magnet{margin-top:22px;border:1px solid rgba(255,122,71,.35);background:rgba(255,122,71,.08);border-radius:16px;padding:22px 26px;display:flex;gap:16px;align-items:center}
+  .magnet .big{font-family:'Fraunces',serif;font-size:30px;color:var(--corail)}
+  .magnet b{font-size:17px;font-weight:600}.magnet p{font-size:14.5px;color:var(--muet);margin-top:3px}
+
+  /* unique cards */
+  .uniq{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+  .u{background:rgba(255,233,210,.04);border:1px solid var(--ligne);border-radius:16px;padding:26px}
+  .u .ic{font-size:28px;margin-bottom:14px}
+  .u b{font-family:'Fraunces',serif;font-size:19px;font-weight:600;display:block;margin-bottom:8px}
+  .u span{font-size:14.5px;color:var(--muet);line-height:1.55}
+
+  /* modele */
+  .modele{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:34px}
+  .mcard{border-radius:18px;padding:30px;border:1px solid var(--ligne)}
+  .mcard.free{background:rgba(246,190,84,.08)}
+  .mcard.pay{background:rgba(255,122,71,.10)}
+  .mtag{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+  .free .mtag{color:var(--safran)}.pay .mtag{color:var(--corail)}
+  .mcard h3{font-family:'Fraunces',serif;font-size:24px;font-weight:600;margin-bottom:10px}
+  .mcard p{font-size:15px;color:#E6D4C0;line-height:1.55}
+  .punch{font-family:'Fraunces',serif;font-style:italic;font-size:22px;color:var(--creme);text-align:center;margin-top:34px}
+
+  /* vision band */
+  .vision{position:relative;overflow:hidden;padding:96px 0}
+  .vision .bg{position:absolute;inset:0}
+  .vision .bg img{width:100%;height:100%;object-fit:cover;object-position:center}
+  .vision .veil{position:absolute;inset:0;background:linear-gradient(180deg,var(--terre) 0%, rgba(20,11,7,.72) 30%, rgba(20,11,7,.72) 70%, var(--terre) 100%)}
+  .vision .wrap{position:relative;z-index:2;text-align:center}
+  .vision h2{font-size:44px}.vision p.lead{margin:0 auto}
+
+  /* CTA */
+  .cta{text-align:center;padding:96px 0 60px}
+  .cta h2{font-size:50px}
+  .btn{display:inline-block;margin-top:26px;background:linear-gradient(92deg,var(--brique),var(--safran));color:#2a1206;border-radius:14px;padding:16px 34px;font-size:17px;font-weight:600;text-decoration:none}
+  footer{border-top:1px solid var(--ligne);padding:30px 0;text-align:center}
+  footer .logo{font-size:22px}
+  @media(max-width:760px){.pains,.faces,.uniq,.modele{grid-template-columns:1fr}.hero h1{font-size:44px}h2{font-size:30px}}
+</style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="bg"><img src="assets/scene-1.png" alt=""></div>
+    <div class="veil"></div>
+    <div class="wrap">
+      <div class="logo">Sén Péi</div>
+      <div class="sig" style="margin-top:5px">un Monde Pixie</div>
+      <h1>Trouve ta scène.<br>Trouve tes <em>artistes</em>.</h1>
+      <p class="one">Sén Péi réunit les lieux qui programment et les artistes péi qui créent — au même endroit, enfin.</p>
+      <div class="scroll">↓ le projet en une page</div>
+    </div>
+  </header>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="eyebrow"><span></span> Le constat</div>
+      <h2>La scène péi se cherche à l'aveugle</h2>
+      <p class="lead">Artistes et lieux passent leur temps à se rater. Tout repose sur le réseau perso et le bouche-à-oreille — et les annuaires nationaux, eux, ignorent l'île ou périment aussitôt.</p>
+      <div class="pains">
+        <div class="pain"><i>🎤</i><b>Les artistes</b><span>galèrent à décrocher des dates et à savoir qui programme quoi.</span></div>
+        <div class="pain"><i>🎟️</i><b>Les lieux</b><span>galèrent à trouver les bons artistes, au bon moment, au bon niveau.</span></div>
+        <div class="pain"><i>🗂️</i><b>Les fichiers</b><span>nationaux oublient l'Outre-mer et sont morts à peine achetés.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block alt">
+    <div class="wrap">
+      <div class="eyebrow"><span></span> La solution</div>
+      <h2>Une place de marché vivante de la scène</h2>
+      <p class="lead">Les acteurs eux-mêmes font vivre la base — donc elle reste toujours à jour.</p>
+      <div class="faces">
+        <div class="face lieu">
+          <div class="ic">♪</div>
+          <h3>Côté lieux</h3>
+          <ul>
+            <li>Salles, festivals, <b style="font-weight:500">bars, kabars</b> — inscription gratuite</li>
+            <li>Une fiche qu'ils tiennent eux-mêmes à jour</li>
+            <li>Ils publient leurs <b style="font-weight:500">besoins</b> : « je cherche tel spectacle, pour mars »</li>
+          </ul>
+        </div>
+        <div class="face art">
+          <div class="ic">★</div>
+          <h3>Côté artistes</h3>
+          <ul>
+            <li>Une fiche avec <b style="font-weight:500">leur vidéo</b></li>
+            <li>Ils repèrent les bons lieux et les <b style="font-weight:500">contactent</b></li>
+            <li>Ils répondent aux appels et <b style="font-weight:500">suivent leurs relances</b></li>
+          </ul>
+        </div>
+      </div>
+      <div class="magnet">
+        <div class="big">🧲</div>
+        <div><b>Le mur des besoins</b><p>La demande active, en direct. Le cœur de Sén Péi — et ce qu'on ne trouve nulle part ailleurs.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="eyebrow"><span></span> Notre force</div>
+      <h2>Ce que personne d'autre ne fait</h2>
+      <div class="uniq">
+        <div class="u"><div class="ic">🧲</div><b>La demande active</b><span>Le mur des besoins : impossible à googler, impossible à copier.</span></div>
+        <div class="u"><div class="ic">📍</div><b>Local & à jour</b><span>100 % péi, tenu vivant par les lieux — là où le national est mort.</span></div>
+        <div class="u"><div class="ic">🎬</div><b>Qualité garantie</b><span>Fiche payante + vidéo obligatoire. Et PIX-I-ART filme les artistes qui veulent briller.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block alt">
+    <div class="wrap">
+      <div class="eyebrow"><span></span> Le modèle</div>
+      <h2>La curation <em style="font-family:'Fraunces',serif;font-style:italic;color:var(--safran)">est</em> le modèle</h2>
+      <div class="modele">
+        <div class="mcard free">
+          <div class="mtag">Gratuit</div>
+          <h3>Pour les lieux</h3>
+          <p>Salles comme bars s'inscrivent librement. C'est ce qui remplit la base et fait naître les besoins.</p>
+        </div>
+        <div class="mcard pay">
+          <div class="mtag">Abonnement</div>
+          <h3>Pour les artistes</h3>
+          <p>Fiche + vidéo + contact + suivi. Le ticket d'entrée finance la plateforme… et filtre la qualité.</p>
+        </div>
+      </div>
+      <p class="punch">Ce qui garantit la qualité est exactement ce qui fait vivre le projet.</p>
+    </div>
+  </section>
+
+  <section class="vision">
+    <div class="bg"><img src="assets/scene-3.png" alt=""></div>
+    <div class="veil"></div>
+    <div class="wrap">
+      <div class="eyebrow" style="justify-content:center"><span></span> La vision</div>
+      <h2>Le premier Monde de la scène</h2>
+      <p class="lead">Sén Péi est le premier « Monde Pixie » culturel. Le même moteur se répliquera demain à d'autres scènes et d'autres territoires. Un carnet d'adresses qui périme devient un réseau vivant — et cette base, construite par ceux qui la font tourner, n'appartient qu'à nous.</p>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap">
+      <h2>Monte sur scène.</h2>
+      <p class="lead" style="margin:14px auto 0">Lieux, bars, artistes — rejoignez la scène vivante de La Réunion.</p>
+      <a class="btn" href="#">Rejoindre Sén Péi</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="logo">Sén Péi</div>
+    <div class="sig" style="margin-top:6px">un Monde Pixie · La Réunion</div>
+  </footer>
+
+</body>
+</html>
