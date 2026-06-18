@@ -141,8 +141,8 @@
         </div>
       </div>
       <div class="row">
-        <div><label>Commune</label><input type="text" id="l-commune"></div>
-        <div><label>Jauge (nb de places)</label><input type="number" id="l-jauge" min="0"></div>
+        <div><label>Commune</label><select id="l-commune"></select></div>
+        <div><label>Jauge (places)</label><select id="l-jauge"></select></div>
       </div>
       <label>Ce que vous programmez</label>
       <div class="chips" id="l-disc"></div>
@@ -167,10 +167,10 @@
         <div><label>Zone</label>
           <select id="a-zone"><option value="">—</option><option>Nord</option><option>Sud</option><option>Est</option><option>Ouest</option><option>Toute l'île</option></select>
         </div>
-        <div><label>Tarif indicatif</label><input type="text" id="a-tarif" placeholder="ex. à partir de…"></div>
+        <div><label>Tarif indicatif</label><select id="a-tarif"></select></div>
       </div>
       <label>Où avez-vous déjà joué ? (références)</label><textarea id="a-ref" placeholder="ex. Kabardock, Cité des Arts, Sakifo…"></textarea>
-      <label>Disponibilités</label><input type="text" id="a-dispo" placeholder="ex. week-ends, à partir de mars…">
+      <label>Disponibilités</label><select id="a-dispo"></select>
       <button class="btn" id="save-artiste">Enregistrer ma fiche</button>
     </div>
 
@@ -186,8 +186,8 @@
     <div id="new-appel-form" class="hide" style="margin-top:16px">
       <label>Titre de l'appel</label><input type="text" id="ap-titre" placeholder="ex. Duo pour apéros-concerts du vendredi">
       <div class="row">
-        <div><label>Discipline recherchée</label><input type="text" id="ap-disc" placeholder="ex. Musique / maloya"></div>
-        <div><label>Période</label><input type="text" id="ap-periode" placeholder="ex. Mars 2026"></div>
+        <div><label>Discipline recherchée</label><select id="ap-disc"></select></div>
+        <div><label>Période</label><select id="ap-periode"></select></div>
       </div>
       <div class="row">
         <div><label>Date limite de candidature</label><input type="date" id="ap-limite"></div>
@@ -235,6 +235,17 @@ function getChips(container){return [...container.querySelectorAll('.chip.on')].
 function setChips(container,vals){[...container.querySelectorAll('.chip')].forEach(c=>c.classList.toggle('on',(vals||[]).includes(c.textContent)))}
 buildChips($('l-disc')); buildChips($('a-disc'))
 
+// listes pour les menus déroulants (le moins de saisie possible)
+const COMMUNES=['Saint-Denis','Sainte-Marie','Sainte-Suzanne','Saint-André','Bras-Panon','Salazie','Saint-Benoît','La Plaine-des-Palmistes','Sainte-Rose','Saint-Philippe','Saint-Joseph','Petite-Île','Saint-Pierre','Le Tampon','Entre-Deux',"L'Étang-Salé",'Saint-Louis','Cilaos','Les Avirons','Saint-Leu','Trois-Bassins','Saint-Paul','Le Port','La Possession']
+const JAUGES=[{v:'50',t:'≤ 50'},{v:'100',t:'~ 100'},{v:'150',t:'~ 150'},{v:'200',t:'~ 200'},{v:'300',t:'~ 300'},{v:'500',t:'~ 500'},{v:'800',t:'~ 800'},{v:'1500',t:'1000+'}]
+const PERIODES=['Juin 2026','Juillet 2026','Août 2026','Septembre 2026','Octobre 2026','Novembre 2026','Décembre 2026','Début 2027','Récurrent','Flexible']
+const TARIFS=['Sur devis','Bénévole / défraiement','< 300 €','300–600 €','600–1000 €','1000 €+']
+const DISPOS=['Week-ends','En semaine','Soirs','Vacances scolaires','Toute période','Sur demande']
+function fillSelect(id,items,ph){const s=$(id);if(!s)return;s.innerHTML='';const o0=document.createElement('option');o0.value='';o0.textContent=ph||'—';s.appendChild(o0);items.forEach(it=>{const o=document.createElement('option');if(it&&typeof it==='object'){o.value=it.v;o.textContent=it.t}else{o.value=it;o.textContent=it}s.appendChild(o)})}
+fillSelect('l-commune',COMMUNES,'Choisir…');fillSelect('l-jauge',JAUGES,'Choisir…')
+fillSelect('ap-disc',DISCIPLINES,'Choisir…');fillSelect('ap-periode',PERIODES,'Choisir…')
+fillSelect('a-tarif',TARIFS,'Choisir…');fillSelect('a-dispo',DISPOS,'Choisir…')
+
 // tabs
 $('tab-login').onclick=()=>{$('tab-login').classList.add('on');$('tab-signup').classList.remove('on');show($('form-login'),true);show($('form-signup'),false)}
 $('tab-signup').onclick=()=>{$('tab-signup').classList.add('on');$('tab-login').classList.remove('on');show($('form-login'),false);show($('form-signup'),true)}
@@ -249,7 +260,7 @@ $('form-signup').addEventListener('submit',async e=>{
     email:$('su-email').value.trim(), password:$('su-pass').value,
     options:{data:{type:signupType, nom:$('su-nom').value.trim()}}
   })
-  if(error){return flash($('auth-msg'),error.message,false)}
+  if(error){return flash($('auth-msg'),error.message||"Une erreur est survenue. Réessaie dans un instant.",false)}
   if(data.session){ await afterLogin(data.user) }
   else { flash($('auth-msg'),"Compte créé ! Vérifie ta boîte mail pour confirmer, puis connecte-toi.",true) }
 })
@@ -258,7 +269,7 @@ $('form-signup').addEventListener('submit',async e=>{
 $('form-login').addEventListener('submit',async e=>{
   e.preventDefault()
   const {data,error}=await sb.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-pass').value})
-  if(error){return flash($('auth-msg'),error.message,false)}
+  if(error){return flash($('auth-msg'),error.message||"Une erreur est survenue. Réessaie dans un instant.",false)}
   await afterLogin(data.user)
 })
 
