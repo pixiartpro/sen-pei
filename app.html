@@ -59,6 +59,23 @@
   .msg.err{display:block;background:rgba(226,75,74,.12);border:1px solid rgba(226,75,74,.4);color:#f3b4b4}
   .hide{display:none}
   .hint{font-size:12.5px;color:var(--muet);margin-top:6px}
+  .appel{border:1px solid var(--ligne);border-radius:13px;padding:16px;margin-top:12px}
+  .appel-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .appel-h b{font-size:15.5px;font-family:'Fraunces',serif}
+  .appel-actions{display:flex;gap:14px;margin-top:11px;flex-wrap:wrap;align-items:center}
+  .badge{font-size:11px;padding:3px 10px;border-radius:999px;background:rgba(255,233,210,.1);text-transform:capitalize}
+  .badge.ouvert,.badge.retenu{background:rgba(120,190,130,.18);color:#cdeccf}
+  .badge.pourvu,.badge.clos,.badge.refuse{background:rgba(226,75,74,.15);color:#f3b4b4}
+  .badge.envoye,.badge.vu{background:rgba(246,190,84,.16);color:var(--safran)}
+  .cand{border:1px solid var(--ligne);border-radius:11px;padding:13px;margin-top:10px;background:rgba(255,233,210,.03)}
+  .cand b{font-size:15px}
+  .cand-msg{font-size:14px;color:#E6D4C0;margin-top:7px;line-height:1.45;background:rgba(255,233,210,.04);padding:9px 11px;border-radius:9px}
+  .cand-zone{margin-top:10px}
+  .vlink{display:inline-block;margin-top:8px;color:var(--corail);font-size:13.5px;text-decoration:none}
+  .mini{border:1px solid var(--ligne);background:transparent;color:var(--creme);border-radius:9px;padding:7px 14px;font-size:13px;cursor:pointer}
+  .mini.ok{border-color:rgba(120,190,130,.5);color:#cdeccf}
+  .cand-form{display:flex;gap:8px;margin-top:11px}
+  .cand-input{flex:1}
 </style>
 </head>
 <body>
@@ -156,6 +173,39 @@
 
     <div class="msg" id="espace-msg"></div>
   </section>
+
+  <!-- APPELS — côté LIEU -->
+  <section id="lieu-appels" class="card hide">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+      <h2 style="margin-bottom:0">Mes appels à candidature</h2>
+      <button class="link" id="toggle-new-appel">+ Nouvel appel</button>
+    </div>
+    <div id="new-appel-form" class="hide" style="margin-top:16px">
+      <label>Titre de l'appel</label><input type="text" id="ap-titre" placeholder="ex. Duo pour apéros-concerts du vendredi">
+      <div class="row">
+        <div><label>Discipline recherchée</label><input type="text" id="ap-disc" placeholder="ex. Musique / maloya"></div>
+        <div><label>Période</label><input type="text" id="ap-periode" placeholder="ex. Mars 2026"></div>
+      </div>
+      <div class="row">
+        <div><label>Date limite de candidature</label><input type="date" id="ap-limite"></div>
+        <div><label>Jauge</label><input type="number" id="ap-jauge" min="0"></div>
+      </div>
+      <label>Description</label><textarea id="ap-desc" placeholder="Détaillez ce que vous cherchez…"></textarea>
+      <button class="btn" id="publish-appel">Publier l'appel</button>
+    </div>
+    <div id="appels-list" style="margin-top:14px"></div>
+    <div class="msg" id="appels-msg"></div>
+  </section>
+
+  <!-- APPELS — côté ARTISTE -->
+  <section id="artiste-appels" class="card hide">
+    <h2>Les appels ouverts</h2>
+    <p class="sub" style="margin-bottom:8px">Réponds aux lieux qui cherchent des artistes.</p>
+    <div id="open-appels-list"></div>
+    <div class="msg" id="artiste-appels-msg"></div>
+    <h2 style="margin-top:26px">Mes candidatures</h2>
+    <div id="my-candidatures-list"></div>
+  </section>
 </div>
 
 <script type="module">
@@ -245,6 +295,8 @@ async function afterLogin(user){
   $('espace-sub').textContent=isLieu?'Renseigne ta fiche : elle apparaîtra dans l’annuaire et tu pourras publier tes besoins.':'Renseigne ta fiche avec ta vidéo : c’est elle qui te rend visible des lieux.'
   show($('form-lieu'),isLieu);show($('form-artiste'),!isLieu)
   await loadFiche()
+  if(isLieu){ show($('lieu-appels'),true); await loadLieuAppels() }
+  else { show($('artiste-appels'),true); await loadMyCandidatures(); await loadOpenAppels() }
 }
 
 // SAVE LIEU
@@ -269,6 +321,98 @@ $('save-artiste').onclick=async()=>{
                    : await sb.from('scene_artistes').insert(payload).select().single()
   if(res.error)return flash($('espace-msg'),res.error.message,false)
   ficheId=res.data.id;flash($('espace-msg'),'Fiche enregistrée ✓',true)
+}
+
+// ===== APPELS À CANDIDATURE =====
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
+
+// --- côté LIEU ---
+$('toggle-new-appel').onclick=()=>show($('new-appel-form'),$('new-appel-form').classList.contains('hide'))
+$('publish-appel').onclick=async()=>{
+  if(!ficheId)return flash($('appels-msg'),"Enregistre d'abord ta fiche lieu, puis publie un appel.",false)
+  const titre=$('ap-titre').value.trim()
+  if(!titre)return flash($('appels-msg'),"Donne un titre à ton appel.",false)
+  const payload={lieu_id:ficheId,titre,discipline:$('ap-disc').value.trim()||null,periode:$('ap-periode').value.trim()||null,
+    date_limite:$('ap-limite').value||null,jauge:$('ap-jauge').value?parseInt($('ap-jauge').value):null,
+    commune:$('l-commune').value.trim()||null,description:$('ap-desc').value.trim()||null,statut:'ouvert'}
+  const res=await sb.from('scene_besoins').insert(payload).select().single()
+  if(res.error)return flash($('appels-msg'),res.error.message,false)
+  ;['ap-titre','ap-disc','ap-periode','ap-limite','ap-jauge','ap-desc'].forEach(i=>$(i).value='')
+  show($('new-appel-form'),false);flash($('appels-msg'),'Appel publié ✓',true);await loadLieuAppels()
+}
+
+async function loadLieuAppels(){
+  if(!ficheId){$('appels-list').innerHTML='<p class="hint">Enregistre ta fiche lieu pour pouvoir publier des appels.</p>';return}
+  const {data}=await sb.from('scene_besoins').select('*').eq('lieu_id',ficheId).order('created_at',{ascending:false})
+  if(!data||!data.length){$('appels-list').innerHTML='<p class="hint">Aucun appel pour l’instant.</p>';return}
+  $('appels-list').innerHTML=data.map(b=>`
+    <div class="appel">
+      <div class="appel-h"><b>${esc(b.titre)}</b><span class="badge ${b.statut}">${b.statut}</span></div>
+      <div class="hint">${[b.discipline,b.periode,b.date_limite?('limite '+b.date_limite):null,b.jauge?('jauge '+b.jauge):null].filter(Boolean).map(esc).join(' · ')}</div>
+      <div class="appel-actions">
+        <button class="link" data-cand="${b.id}">Voir les candidatures</button>
+        ${b.statut==='ouvert'?`<button class="link" data-pourvu="${b.id}">Marquer pourvu</button>`:''}
+      </div>
+      <div class="cand-zone hide" id="cand-${b.id}"></div>
+    </div>`).join('')
+  $('appels-list').querySelectorAll('[data-cand]').forEach(btn=>btn.onclick=()=>loadCandidatures(btn.dataset.cand))
+  $('appels-list').querySelectorAll('[data-pourvu]').forEach(btn=>btn.onclick=async()=>{
+    await sb.from('scene_besoins').update({statut:'pourvu'}).eq('id',btn.dataset.pourvu);await loadLieuAppels()
+  })
+}
+
+async function loadCandidatures(besoinId){
+  const zone=$('cand-'+besoinId);show(zone,true)
+  const {data}=await sb.from('scene_reponses').select('*, scene_artistes(nom, video_url, disciplines)').eq('besoin_id',besoinId).order('created_at',{ascending:false})
+  if(!data||!data.length){zone.innerHTML='<p class="hint">Pas encore de candidature.</p>';return}
+  zone.innerHTML=data.map(r=>{const a=r.scene_artistes||{};return `
+    <div class="cand">
+      <div><b>${esc(a.nom||'Artiste')}</b> <span class="badge ${r.statut}">${r.statut}</span></div>
+      ${(a.disciplines&&a.disciplines.length)?`<div class="hint">${esc(a.disciplines.join(', '))}</div>`:''}
+      ${r.message?`<div class="cand-msg">${esc(r.message)}</div>`:''}
+      ${a.video_url?`<a class="vlink" href="${esc(a.video_url)}" target="_blank" rel="noopener">▶ voir la vidéo</a>`:''}
+      <div class="appel-actions">
+        <button class="mini ok" data-ret="${r.id}">Retenir</button>
+        <button class="mini" data-ref="${r.id}">Refuser</button>
+      </div>
+    </div>`}).join('')
+  zone.querySelectorAll('[data-ret]').forEach(b=>b.onclick=async()=>{await sb.from('scene_reponses').update({statut:'retenu'}).eq('id',b.dataset.ret);await loadCandidatures(besoinId)})
+  zone.querySelectorAll('[data-ref]').forEach(b=>b.onclick=async()=>{await sb.from('scene_reponses').update({statut:'refuse'}).eq('id',b.dataset.ref);await loadCandidatures(besoinId)})
+}
+
+// --- côté ARTISTE ---
+let myCandBesoinIds=new Set()
+async function loadMyCandidatures(){
+  if(!ficheId){$('my-candidatures-list').innerHTML='<p class="hint">Crée et enregistre ta fiche artiste pour pouvoir candidater.</p>';myCandBesoinIds=new Set();return}
+  const {data}=await sb.from('scene_reponses').select('*, scene_besoins(titre, scene_lieux(nom))').eq('artiste_id',ficheId).order('created_at',{ascending:false})
+  myCandBesoinIds=new Set((data||[]).map(r=>r.besoin_id))
+  if(!data||!data.length){$('my-candidatures-list').innerHTML='<p class="hint">Tu n’as pas encore candidaté.</p>';return}
+  $('my-candidatures-list').innerHTML=data.map(r=>{const b=r.scene_besoins||{};const l=b.scene_lieux||{};return `
+    <div class="cand"><b>${esc(b.titre||'Appel')}</b> <span class="badge ${r.statut}">${r.statut}</span>${l.nom?`<div class="hint">${esc(l.nom)}</div>`:''}</div>`}).join('')
+}
+
+async function loadOpenAppels(){
+  const {data}=await sb.from('scene_besoins').select('*, scene_lieux(nom, commune)').eq('statut','ouvert').order('created_at',{ascending:false})
+  if(!data||!data.length){$('open-appels-list').innerHTML='<p class="hint">Aucun appel ouvert pour le moment.</p>';return}
+  $('open-appels-list').innerHTML=data.map(b=>{const l=b.scene_lieux||{};const already=myCandBesoinIds.has(b.id);return `
+    <div class="appel">
+      <div class="appel-h"><b>${esc(b.titre)}</b></div>
+      <div class="hint">${[l.nom,b.discipline,b.periode,b.date_limite?('limite '+b.date_limite):null].filter(Boolean).map(esc).join(' · ')}</div>
+      ${b.description?`<div class="cand-msg">${esc(b.description)}</div>`:''}
+      ${already?'<div class="hint" style="color:var(--safran)">✓ Tu as déjà candidaté</div>':`
+        <div class="cand-form"><input class="cand-input" id="msg-${b.id}" placeholder="Un mot pour te présenter…">
+        <button class="mini ok" data-postuler="${b.id}">Candidater</button></div>`}
+    </div>`}).join('')
+  $('open-appels-list').querySelectorAll('[data-postuler]').forEach(btn=>btn.onclick=()=>candidater(btn.dataset.postuler))
+}
+
+async function candidater(besoinId){
+  if(!ficheId)return flash($('artiste-appels-msg'),"Crée et enregistre ta fiche artiste d'abord.",false)
+  const inp=$('msg-'+besoinId);const msg=inp?inp.value.trim():''
+  const res=await sb.from('scene_reponses').insert({besoin_id:besoinId,artiste_id:ficheId,message:msg||null}).select().single()
+  if(res.error)return flash($('artiste-appels-msg'),res.error.message,false)
+  flash($('artiste-appels-msg'),'Candidature envoyée ✓',true)
+  await loadMyCandidatures();await loadOpenAppels()
 }
 
 // boot
