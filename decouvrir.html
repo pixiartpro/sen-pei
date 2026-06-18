@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sén Péi — découvrir la scène péi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,ital,wght@9..144,0,400;9..144,0,600;9..144,0,700;9..144,1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --terre:#1A0E08; --terre2:#27150D; --panel:#33200f;
+    --ocre:#E89A3C; --safran:#F6BE54; --brique:#D2602F; --corail:#FF7A47;
+    --creme:#F8EFE1; --muet:#C6AC95; --ligne:rgba(255,233,210,.13);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;color:var(--creme);background:var(--terre);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+  a{color:inherit;text-decoration:none}
+  header{display:flex;align-items:center;justify-content:space-between;padding:20px 0;position:relative;z-index:3}
+  .brand{display:flex;flex-direction:column;line-height:1}
+  .logo{font-family:'Fraunces',serif;font-weight:700;font-size:26px;background:linear-gradient(92deg,var(--safran),var(--brique));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sig{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muet);margin-top:3px}
+  nav a{font-size:14px;color:var(--creme);opacity:.9;margin-left:22px}
+  nav a.cta{border:1px solid var(--ligne);border-radius:999px;padding:9px 16px;opacity:1}
+
+  .hero{position:relative;overflow:hidden;border-radius:0}
+  .hero .bg{position:absolute;inset:0}
+  .hero .bg img{width:100%;height:100%;object-fit:cover}
+  .hero .veil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(15,8,5,.9) 0%,rgba(15,8,5,.55) 45%,rgba(15,8,5,.2) 75%,rgba(15,8,5,.45) 100%),linear-gradient(180deg,rgba(15,8,5,.4) 0%,transparent 35%,transparent 60%,var(--terre) 99%)}
+  .hero .inner{position:relative;z-index:2;padding:46px 0 40px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--safran);margin-bottom:16px}
+  .eyebrow span{width:7px;height:7px;border-radius:50%;background:var(--corail)}
+  h1{font-family:'Fraunces',serif;font-weight:600;font-size:50px;line-height:1.03;letter-spacing:-1px;margin-bottom:14px}
+  h1 em{font-style:italic;color:var(--safran)}
+  .lead{font-size:17px;color:#EAD9C5;max-width:540px;margin-bottom:26px;line-height:1.55}
+  .search{background:rgba(28,14,8,.6);border:1px solid var(--ligne);border-radius:16px;padding:10px;display:grid;grid-template-columns:1fr 1fr 1.3fr auto;gap:9px;backdrop-filter:blur(8px);max-width:760px}
+  .fld{display:flex;flex-direction:column;gap:3px;padding:7px 11px;border-radius:11px}
+  .fld label{font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muet)}
+  .fld select,.fld input{background:transparent;border:none;color:var(--creme);font-size:15px;padding:2px 0;outline:none;width:100%}
+  .fld select option{background:#27150D}
+  .go{background:linear-gradient(92deg,var(--brique),var(--safran));color:#2a1206;border:none;border-radius:12px;padding:0 20px;font-size:15px;font-weight:600;cursor:pointer}
+
+  .tabs{display:flex;gap:10px;margin:30px 0 6px;flex-wrap:wrap}
+  .tabbtn{border:1px solid var(--ligne);background:transparent;color:var(--creme);border-radius:999px;padding:9px 18px;font-size:14px;cursor:pointer}
+  .tabbtn.on{background:rgba(246,190,84,.15);border-color:rgba(246,190,84,.4);color:var(--safran);font-weight:500}
+  .count{color:var(--muet);font-size:12px}
+
+  section.block{padding:18px 0 10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:14px}
+  .ccard{border:1px solid var(--ligne);border-radius:16px;padding:18px;background:linear-gradient(180deg,rgba(255,233,210,.04),transparent)}
+  .ccard .nom{font-family:'Fraunces',serif;font-size:19px;font-weight:600}
+  .ccard .meta{font-size:12.5px;color:var(--muet);margin-top:4px}
+  .ccard .desc{font-size:14px;color:#E6D4C0;margin-top:10px;line-height:1.5}
+  .tagrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .tg{font-size:11.5px;padding:3px 10px;border-radius:999px;background:rgba(255,233,210,.07)}
+  .tg.kind{background:rgba(246,190,84,.14);color:var(--safran)}
+  .tg.kindb{background:rgba(255,122,71,.16);color:var(--corail)}
+  .vlink{display:inline-block;margin-top:12px;color:var(--corail);font-size:13.5px}
+  .besoin-card{border:1px solid rgba(255,122,71,.3);background:rgba(255,122,71,.06)}
+  .empty{border:1px dashed var(--ligne);border-radius:16px;padding:28px;text-align:center;color:var(--muet);margin-top:14px}
+  .empty b{color:var(--creme);font-family:'Fraunces',serif;font-weight:600;display:block;font-size:18px;margin-bottom:6px}
+  .empty a{color:var(--safran)}
+  h2{font-family:'Fraunces',serif;font-weight:600;font-size:24px;display:flex;align-items:baseline;gap:10px}
+  footer{border-top:1px solid var(--ligne);margin-top:40px;padding:26px 0;text-align:center;color:var(--muet);font-size:13px}
+  .hidesec{display:none}
+  @media(max-width:640px){.search{grid-template-columns:1fr 1fr;}.go{grid-column:1/-1;padding:12px}h1{font-size:36px}}
+</style>
+</head>
+<body>
+  <section class="hero">
+    <div class="bg"><img src="assets/scene-1.png" alt=""></div>
+    <div class="veil"></div>
+    <div class="wrap">
+      <header>
+        <div class="brand"><div class="logo">Sén Péi</div><div class="sig">un Monde Pixie</div></div>
+        <nav><a href="./">Le projet</a><a class="cta" href="app.html">Mon espace</a></nav>
+      </header>
+      <div class="inner">
+        <div class="eyebrow"><span></span> La scène vivante de La Réunion</div>
+        <h1>Trouve ta scène.<br>Trouve tes <em>artistes</em>.</h1>
+        <p class="lead">Lieux, bars, festivals et artistes péi, réunis au même endroit. Cherche, découvre, mets-toi en relation.</p>
+        <div class="search">
+          <div class="fld"><label>Zone</label>
+            <select id="f-zone"><option value="">Toute l'île</option><option>Nord</option><option>Sud</option><option>Est</option><option>Ouest</option></select>
+          </div>
+          <div class="fld"><label>Discipline</label>
+            <select id="f-disc"><option value="">Toutes</option></select>
+          </div>
+          <div class="fld"><label>Recherche</label><input id="f-text" placeholder="un nom, un mot-clé…"></div>
+          <button class="go" id="f-go">Chercher</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tabbtn on" data-tab="appels">📣 Appels ouverts</button>
+      <button class="tabbtn" data-tab="lieux">🏛️ Lieux &amp; bars</button>
+      <button class="tabbtn" data-tab="artistes">🎤 Artistes</button>
+    </div>
+
+    <section class="block" id="sec-appels">
+      <h2>Appels à candidature <span class="count" id="c-appels"></span></h2>
+      <div class="grid" id="g-appels"></div>
+    </section>
+    <section class="block hidesec" id="sec-lieux">
+      <h2>Lieux &amp; bars <span class="count" id="c-lieux"></span></h2>
+      <div class="grid" id="g-lieux"></div>
+    </section>
+    <section class="block hidesec" id="sec-artistes">
+      <h2>Artistes <span class="count" id="c-artistes"></span></h2>
+      <div class="grid" id="g-artistes"></div>
+    </section>
+  </div>
+
+  <footer>
+    Sén Péi — un Monde Pixie · La Réunion · <a href="app.html" style="color:var(--safran)">Rejoindre la scène →</a>
+  </footer>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+const sb=createClient('https://acxfzftptzgdhaakldve.supabase.co','sb_publishable_7bsk8ewqRUebVTqLrqbiaQ_UX78uMfr')
+const DISCIPLINES=['Maloya','Séga','Musique','Théâtre','Danse','Conte','Jeune public','Humour','DJ / électro','Cirque / rue']
+const $=id=>document.getElementById(id)
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
+let LIEUX=[],ARTISTES=[],APPELS=[]
+
+DISCIPLINES.forEach(d=>{const o=document.createElement('option');o.textContent=d;$('f-disc').appendChild(o)})
+
+// tabs
+document.querySelectorAll('.tabbtn').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tabbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on')
+  ;['appels','lieux','artistes'].forEach(t=>$('sec-'+t).classList.toggle('hidesec',t!==b.dataset.tab))
+})
+
+function filt(){return {zone:$('f-zone').value,disc:$('f-disc').value,txt:$('f-text').value.trim().toLowerCase()}}
+function matchTxt(s,t){return !t||(s||'').toLowerCase().includes(t)}
+
+function render(){
+  const f=filt()
+  // appels
+  const ap=APPELS.filter(b=>{const l=b.scene_lieux||{};return (!f.zone||l.zone===f.zone)&&(!f.disc||matchTxt(b.discipline,f.disc.toLowerCase()))&&(matchTxt(b.titre,f.txt)||matchTxt(b.description,f.txt)||matchTxt(l.nom,f.txt))})
+  $('c-appels').textContent=ap.length?`(${ap.length})`:''
+  $('g-appels').innerHTML=ap.length?ap.map(b=>{const l=b.scene_lieux||{};return `
+    <div class="ccard besoin-card">
+      <div class="nom">${esc(b.titre)}</div>
+      <div class="meta">${[l.nom,l.commune,b.periode,b.date_limite?('limite '+b.date_limite):null].filter(Boolean).map(esc).join(' · ')}</div>
+      ${b.description?`<div class="desc">${esc(b.description)}</div>`:''}
+      <div class="tagrow">${b.discipline?`<span class="tg kindb">${esc(b.discipline)}</span>`:''}${b.jauge?`<span class="tg">jauge ${b.jauge}</span>`:''}</div>
+    </div>`}).join(''):emptyBox('Aucun appel ouvert pour le moment.','Un lieu ? Publie ton premier appel')
+  // lieux
+  const lx=LIEUX.filter(l=>(!f.zone||l.zone===f.zone)&&(!f.disc||(l.disciplines||[]).includes(f.disc))&&(matchTxt(l.nom,f.txt)||matchTxt(l.description,f.txt)||matchTxt(l.commune,f.txt)))
+  $('c-lieux').textContent=lx.length?`(${lx.length})`:''
+  $('g-lieux').innerHTML=lx.length?lx.map(l=>`
+    <div class="ccard">
+      <div class="nom">${esc(l.nom)}</div>
+      <div class="meta">${[l.type_lieu,l.commune,l.zone,l.jauge?('jauge '+l.jauge):null].filter(Boolean).map(esc).join(' · ')}</div>
+      ${l.description?`<div class="desc">${esc(l.description)}</div>`:''}
+      <div class="tagrow">${(l.disciplines||[]).map(d=>`<span class="tg kind">${esc(d)}</span>`).join('')}</div>
+    </div>`).join(''):emptyBox('Aucun lieu inscrit pour le moment.','Inscris ton lieu')
+  // artistes
+  const ax=ARTISTES.filter(a=>(!f.zone||a.zone===f.zone||a.zone==='Toute l\'île')&&(!f.disc||(a.disciplines||[]).includes(f.disc))&&(matchTxt(a.nom,f.txt)||matchTxt(a.bio,f.txt)||matchTxt(a.references_jouees,f.txt)))
+  $('c-artistes').textContent=ax.length?`(${ax.length})`:''
+  $('g-artistes').innerHTML=ax.length?ax.map(a=>`
+    <div class="ccard">
+      <div class="nom">${esc(a.nom)}</div>
+      <div class="meta">${[a.zone,a.tarif_indicatif].filter(Boolean).map(esc).join(' · ')}</div>
+      ${a.bio?`<div class="desc">${esc(a.bio)}</div>`:''}
+      <div class="tagrow">${(a.disciplines||[]).map(d=>`<span class="tg kindb">${esc(d)}</span>`).join('')}</div>
+      ${a.video_url?`<a class="vlink" href="${esc(a.video_url)}" target="_blank" rel="noopener">▶ voir la vidéo</a>`:''}
+    </div>`).join(''):emptyBox('Aucun artiste inscrit pour le moment.','Crée ta fiche artiste')
+}
+function emptyBox(t,cta){return `<div class="empty"><b>${t}</b>Sois le premier : <a href="app.html">${cta} →</a></div>`}
+
+$('f-go').onclick=render
+$('f-text').addEventListener('keydown',e=>{if(e.key==='Enter')render()})
+$('f-zone').onchange=render;$('f-disc').onchange=render
+
+;(async()=>{
+  const [ra,rl,rt]=await Promise.all([
+    sb.from('scene_besoins').select('*, scene_lieux(nom, commune, zone)').eq('statut','ouvert').order('created_at',{ascending:false}),
+    sb.from('scene_lieux').select('*').order('created_at',{ascending:false}),
+    sb.from('scene_artistes').select('*').order('created_at',{ascending:false})
+  ])
+  APPELS=ra.data||[];LIEUX=rl.data||[];ARTISTES=rt.data||[]
+  render()
+})()
+</script>
+</body>
+</html>
