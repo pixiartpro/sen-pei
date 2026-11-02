@@ -3,10 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Ton espace Sén Péi : ta fiche, tes appels, tes candidatures.">
+<meta name="theme-color" content="#1A0E08">
+<meta property="og:site_name" content="Sén Péi — un Monde Pixie">
+<meta property="og:title" content="Mon espace — Sén Péi">
+<meta property="og:description" content="Ton espace Sén Péi : ta fiche, tes appels, tes candidatures.">
+<meta property="og:image" content="https://pixiartpro.github.io/sen-pei/assets/scene-1.png">
+<meta property="og:locale" content="fr_FR">
+<meta name="robots" content="noindex">
 <title>Sén Péi — mon espace</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="commun.css">
+<script>document.addEventListener('touchstart',function(){},{passive:true})</script>
 <style>
   :root{
     --terre:#1F0F09; --terre2:#2C1810; --panel:#33200f; --panel2:#3d2716;
@@ -339,6 +347,15 @@ $('save-artiste').onclick=async()=>{
 
 // ===== APPELS À CANDIDATURE =====
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
+// Lien saisi par un membre : on n'accepte que http(s), jamais javascript: ou data:
+function safeUrl(u){
+  u=(u||'').trim(); if(!u)return null
+  if(!/^[a-z][a-z0-9+.-]*:/i.test(u))u='https://'+u
+  try{const x=new URL(u);return /^https?:$/.test(x.protocol)&&x.hostname.includes('.')?x.href:null}catch(e){return null}
+}
+// Statut affiché en français ; classe CSS prise dans une liste fermée
+const STATUTS={ouvert:'ouvert',pourvu:'pourvu',clos:'clos',envoye:'envoyée',vu:'vue',retenu:'retenue ✓',refuse:'pas retenue'}
+const badge=st=>{const k=Object.hasOwn(STATUTS,st)?st:'';return `<span class="badge ${k}">${esc(STATUTS[st]||st||'envoyée')}</span>`}
 
 // --- côté LIEU ---
 $('toggle-new-appel').onclick=()=>show($('new-appel-form'),$('new-appel-form').classList.contains('hide'))
@@ -361,7 +378,7 @@ async function loadLieuAppels(){
   if(!data||!data.length){$('appels-list').innerHTML='<p class="hint">Aucun appel pour l’instant.</p>';return}
   $('appels-list').innerHTML=data.map(b=>`
     <div class="appel">
-      <div class="appel-h"><b>${esc(b.titre)}</b><span class="badge ${b.statut}">${b.statut}</span></div>
+      <div class="appel-h"><b>${esc(b.titre)}</b>${badge(b.statut)}</div>
       <div class="hint">${[b.discipline,b.periode,b.date_limite?('limite '+b.date_limite):null,b.jauge?('jauge '+b.jauge):null].filter(Boolean).map(esc).join(' · ')}</div>
       <div class="appel-actions">
         <button class="link" data-cand="${b.id}">Voir les candidatures</button>
@@ -381,10 +398,10 @@ async function loadCandidatures(besoinId){
   if(!data||!data.length){zone.innerHTML='<p class="hint">Pas encore de candidature.</p>';return}
   zone.innerHTML=data.map(r=>{const a=r.scene_artistes||{};return `
     <div class="cand">
-      <div><b>${esc(a.nom||'Artiste')}</b> <span class="badge ${r.statut}">${r.statut}</span></div>
+      <div><b>${esc(a.nom||'Artiste')}</b> ${badge(r.statut)}</div>
       ${(a.disciplines&&a.disciplines.length)?`<div class="hint">${esc(a.disciplines.join(', '))}</div>`:''}
       ${r.message?`<div class="cand-msg">${esc(r.message)}</div>`:''}
-      ${a.video_url?`<a class="vlink" href="${esc(a.video_url)}" target="_blank" rel="noopener">▶ voir la vidéo</a>`:''}
+      ${safeUrl(a.video_url)?`<a class="vlink" href="${esc(safeUrl(a.video_url))}" target="_blank" rel="noopener nofollow">▶ voir la vidéo</a>`:''}
       <div class="appel-actions">
         <button class="mini ok" data-ret="${r.id}">Retenir</button>
         <button class="mini" data-ref="${r.id}">Refuser</button>
@@ -402,7 +419,7 @@ async function loadMyCandidatures(){
   myCandBesoinIds=new Set((data||[]).map(r=>r.besoin_id))
   if(!data||!data.length){$('my-candidatures-list').innerHTML='<p class="hint">Tu n’as pas encore candidaté.</p>';return}
   $('my-candidatures-list').innerHTML=data.map(r=>{const b=r.scene_besoins||{};const l=b.scene_lieux||{};return `
-    <div class="cand"><b>${esc(b.titre||'Appel')}</b> <span class="badge ${r.statut}">${r.statut}</span>${l.nom?`<div class="hint">${esc(l.nom)}</div>`:''}</div>`}).join('')
+    <div class="cand"><b>${esc(b.titre||'Appel')}</b> ${badge(r.statut)}${l.nom?`<div class="hint">${esc(l.nom)}</div>`:''}</div>`}).join('')
 }
 
 async function loadOpenAppels(){

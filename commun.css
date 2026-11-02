@@ -1,0 +1,29 @@
+/* Sén Péi — socle commun aux 4 pages (un Monde Pixie) */
+
+/* Polices custom auto-hébergées (aucun appel à Google : RGPD + perf) */
+@font-face{font-family:'Fraunces';font-style:normal;font-weight:100 900;font-display:swap;
+  src:url('fonts/fraunces-var.woff2') format('woff2')}
+@font-face{font-family:'Fraunces';font-style:italic;font-weight:100 900;font-display:swap;
+  src:url('fonts/fraunces-var-italic.woff2') format('woff2')}
+@font-face{font-family:'Inter';font-style:normal;font-weight:100 900;font-display:swap;
+  src:url('fonts/inter-var.woff2') format('woff2')}
+
+/* Retour au toucher : part à l'appui, pas au relâchement */
+a,button,.btn,.cta,.go,.ccard{-webkit-tap-highlight-color:transparent}
+button,.btn,.cta,.go{transition:transform .15s ease-out}
+button:active,.btn:active,.cta:active,.go:active{transform:scale(.97)}
+
+/* Focus visible au clavier, à la couleur du monde */
+:focus-visible{outline:2px solid #F6BE54;outline-offset:3px;border-radius:6px}
+
+/* UNIVERSEL — mouvement réduit : on supprime le déplacement */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;transition-delay:0s !important;
+    animation-delay:0s !important;scroll-behavior:auto !important}
+}
+
+/* En-tête sur téléphone : les liens ne se cassent jamais sur deux lignes */
+nav a,.sig{white-space:nowrap}
+@media (max-width:420px){header nav a{margin-left:12px}header nav a.cta{padding-left:12px;padding-right:12px}}

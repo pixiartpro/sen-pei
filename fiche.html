@@ -3,10 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Une fiche lieu ou artiste de la scène réunionnaise, sur Sén Péi.">
+<meta name="theme-color" content="#1A0E08">
+<meta property="og:site_name" content="Sén Péi — un Monde Pixie">
+<meta property="og:title" content="Une fiche de la scène péi — Sén Péi">
+<meta property="og:description" content="Une fiche lieu ou artiste de la scène réunionnaise, sur Sén Péi.">
+<meta property="og:image" content="https://pixiartpro.github.io/sen-pei/assets/scene-1.png">
+<meta property="og:locale" content="fr_FR">
 <title>Sén Péi — fiche</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="commun.css">
+<script>document.addEventListener('touchstart',function(){},{passive:true})</script>
 <style>
   :root{
     --terre:#1A0E08; --terre2:#27150D; --panel:#33200f;
@@ -62,6 +69,13 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 const sb=createClient('https://acxfzftptzgdhaakldve.supabase.co','sb_publishable_7bsk8ewqRUebVTqLrqbiaQ_UX78uMfr')
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
+// Lien saisi par un membre : on n'accepte que http(s), jamais javascript: ou data:
+function safeUrl(u){
+  u=(u||'').trim(); if(!u)return null
+  if(!/^[a-z][a-z0-9+.-]*:/i.test(u))u='https://'+u
+  try{const x=new URL(u);return /^https?:$/.test(x.protocol)&&x.hostname.includes('.')?x.href:null}catch(e){return null}
+}
+const host=u=>{try{return new URL(u).host.replace(/^www\./,'')}catch(e){return u}}
 const p=new URLSearchParams(location.search)
 const type=p.get('type'), id=p.get('id')
 const C=document.getElementById('content')
@@ -79,9 +93,12 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
 ;(async()=>{
   if(!id||(type!=='lieu'&&type!=='artiste'))return notfound()
   const table=type==='lieu'?'scene_lieux':'scene_artistes'
-  const {data}=await sb.from(table).select('*').eq('id',id).maybeSingle()
+  const cols=type==='lieu'?'id,nom,type_lieu,commune,zone,jauge,disciplines,description,contact,site_web':'id,nom,disciplines,bio,zone,video_url,references_jouees,tarif_indicatif,dispo'
+  const {data}=await sb.from(table).select(cols).eq('id',id).maybeSingle()
   if(!data)return notfound()
-  document.title='Sén Péi — '+(data.nom||'fiche')
+  document.title=(data.nom||'Fiche')+' — Sén Péi'
+  const resume=(type==='lieu'?data.description:data.bio)||((type==='lieu'?'Lieu':'Artiste')+' de la scène péi, sur Sén Péi.')
+  document.querySelector('meta[name=description]').content=resume.slice(0,160)
 
   if(type==='lieu'){
     const {data:ap}=await sb.from('scene_besoins').select('*').eq('lieu_id',id).eq('statut','ouvert').order('created_at',{ascending:false})
@@ -93,7 +110,7 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
       <div class="tagrow">${(data.disciplines||[]).map(d=>`<span class="tg">${esc(d)}</span>`).join('')}</div>
       ${data.description?`<div class="desc">${esc(data.description)}</div>`:''}
       ${data.contact?`<div class="field"><div class="l">Contact</div><div class="v">${esc(data.contact)}</div></div>`:''}
-      ${data.site_web?`<div class="field"><div class="l">Site web</div><div class="v"><a href="${esc(data.site_web)}" target="_blank" rel="noopener" style="color:var(--safran)">${esc(data.site_web)}</a></div></div>`:''}
+      ${safeUrl(data.site_web)?`<div class="field"><div class="l">Site web</div><div class="v"><a href="${esc(safeUrl(data.site_web))}" target="_blank" rel="noopener nofollow" style="color:var(--safran)">${esc(host(safeUrl(data.site_web)))}</a></div></div>`:''}
     </div>
     ${appels?`<h2>Ses appels à candidature</h2>${appels}<a class="cta" href="app.html">Candidater (connecte-toi) →</a>`:''}`
   }else{
@@ -103,8 +120,8 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
       <h1>${esc(data.nom)}</h1>
       <div class="meta">${[data.zone,data.tarif_indicatif].filter(Boolean).map(esc).join(' · ')}</div>
       <div class="tagrow">${(data.disciplines||[]).map(d=>`<span class="tg">${esc(d)}</span>`).join('')}</div>
-      ${emb?`<div class="video"><iframe src="${emb}" allowfullscreen loading="lazy"></iframe></div>`
-        :(data.video_url?`<div class="field"><div class="l">Vidéo</div><div class="v"><a href="${esc(data.video_url)}" target="_blank" rel="noopener" style="color:var(--corail)">▶ ${esc(data.video_url)}</a></div></div>`:'')}
+      ${emb?`<div class="video"><iframe src="${emb}" title="Vidéo de ${esc(data.nom)}" allowfullscreen loading="lazy"></iframe></div>`
+        :(safeUrl(data.video_url)?`<div class="field"><div class="l">Vidéo</div><div class="v"><a href="${esc(safeUrl(data.video_url))}" target="_blank" rel="noopener nofollow" style="color:var(--corail)">▶ voir la vidéo (${esc(host(safeUrl(data.video_url)))})</a></div></div>`:'')}
       ${data.bio?`<div class="desc">${esc(data.bio)}</div>`:''}
       ${data.references_jouees?`<div class="field"><div class="l">Déjà joué à</div><div class="v">${esc(data.references_jouees)}</div></div>`:''}
       ${data.dispo?`<div class="field"><div class="l">Disponibilités</div><div class="v">${esc(data.dispo)}</div></div>`:''}
