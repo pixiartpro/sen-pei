@@ -183,6 +183,7 @@
     </div>
 
     <div class="msg" id="espace-msg"></div>
+    <a class="vlink hide" id="voir-fiche" href="#" target="_blank" rel="noopener">Voir ma fiche publique, comme les autres la voient →</a>
   </section>
 
   <!-- APPELS — côté LIEU -->
@@ -294,8 +295,8 @@ async function ensureProfil(user){
 async function loadFiche(){
   const table=profil.type==='lieu'?'scene_lieux':'scene_artistes'
   const {data}=await sb.from(table).select('*').eq('profil_id',profil.id).limit(1).maybeSingle()
-  if(!data){ficheId=null;return}
-  ficheId=data.id
+  if(!data){ficheId=null;majLienFiche();return}
+  ficheId=data.id;majLienFiche()
   if(profil.type==='lieu'){
     $('l-nom').value=data.nom||'';$('l-type').value=data.type_lieu||'';$('l-zone').value=data.zone||''
     $('l-commune').value=data.commune||'';$('l-jauge').value=data.jauge??'';$('l-desc').value=data.description||''
@@ -307,10 +308,16 @@ async function loadFiche(){
   }
 }
 
+// Lien vers la fiche publique dès qu'une fiche existe
+function majLienFiche(){
+  const a=$('voir-fiche');if(!ficheId)return show(a,false)
+  a.href=`fiche.html?type=${profil.type==='lieu'?'lieu':'artiste'}&id=${ficheId}`;show(a,true)
+}
+
 async function afterLogin(user){
   profil=await ensureProfil(user)
   show($('auth'),false);show($('espace'),true)
-  $('whoami').innerHTML=`${profil.nom||user.email} · <button class="link" id="logout">Déconnexion</button>`
+  $('whoami').innerHTML=`${esc(profil.nom||user.email)} · <button class="link" id="logout">Déconnexion</button>`
   $('logout').onclick=async()=>{await sb.auth.signOut();location.reload()}
   const isLieu=profil.type==='lieu'
   $('hello').textContent=isLieu?'Mon espace lieu':'Mon espace artiste'
@@ -330,7 +337,7 @@ $('save-lieu').onclick=async()=>{
   const res=ficheId? await sb.from('scene_lieux').update(payload).eq('id',ficheId).select().single()
                    : await sb.from('scene_lieux').insert(payload).select().single()
   if(res.error)return flash($('espace-msg'),res.error.message,false)
-  ficheId=res.data.id;flash($('espace-msg'),'Fiche enregistrée ✓',true)
+  ficheId=res.data.id;majLienFiche();flash($('espace-msg'),'Fiche enregistrée ✓',true)
 }
 
 // SAVE ARTISTE
@@ -342,7 +349,7 @@ $('save-artiste').onclick=async()=>{
   const res=ficheId? await sb.from('scene_artistes').update(payload).eq('id',ficheId).select().single()
                    : await sb.from('scene_artistes').insert(payload).select().single()
   if(res.error)return flash($('espace-msg'),res.error.message,false)
-  ficheId=res.data.id;flash($('espace-msg'),'Fiche enregistrée ✓',true)
+  ficheId=res.data.id;majLienFiche();flash($('espace-msg'),'Fiche enregistrée ✓',true)
 }
 
 // ===== APPELS À CANDIDATURE =====
@@ -354,6 +361,11 @@ function safeUrl(u){
   try{const x=new URL(u);return /^https?:$/.test(x.protocol)&&x.hostname.includes('.')?x.href:null}catch(e){return null}
 }
 // Statut affiché en français ; classe CSS prise dans une liste fermée
+// Date limite passée = appel clos pour le public ; dates lues en français (heure de La Réunion)
+const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'})
+const ouvert=b=>!b.date_limite||b.date_limite>=today
+const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'})
+const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
 const STATUTS={ouvert:'ouvert',pourvu:'pourvu',clos:'clos',envoye:'envoyée',vu:'vue',retenu:'retenue ✓',refuse:'pas retenue'}
 const badge=st=>{const k=Object.hasOwn(STATUTS,st)?st:'';return `<span class="badge ${k}">${esc(STATUTS[st]||st||'envoyée')}</span>`}
 
@@ -378,8 +390,8 @@ async function loadLieuAppels(){
   if(!data||!data.length){$('appels-list').innerHTML='<p class="hint">Aucun appel pour l’instant.</p>';return}
   $('appels-list').innerHTML=data.map(b=>`
     <div class="appel">
-      <div class="appel-h"><b>${esc(b.titre)}</b>${badge(b.statut)}</div>
-      <div class="hint">${[b.discipline,b.periode,b.date_limite?('limite '+b.date_limite):null,b.jauge?('jauge '+b.jauge):null].filter(Boolean).map(esc).join(' · ')}</div>
+      <div class="appel-h"><b>${esc(b.titre)}</b>${badge(b.statut==='ouvert'&&!ouvert(b)?'clos':b.statut)}</div>
+      <div class="hint">${[b.discipline,b.periode,limite(b),b.jauge?('jauge '+b.jauge):null].filter(Boolean).map(esc).join(' · ')}</div>
       <div class="appel-actions">
         <button class="link" data-cand="${b.id}">Voir les candidatures</button>
         ${b.statut==='ouvert'?`<button class="link" data-pourvu="${b.id}">Marquer pourvu</button>`:''}
@@ -402,12 +414,14 @@ async function loadCandidatures(besoinId){
       ${(a.disciplines&&a.disciplines.length)?`<div class="hint">${esc(a.disciplines.join(', '))}</div>`:''}
       ${r.message?`<div class="cand-msg">${esc(r.message)}</div>`:''}
       ${safeUrl(a.video_url)?`<a class="vlink" href="${esc(safeUrl(a.video_url))}" target="_blank" rel="noopener nofollow">▶ voir la vidéo</a>`:''}
-      <div class="appel-actions">
-        <button class="mini ok" data-ret="${r.id}">Retenir</button>
-        <button class="mini" data-ref="${r.id}">Refuser</button>
+      <div class="appel-actions">${(r.statut==='retenu'||r.statut==='refuse')
+        ?`<button class="link" data-annul="${r.id}">Revenir sur ma réponse</button>`
+        :`<button class="mini ok" data-ret="${r.id}">Retenir</button>
+        <button class="mini" data-ref="${r.id}">Refuser</button>`}
       </div>
     </div>`}).join('')
   zone.querySelectorAll('[data-ret]').forEach(b=>b.onclick=async()=>{await sb.from('scene_reponses').update({statut:'retenu'}).eq('id',b.dataset.ret);await loadCandidatures(besoinId)})
+  zone.querySelectorAll('[data-annul]').forEach(b=>b.onclick=async()=>{await sb.from('scene_reponses').update({statut:'vu'}).eq('id',b.dataset.annul);await loadCandidatures(besoinId)})
   zone.querySelectorAll('[data-ref]').forEach(b=>b.onclick=async()=>{await sb.from('scene_reponses').update({statut:'refuse'}).eq('id',b.dataset.ref);await loadCandidatures(besoinId)})
 }
 
@@ -423,12 +437,13 @@ async function loadMyCandidatures(){
 }
 
 async function loadOpenAppels(){
-  const {data}=await sb.from('scene_besoins').select('*, scene_lieux(nom, commune)').eq('statut','ouvert').order('created_at',{ascending:false})
-  if(!data||!data.length){$('open-appels-list').innerHTML='<p class="hint">Aucun appel ouvert pour le moment.</p>';return}
+  const {data:tous}=await sb.from('scene_besoins').select('*, scene_lieux(nom, commune)').eq('statut','ouvert').order('created_at',{ascending:false})
+  const data=(tous||[]).filter(ouvert)
+  if(!data.length){$('open-appels-list').innerHTML='<p class="hint">Aucun appel ouvert pour le moment.</p>';return}
   $('open-appels-list').innerHTML=data.map(b=>{const l=b.scene_lieux||{};const already=myCandBesoinIds.has(b.id);return `
     <div class="appel">
       <div class="appel-h"><b>${esc(b.titre)}</b></div>
-      <div class="hint">${[l.nom,b.discipline,b.periode,b.date_limite?('limite '+b.date_limite):null].filter(Boolean).map(esc).join(' · ')}</div>
+      <div class="hint">${[l.nom,b.discipline,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>
       ${b.description?`<div class="cand-msg">${esc(b.description)}</div>`:''}
       ${already?'<div class="hint" style="color:var(--safran)">✓ Tu as déjà candidaté</div>':`
         <div class="cand-form"><input class="cand-input" id="msg-${b.id}" placeholder="Un mot pour te présenter…">

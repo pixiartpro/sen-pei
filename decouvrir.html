@@ -133,6 +133,11 @@ const DISCIPLINES=['Maloya','Séga','Musique','Théâtre','Danse','Conte','Jeune
 const $=id=>document.getElementById(id)
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
 let LIEUX=[],ARTISTES=[],APPELS=[]
+// Date limite passée = appel clos pour le public ; dates lues en français (heure de La Réunion)
+const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'})
+const ouvert=b=>!b.date_limite||b.date_limite>=today
+const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'})
+const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
 
 DISCIPLINES.forEach(d=>{const o=document.createElement('option');o.textContent=d;$('f-disc').appendChild(o)})
 
@@ -153,7 +158,7 @@ function render(){
   $('g-appels').innerHTML=ap.length?ap.map(b=>{const l=b.scene_lieux||{};return `
     <div class="ccard besoin-card">
       <div class="nom">${esc(b.titre)}</div>
-      <div class="meta">${[l.nom,l.commune,b.periode,b.date_limite?('limite '+b.date_limite):null].filter(Boolean).map(esc).join(' · ')}</div>
+      <div class="meta">${[l.nom,l.commune,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>
       ${b.description?`<div class="desc">${esc(b.description)}</div>`:''}
       <div class="tagrow">${b.discipline?`<span class="tg kindb">${esc(b.discipline)}</span>`:''}${b.jauge?`<span class="tg">jauge ${b.jauge}</span>`:''}</div>
       <a class="vlink" href="fiche.html?type=lieu&id=${b.lieu_id}">Voir le lieu →</a>
@@ -190,10 +195,10 @@ $('f-zone').onchange=render;$('f-disc').onchange=render
 ;(async()=>{
   const [ra,rl,rt]=await Promise.all([
     sb.from('scene_besoins').select('*, scene_lieux(nom, commune, zone)').eq('statut','ouvert').order('created_at',{ascending:false}),
-    sb.from('scene_lieux').select('*').order('created_at',{ascending:false}),
-    sb.from('scene_artistes').select('*').order('created_at',{ascending:false})
+    sb.from('scene_lieux').select('id,nom,type_lieu,commune,zone,jauge,disciplines,description').order('created_at',{ascending:false}),
+    sb.from('scene_artistes').select('id,nom,disciplines,bio,zone,video_url,references_jouees,tarif_indicatif').order('created_at',{ascending:false})
   ])
-  APPELS=ra.data||[];LIEUX=rl.data||[];ARTISTES=rt.data||[]
+  APPELS=(ra.data||[]).filter(ouvert);LIEUX=rl.data||[];ARTISTES=rt.data||[]
   render()
 })()
 </script>

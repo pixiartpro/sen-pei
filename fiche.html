@@ -49,6 +49,10 @@
   .appel .m{font-size:12.5px;color:var(--muet);margin-top:4px}
   .cta{display:inline-block;margin-top:24px;background:linear-gradient(92deg,var(--brique),var(--safran));color:#2a1206;border-radius:12px;padding:13px 24px;font-size:15px;font-weight:600;text-decoration:none}
   .ghost{border-top:1px solid var(--ligne);margin-top:6px}
+  .share{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:none;border:1px solid var(--ligne);color:var(--creme);border-radius:999px;padding:10px 18px;font:500 14px 'Inter',system-ui,sans-serif;cursor:pointer}
+  .share:hover{border-color:var(--safran)}
+  .lien{display:block;width:100%;margin-top:10px;background:var(--terre2);border:1px solid var(--ligne);border-radius:10px;padding:10px 12px;color:var(--creme);font:14px 'Inter',system-ui,sans-serif}
+  .share.ok{color:var(--safran);border-color:var(--safran)}
   .loading,.notfound{padding:50px 0;text-align:center;color:var(--muet)}
   footer{border-top:1px solid var(--ligne);margin-top:34px;padding:24px 0;text-align:center;color:var(--muet);font-size:13px}
 </style>
@@ -75,6 +79,11 @@ function safeUrl(u){
   if(!/^[a-z][a-z0-9+.-]*:/i.test(u))u='https://'+u
   try{const x=new URL(u);return /^https?:$/.test(x.protocol)&&x.hostname.includes('.')?x.href:null}catch(e){return null}
 }
+// Date limite passée = appel clos pour le public ; dates lues en français (heure de La Réunion)
+const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'})
+const ouvert=b=>!b.date_limite||b.date_limite>=today
+const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'})
+const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
 const host=u=>{try{return new URL(u).host.replace(/^www\./,'')}catch(e){return u}}
 const p=new URLSearchParams(location.search)
 const type=p.get('type'), id=p.get('id')
@@ -87,6 +96,20 @@ function embed(url){
   const v=url.match(/vimeo\.com\/(?:video\/)?(\d+)/)
   if(v)return 'https://player.vimeo.com/video/'+v[1]
   return null
+}
+// Partager : feuille de partage du téléphone, sinon lien copié
+function partage(nom){
+  C.querySelector('.card').insertAdjacentHTML('beforeend','<button class="share" id="partager" type="button">↗ Partager cette fiche</button>')
+  const b=document.getElementById('partager')
+  b.onclick=async()=>{
+    const url=location.href.split('#')[0]
+    if(navigator.share){try{await navigator.share({title:(nom||'Une fiche')+' — Sén Péi',url})}catch(e){};return}
+    try{await navigator.clipboard.writeText(url);b.textContent='✓ Lien copié';b.classList.add('ok')}
+    catch(e){ // copie refusée : on montre le lien, sélectionné, prêt à copier
+      if(!document.getElementById('lien-fiche'))b.insertAdjacentHTML('afterend','<input class="lien" id="lien-fiche" readonly aria-label="Lien de la fiche">')
+      const i=document.getElementById('lien-fiche');i.value=url;i.focus();i.select()
+    }
+  }
 }
 function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a href="decouvrir.html" style="color:var(--safran)">Retour à Découvrir →</a></div>'}
 
@@ -102,7 +125,7 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
 
   if(type==='lieu'){
     const {data:ap}=await sb.from('scene_besoins').select('*').eq('lieu_id',id).eq('statut','ouvert').order('created_at',{ascending:false})
-    const appels=(ap||[]).map(b=>`<div class="appel"><b>${esc(b.titre)}</b><div class="m">${[b.discipline,b.periode,b.date_limite?('limite '+b.date_limite):null].filter(Boolean).map(esc).join(' · ')}</div>${b.description?`<div class="desc" style="margin-top:8px;font-size:14px">${esc(b.description)}</div>`:''}</div>`).join('')
+    const appels=(ap||[]).filter(ouvert).map(b=>`<div class="appel"><b>${esc(b.titre)}</b><div class="m">${[b.discipline,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>${b.description?`<div class="desc" style="margin-top:8px;font-size:14px">${esc(b.description)}</div>`:''}</div>`).join('')
     C.innerHTML=`<div class="card">
       <span class="kind lieu">Lieu</span>
       <h1>${esc(data.nom)}</h1>
@@ -128,6 +151,7 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
     </div>
     <a class="cta" href="app.html">Tu cherches un artiste ? Rejoins Sén Péi →</a>`
   }
+  partage(data.nom)
 })()
 </script>
 </body>

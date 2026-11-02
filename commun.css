@@ -10,8 +10,8 @@
 
 /* Retour au toucher : part à l'appui, pas au relâchement */
 a,button,.btn,.cta,.go,.ccard{-webkit-tap-highlight-color:transparent}
-button,.btn,.cta,.go{transition:transform .15s ease-out}
-button:active,.btn:active,.cta:active,.go:active{transform:scale(.97)}
+button,.btn,.cta,.go,.share{transition:transform .15s ease-out}
+button:active,.btn:active,.cta:active,.go:active,.share:active{transform:scale(.97)}
 
 /* Focus visible au clavier, à la couleur du monde */
 :focus-visible{outline:2px solid #F6BE54;outline-offset:3px;border-radius:6px}
