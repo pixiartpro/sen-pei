@@ -24,6 +24,12 @@ button:active,.btn:active,.cta:active,.go:active,.share:active{transform:scale(.
     animation-delay:0s !important;scroll-behavior:auto !important}
 }
 
+/* Lien « Mentions légales et données personnelles » du pied de page : discret, mais souligné
+   pour qu'on le reconnaisse comme un lien, et assez haut pour le doigt */
+a.mentions{color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;
+  display:inline-block;padding:6px 0}
+a.mentions:hover{color:#F6BE54}
+
 /* En-tête sur téléphone : les liens ne se cassent jamais sur deux lignes */
 nav a,.sig{white-space:nowrap}
 @media (max-width:420px){header nav a{margin-left:12px}header nav a.cta{padding-left:12px;padding-right:12px}}

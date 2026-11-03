@@ -84,6 +84,9 @@
   .mini.ok{border-color:rgba(120,190,130,.5);color:#cdeccf}
   .cand-form{display:flex;gap:8px;margin-top:11px}
   .cand-input{flex:1}
+  .legal-ligne{margin-top:14px;line-height:1.5}
+  .legal-ligne a{color:var(--safran);text-underline-offset:3px}
+  footer{border-top:1px solid var(--ligne);margin-top:40px;padding:24px 0;text-align:center;color:var(--muet);font-size:13px}
 </style>
 </head>
 <body>
@@ -122,6 +125,7 @@
       <label>Mot de passe</label><input type="password" id="su-pass" minlength="6" required>
       <div class="hint">Au moins 6 caractères.</div>
       <button class="btn" type="submit">Créer mon compte</button>
+      <p class="hint legal-ligne">Votre fiche, et le contact d'un lieu, sont publics. <a href="mentions-legales.html" target="_blank" rel="noopener">Mentions légales et données personnelles</a></p>
     </form>
     <div class="msg" id="auth-msg"></div>
   </section>
@@ -218,10 +222,14 @@
     <h2 style="margin-top:26px">Mes candidatures</h2>
     <div id="my-candidatures-list"></div>
   </section>
+
+  <footer>Sén Péi — un Monde Pixie · La Réunion<br><a class="mentions" href="mentions-legales.html">Mentions légales et données personnelles</a></footer>
 </div>
 
+<!-- supabase-js 2.118.0, hébergé sur le site (voir vendor/LISEZMOI.md) -->
+<script src="vendor/supabase-js-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK"></script>
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+const { createClient } = window.supabase
 const SB_URL='https://acxfzftptzgdhaakldve.supabase.co'
 const SB_KEY='sb_publishable_7bsk8ewqRUebVTqLrqbiaQ_UX78uMfr'
 const sb=createClient(SB_URL, SB_KEY)

@@ -66,11 +66,13 @@
     <a class="back" href="decouvrir.html">← Découvrir</a>
   </header>
   <div id="content"><div class="loading">Chargement…</div></div>
-  <footer>Sén Péi — un Monde Pixie · La Réunion</footer>
+  <footer>Sén Péi — un Monde Pixie · La Réunion<br><a class="mentions" href="mentions-legales.html">Mentions légales et données personnelles</a></footer>
 </div>
 
+<!-- supabase-js 2.118.0, hébergé sur le site (voir vendor/LISEZMOI.md) -->
+<script src="vendor/supabase-js-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK"></script>
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+const { createClient } = window.supabase
 const sb=createClient('https://acxfzftptzgdhaakldve.supabase.co','sb_publishable_7bsk8ewqRUebVTqLrqbiaQ_UX78uMfr')
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
 // Lien saisi par un membre : on n'accepte que http(s), jamais javascript: ou data:
