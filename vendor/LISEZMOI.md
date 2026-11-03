@@ -37,4 +37,28 @@ const { createClient } = window.supabase
 3. Calculer la nouvelle empreinte :
    `echo "sha384-$(openssl dgst -sha384 -binary supabase-js-<version>.js | openssl base64 -A)"`
 4. La reporter dans ce fichier et dans l'attribut `integrity` des trois pages.
-5. Lancer `node banc-mentions.mjs` à la racine du dépôt : il doit être vert.
+5. Lancer `node banc-mentions.mjs` à la racine du dépôt : il doit être vert. Ce vert-là ne vaut pas
+   feu vert de mise en ligne (voir ci-dessous).
+
+## Avant chaque mise en ligne (push)
+
+Le contrôle d'avant le push est :
+
+```
+node banc-mentions.mjs --mise-en-ligne
+```
+
+Il se lance après avoir remplacé, dans `mentions-legales.html`, le repère
+« [date de mise en ligne] » par la date du jour, avec son année. Sans `--mise-en-ligne`, le banc
+est vert alors que le repère est encore là : c'est voulu pendant le travail, mais une page avec ce
+repère ne doit jamais être mise en ligne.
+
+Le banc contrôle à chaque lancement que le texte des mentions est mot pour mot celui validé le
+mardi 03/11/2026, grâce à une empreinte inscrite dans `banc-mentions.mjs` (aucun fichier extérieur
+n'est nécessaire). `--brouillon <fichier>` sert seulement à montrer où se trouve un écart. Si
+Guillaume valide un nouveau texte, `node banc-mentions.mjs --empreinte` donne la nouvelle empreinte
+à reporter dans le banc.
+
+Les vidéos des fiches artistes ne se chargent qu'au clic sur « Lire la vidéo » (YouTube par
+youtube-nocookie.com, Vimeo avec dnt=1). Avant ce clic, aucune requête ne part chez YouTube ou
+Vimeo. Le banc le surveille aussi.

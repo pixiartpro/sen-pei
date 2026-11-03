@@ -7,12 +7,16 @@
    n'appelle aucun site et n'écrit pas dans la base.
 
    Usage (depuis la racine du dépôt) :
-     node banc-mentions.mjs                       contrôle le dossier du banc
+     node banc-mentions.mjs                       contrôle le dossier du banc (travail en cours)
+     node banc-mentions.mjs --mise-en-ligne       LE contrôle d'avant le push : la vraie date doit
+                                                  avoir remplacé le repère « [date de mise en ligne] »
      node banc-mentions.mjs <dossier>             contrôle un autre dossier (ex. un export d'origin/main)
-     node banc-mentions.mjs --brouillon <fichier> compare aussi le texte au brouillon validé
-     node banc-mentions.mjs --mise-en-ligne       le jour du push : la vraie date doit avoir
-                                                  remplacé le repère « [date de mise en ligne] »
+     node banc-mentions.mjs --brouillon <fichier> montre où le texte s'écarte d'un brouillon
+     node banc-mentions.mjs --empreinte           affiche l'empreinte du texte actuel (voir plus bas)
    Sortie : une ligne OK / ROUGE par contrôle ; code 0 si tout est vert, 1 sinon.
+   Sans --mise-en-ligne, le vert ne vaut PAS feu vert de mise en ligne : le repère de date y est
+   attendu. Le texte validé est contrôlé à chaque lancement par son empreinte (EMPREINTE_TEXTE),
+   sans fichier extérieur.
    ═══════════════════════════════════════════════════════════════════════════════════════ */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -21,6 +25,7 @@ import { fileURLToPath } from 'node:url';
 
 const args = process.argv.slice(2);
 const MISE_EN_LIGNE = args.includes('--mise-en-ligne');
+const AFFICHE_EMPREINTE = args.includes('--empreinte');
 const iB = args.indexOf('--brouillon');
 const BROUILLON = iB >= 0 ? args[iB + 1] : null;
 const libres = args.filter((a, i) => !a.startsWith('--') && !(iB >= 0 && i === iB + 1));
@@ -34,6 +39,11 @@ const PAGES_SUPABASE = ['app.html', 'decouvrir.html', 'fiche.html'];
 const RUBRIQUES = ['Qui édite Sén Péi', 'Qui héberge le site et les données', 'Vos données personnelles',
   'Cookies et traceurs', 'Contenus publiés', 'Droit applicable'];
 const CDN = /jsdelivr|unpkg\.com|esm\.sh|cdnjs|skypack|jspm\.io/i;
+// Empreinte sha256 du texte validé par Guillaume le mardi 03/11/2026 (« Oui, les 4 choix »), calculée
+// sur le brouillon mentions-legales-BROUILLON-2026-11-03.html : contenu de la balise <main> (texte ET
+// balises, donc les liens et adresses), ligne de date masquée, espaces normalisés (fonction corps).
+// Ne la changer qu'après un nouveau oui de Guillaume sur un nouveau texte : node banc-mentions.mjs --empreinte
+const EMPREINTE_TEXTE = 'a2941b303b6d54669fec95b64ad327007fa8e45db7b4644d3dd3aced028b923c';
 
 const resultats = [];
 const verifie = (nom, ok, detail = '') => resultats.push({ nom, ok: !!ok, detail });
@@ -46,6 +56,9 @@ const texte = (html) => sansCommentairesHtml(html)
   .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
   .replace(/\s+/g, ' ').trim();
 const echappe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const corps = (h) => ((h.match(/<main[^>]*>([\s\S]*?)<\/main>/i) || [])[1] || '')
+  .replace(/<p class="maj">[\s\S]*?<\/p>/, '<p class="maj">DATE</p>').replace(/\s+/g, ' ').trim();
+const sha256 = (x) => crypto.createHash('sha256').update(x).digest('hex');
 const lienMentions = new RegExp(`<a\\b[^>]*\\bhref="${echappe(PAGE)}"[^>]*>\\s*${echappe(LIBELLE)}\\s*</a>`);
 
 console.log(`Banc mentions légales — dossier contrôlé : ${RACINE}${MISE_EN_LIGNE ? ' (mode mise en ligne)' : ''}\n`);
@@ -80,16 +93,22 @@ if (ml !== null) {
     verifie('Date de mise à jour écrite avec son année', /Dernière mise à jour : [^.]*\b20\d\d\b/.test(t));
   }
 
-  // Option : le texte est-il celui du brouillon validé, mot pour mot ?
+  // Le texte est-il celui validé, mot pour mot ? Toujours contrôlé, par l'empreinte.
+  const empreintePage = sha256(corps(ml));
+  if (AFFICHE_EMPREINTE) console.log(`Empreinte du texte actuel (balise <main>, date masquée) : ${empreintePage}\n`);
+  verifie('Texte mot pour mot celui validé le 03/11/2026 (empreinte sha256 de <main>, date mise à part)',
+    corps(ml).length > 0 && empreintePage === EMPREINTE_TEXTE,
+    `empreinte ${empreintePage}, attendue ${EMPREINTE_TEXTE}${BROUILLON ? '' : ' — pour voir où est l\'écart : --brouillon <fichier>'}`);
+
+  // Option : où le texte s'écarte-t-il d'un brouillon ?
   if (BROUILLON) {
     let b = null; try { b = fs.readFileSync(BROUILLON, 'utf8'); } catch {}
     if (b === null) verifie('Texte identique au brouillon validé', false, `brouillon introuvable : ${BROUILLON}`);
     else {
-      const corps = (h) => ((h.match(/<main[^>]*>([\s\S]*?)<\/main>/i) || [])[1] || '')
-        .replace(/<p class="maj">[\s\S]*?<\/p>/, '<p class="maj">DATE</p>').replace(/\s+/g, ' ').trim();
       const a = corps(ml), c = corps(b);
       let k = 0; while (k < a.length && a[k] === c[k]) k++;
-      verifie('Texte identique au brouillon validé (balise <main>, date mise à part)', a === c && a.length > 0,
+      if (sha256(c) !== EMPREINTE_TEXTE) console.log(`(Attention : ce brouillon n'est pas le texte validé le 03/11/2026, empreinte ${sha256(c)}.)\n`);
+      verifie('Texte identique au brouillon donné (balise <main>, date mise à part)', a === c && a.length > 0,
         a === c ? '' : `écart au caractère ${k} : page « ${a.slice(k, k + 60)} » / brouillon « ${c.slice(k, k + 60)} »`);
     }
   }
@@ -161,6 +180,30 @@ for (const p of PAGES_SUPABASE) {
   verifie(`${p} : crée le client avec window.supabase.createClient`, /window\.supabase\b/.test(sansCommentairesCode(a)));
 }
 
+// 7. Vidéos d'artiste : rien n'est chargé chez YouTube ou Vimeo avant un clic (garde-fou statique ;
+//    la preuve, c'est l'essai dans un vrai navigateur). Sinon les mentions deviennent fausses :
+//    « aucun cookie de publicité ni de mesure d'audience », « deux prestataires techniques ».
+const iframesEcrites = [], lecteursQuiSuivent = [];
+for (const p of PAGES) {
+  const h = lire(p); if (!h) continue;
+  const a = sansCommentairesCode(sansCommentairesHtml(h));
+  if (/<iframe\b/i.test(a)) iframesEcrites.push(p);
+  // YouTube : jamais l'adresse www.youtube.com/embed. Vimeo : chaque player.vimeo.com/video/ suivi de ?dnt=1.
+  const vimeoSansDnt = a.split('player.vimeo.com/video/').slice(1).some((suite) => !suite.slice(0, 40).includes('?dnt=1'));
+  if (/(?:www\.|\/\/)youtube\.com\/embed/.test(a) || vimeoSansDnt) lecteursQuiSuivent.push(p);
+}
+verifie('Vidéos : aucune page n\'écrit de cadre <iframe> à l\'affichage', iframesEcrites.length === 0, iframesEcrites.join(', '));
+const fiche = lire('fiche.html');
+const ficheCode = fiche ? sansCommentairesCode(sansCommentairesHtml(fiche)) : '';
+verifie('Vidéos : YouTube passe par youtube-nocookie.com, Vimeo reçoit dnt=1',
+  lecteursQuiSuivent.length === 0 && /'https:\/\/www\.youtube-nocookie\.com\/embed\/'/.test(ficheCode) && /\?dnt=1/.test(ficheCode),
+  lecteursQuiSuivent.join(', ') || 'adresse youtube-nocookie ou dnt=1 absente de fiche.html');
+const iCree = ficheCode.indexOf("createElement('iframe')");
+verifie('Vidéos : fiche.html ne crée le lecteur que dans un gestionnaire de clic',
+  iCree > 0 && ficheCode.split("createElement('iframe')").length === 2
+    && /(?:\.onclick\s*=|addEventListener\(\s*['"]click['"])[^}]{0,80}$/.test(ficheCode.slice(Math.max(0, iCree - 200), iCree)),
+  iCree > 0 ? 'createElement(\'iframe\') hors d\'un .onclick' : 'createElement(\'iframe\') absent');
+
 // Verdict
 let rouges = 0;
 for (const r of resultats) {
@@ -168,5 +211,6 @@ for (const r of resultats) {
   console.log(`${r.ok ? '  OK   ' : 'ROUGE  '} ${r.nom}${r.detail && !r.ok ? `\n          → ${r.detail}` : ''}`);
 }
 console.log(`\n${rouges === 0 ? 'VERT' : 'ROUGE'} : ${resultats.length - rouges}/${resultats.length} contrôles passent.`);
-if (!BROUILLON && ml !== null) console.log('(Comparaison au brouillon validé non faite : ajouter --brouillon <fichier>.)');
+if (!MISE_EN_LIGNE) console.log(`Ce n'est PAS le feu vert de mise en ligne : le repère « ${REPERE} » est attendu ici.\n`
+  + 'Juste avant le push : poser la date du jour, puis node banc-mentions.mjs --mise-en-ligne');
 process.exit(rouges === 0 ? 0 : 1);
