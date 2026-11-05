@@ -54,6 +54,8 @@
   .choice{display:flex;gap:10px;margin-bottom:6px}
   .opt{flex:1;border:1px solid var(--ligne);border-radius:12px;padding:14px;text-align:center;cursor:pointer;font-size:14.5px}
   .opt.on{border-color:var(--corail);background:rgba(255,122,71,.12);color:var(--corail);font-weight:600}
+  button.opt{background:none;color:inherit;font:inherit;font-size:14.5px}
+  button.opt:active{border-color:var(--corail);background:rgba(255,122,71,.12)}
 
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
   .chip{border:1px solid var(--ligne);border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer;user-select:none}
@@ -112,6 +114,7 @@
       <label>Email</label><input type="email" id="login-email" required>
       <label>Mot de passe</label><input type="password" id="login-pass" required>
       <button class="btn" type="submit">Se connecter</button>
+      <p class="hint"><button type="button" class="link" id="mdp-oublie">Mot de passe oublié, ou pas de mot de passe ?</button></p>
     </form>
 
     <form id="form-signup" class="hide">
@@ -128,6 +131,31 @@
       <p class="hint legal-ligne">Votre fiche, et le contact d'un lieu, sont publics. <a href="mentions-legales.html" target="_blank" rel="noopener">Mentions légales et données personnelles</a></p>
     </form>
     <div class="msg" id="auth-msg"></div>
+  </section>
+
+  <!-- CHOIX DU TYPE (compte déjà ouvert dans un autre Monde Pixie) -->
+  <section id="choix-type" class="card hide">
+    <h1 id="choix-titre" tabindex="-1">Bienvenue sur Sén Péi</h1>
+    <p class="sub">Tu as déjà un compte sur une autre appli de la même famille. Dis-nous qui tu es ici : ce choix ne se change plus ensuite.</p>
+    <div class="choice">
+      <button type="button" class="opt" data-choix="lieu">🏛️ Un lieu / bar</button>
+      <button type="button" class="opt" data-choix="artiste">🎤 Un artiste</button>
+    </div>
+    <button class="btn" type="button" id="choix-valider" disabled>Choisis d'abord</button>
+    <div class="msg" id="choix-msg"></div>
+    <p class="hint"><button type="button" class="link" id="choix-sortir">Ce n'est pas mon compte : me déconnecter</button></p>
+  </section>
+
+  <!-- NOUVEAU MOT DE PASSE (retour du lien « mot de passe oublié ») -->
+  <section id="nouveau-mdp" class="card hide">
+    <h1>Nouveau mot de passe</h1>
+    <p class="sub">Choisis ton nouveau mot de passe pour Sén Péi.</p>
+    <form id="form-mdp">
+      <label>Nouveau mot de passe</label><input type="password" id="mdp-nouveau" minlength="6" required>
+      <div class="hint">Au moins 6 caractères.</div>
+      <button class="btn" type="submit">Enregistrer</button>
+    </form>
+    <div class="msg" id="mdp-msg"></div>
   </section>
 
   <!-- ESPACE -->
@@ -239,6 +267,17 @@ let signupType='lieu', profil=null, ficheId=null
 const $=id=>document.getElementById(id)
 const show=(el,on)=>el.classList.toggle('hide',!on)
 function flash(el,txt,ok){el.textContent=txt;el.className='msg '+(ok?'ok':'err')}
+// messages de connexion les plus courants, en français
+function fr(err){
+  const m=(err&&err.message)||''
+  if(/already registered/i.test(m))return "Cette adresse a déjà un compte. Connecte-toi, ou touche « Mot de passe oublié »."
+  if(/invalid login credentials/i.test(m))return "Adresse ou mot de passe incorrect."
+  if(/email not confirmed/i.test(m))return "Ton adresse n'est pas encore confirmée : ouvre l'e-mail reçu et touche le lien."
+  if(/rate limit|too many/i.test(m))return "Trop de demandes d'un coup. Réessaie dans quelques minutes."
+  if(/at least 6|password should/i.test(m))return "Le mot de passe doit faire au moins 6 caractères."
+  return m||"Une erreur est survenue. Réessaie dans un instant."
+}
+let typeVoulu=null, nomVoulu=''
 
 // build discipline chips
 function buildChips(container){
@@ -273,11 +312,23 @@ document.querySelectorAll('#form-signup .opt').forEach(o=>o.onclick=()=>{
 // SIGN UP
 $('form-signup').addEventListener('submit',async e=>{
   e.preventDefault()
+  const email=$('su-email').value.trim()
   const {data,error}=await sb.auth.signUp({
-    email:$('su-email').value.trim(), password:$('su-pass').value,
-    options:{data:{type:signupType, nom:$('su-nom').value.trim()}}
+    email, password:$('su-pass').value,
+    options:{
+      // le lien de l'e-mail de confirmation revient ici (et non sur une autre appli de la même base)
+      emailRedirectTo:location.origin+location.pathname,
+      data:{type:signupType, nom:$('su-nom').value.trim()}
+    }
   })
-  if(error){return flash($('auth-msg'),error.message||"Une erreur est survenue. Réessaie dans un instant.",false)}
+  if(error){return flash($('auth-msg'),fr(error),false)}
+  // Adresse déjà inscrite (ici ou dans un autre Monde Pixie) : Supabase répond sans erreur
+  // mais avec une liste d'identités vide, et n'envoie aucun e-mail.
+  if(data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0){
+    typeVoulu=signupType;nomVoulu=$('su-nom').value.trim()
+    $('tab-login').click();$('login-email').value=email;$('login-pass').focus()
+    return flash($('auth-msg'),"Cette adresse a déjà un compte, peut-être sur une autre appli de la même famille. Connecte-toi avec ce compte, ou touche « Mot de passe oublié ».",false)
+  }
   if(data.session){ await afterLogin(data.user) }
   else { flash($('auth-msg'),"Compte créé ! Vérifie ta boîte mail pour confirmer, puis connecte-toi.",true) }
 })
@@ -286,7 +337,7 @@ $('form-signup').addEventListener('submit',async e=>{
 $('form-login').addEventListener('submit',async e=>{
   e.preventDefault()
   const {data,error}=await sb.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-pass').value})
-  if(error){return flash($('auth-msg'),error.message||"Une erreur est survenue. Réessaie dans un instant.",false)}
+  if(error){return flash($('auth-msg'),fr(error),false)}
   await afterLogin(data.user)
 })
 
@@ -294,11 +345,57 @@ async function ensureProfil(user){
   let {data}=await sb.from('scene_profils').select('*').eq('id',user.id).maybeSingle()
   if(!data){
     const m=user.user_metadata||{}
-    const ins=await sb.from('scene_profils').insert({id:user.id,type:m.type||'artiste',nom:m.nom||'',email:user.email}).select().single()
+    // type connu seulement si le compte a été créé sur Sén Péi ; sinon on le demande
+    let ins
+    if(m.type==='lieu'||m.type==='artiste'){
+      ins=await sb.from('scene_profils').insert({id:user.id,type:m.type,nom:m.nom||'',email:user.email}).select().single()
+      if(ins.error){show($('auth'),true);flash($('auth-msg'),fr(ins.error),false);return null}
+    }else{
+      // compte venu d'une autre appli de la même base : on demande, et on réessaie tant que ça échoue
+      for(;;){
+        const type=await demanderType()
+        ins=await sb.from('scene_profils').insert({id:user.id,type,nom:m.nom||nomVoulu||'',email:user.email}).select().single()
+        if(!ins.error)break
+        flash($('choix-msg'),fr(ins.error),false)
+      }
+      show($('choix-type'),false)
+    }
     data=ins.data
   }
   return data
 }
+
+// Toucher un choix le sélectionne seulement ; « Valider » le confirme (il ne se change plus ensuite)
+function demanderType(){
+  show($('auth'),false);show($('choix-type'),true);$('choix-titre').focus()
+  const opts=[...document.querySelectorAll('#choix-type [data-choix]')], v=$('choix-valider')
+  let choisi=null
+  const choisir=t=>{choisi=t;opts.forEach(o=>o.classList.toggle('on',o.dataset.choix===t))
+    v.disabled=false;v.textContent=t==='lieu'?'Valider : je suis un lieu / bar':'Valider : je suis un artiste'}
+  opts.forEach(o=>o.onclick=()=>choisir(o.dataset.choix))
+  if(typeVoulu)choisir(typeVoulu)
+  return new Promise(ok=>{v.onclick=()=>{if(!choisi)return;v.disabled=true;ok(choisi)}})
+}
+$('choix-sortir').onclick=async()=>{await sb.auth.signOut();location.replace(location.pathname)}
+
+// Mot de passe oublié (ou compte ouvert ailleurs sans mot de passe) : lien par e-mail qui revient ici
+$('mdp-oublie').onclick=async()=>{
+  const email=$('login-email').value.trim()
+  if(!email)return flash($('auth-msg'),"Écris d'abord ton adresse e-mail juste au-dessus.",false)
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname})
+  if(error)return flash($('auth-msg'),fr(error),false)
+  flash($('auth-msg'),"Si un compte existe avec cette adresse, un e-mail vient de partir. Touche le lien qu'il contient pour choisir ton mot de passe.",true)
+}
+let enRecuperation=/type=recovery/.test(location.hash)
+sb.auth.onAuthStateChange(ev=>{if(ev==='PASSWORD_RECOVERY'){enRecuperation=true;montrerNouveauMdp()}})
+function montrerNouveauMdp(){show($('auth'),false);show($('espace'),false);show($('choix-type'),false);show($('nouveau-mdp'),true)}
+$('form-mdp').addEventListener('submit',async e=>{
+  e.preventDefault()
+  const {data,error}=await sb.auth.updateUser({password:$('mdp-nouveau').value})
+  if(error)return flash($('mdp-msg'),fr(error),false)
+  enRecuperation=false;show($('nouveau-mdp'),false);history.replaceState(null,'',location.pathname)
+  await afterLogin(data.user)
+})
 
 async function loadFiche(){
   const table=profil.type==='lieu'?'scene_lieux':'scene_artistes'
@@ -324,6 +421,7 @@ function majLienFiche(){
 
 async function afterLogin(user){
   profil=await ensureProfil(user)
+  if(!profil)return
   show($('auth'),false);show($('espace'),true)
   $('whoami').innerHTML=`${esc(profil.nom||user.email)} · <button class="link" id="logout">Déconnexion</button>`
   $('logout').onclick=async()=>{await sb.auth.signOut();location.reload()}
@@ -346,6 +444,7 @@ $('save-lieu').onclick=async()=>{
                    : await sb.from('scene_lieux').insert(payload).select().single()
   if(res.error)return flash($('espace-msg'),res.error.message,false)
   ficheId=res.data.id;majLienFiche();flash($('espace-msg'),'Fiche enregistrée ✓',true)
+  await loadLieuAppels()
 }
 
 // SAVE ARTISTE
@@ -358,6 +457,7 @@ $('save-artiste').onclick=async()=>{
                    : await sb.from('scene_artistes').insert(payload).select().single()
   if(res.error)return flash($('espace-msg'),res.error.message,false)
   ficheId=res.data.id;majLienFiche();flash($('espace-msg'),'Fiche enregistrée ✓',true)
+  await loadMyCandidatures();await loadOpenAppels()
 }
 
 // ===== APPELS À CANDIDATURE =====
@@ -370,8 +470,8 @@ function safeUrl(u){
 }
 // Statut affiché en français ; classe CSS prise dans une liste fermée
 // Date limite passée = appel clos pour le public ; dates lues en français (heure de La Réunion)
-const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'})
-const ouvert=b=>!b.date_limite||b.date_limite>=today
+const today=()=>new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'})
+const ouvert=b=>!b.date_limite||b.date_limite>=today()
 const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'})
 const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
 const STATUTS={ouvert:'ouvert',pourvu:'pourvu',clos:'clos',envoye:'envoyée',vu:'vue',retenu:'retenue ✓',refuse:'pas retenue'}
@@ -471,9 +571,17 @@ async function candidater(besoinId){
 
 // boot
 ;(async()=>{
+  const erreurLien=new URLSearchParams(location.hash.slice(1)).get('error_code')
   const {data}=await sb.auth.getSession()
-  if(data.session){ await afterLogin(data.session.user) }
-  else { show($('auth'),true) }
+  if(data.session&&enRecuperation){ montrerNouveauMdp() }
+  else if(data.session){ await afterLogin(data.session.user) }
+  else {
+    show($('auth'),true)
+    if(erreurLien){
+      history.replaceState(null,'',location.pathname)
+      flash($('auth-msg'),erreurLien==='otp_expired'?"Ce lien a expiré ou a déjà servi. Connecte-toi, ou demande un nouveau lien avec « Mot de passe oublié ».":"Ce lien ne marche pas. Connecte-toi, ou demande un nouveau lien avec « Mot de passe oublié ».",false)
+    }
+  }
 })()
 </script>
 </body>
