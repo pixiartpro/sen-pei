@@ -1,0 +1,28 @@
+# Entretien de la clé SMTP Brevo « supabase-cockpit » (base Supabase cockpit).
+# Brevo coupe une clé SMTP qui n'a rien envoyé pendant 90 jours. Le 1er de chaque
+# mois à 10 h (heure de La Réunion), cette tâche demande un e-mail « mot de passe
+# oublié » pour le compte lieu de test de Sén Péi : il part par la clé et la garde active.
+# Si la demande échoue, la tâche passe au rouge et GitHub prévient par e-mail.
+# L'adresse du compte de test est un secret du dépôt (SENPEI_COMPTE_TEST), jamais en clair.
+# Mis en place le jeudi 05/11/2026.
+name: Entretien de la clé Brevo
+on:
+  schedule:
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Demander un e-mail au compte de test
+        env:
+          EMAIL: ${{ secrets.SENPEI_COMPTE_TEST }}
+        run: |
+          test -n "$EMAIL" || { echo "Secret SENPEI_COMPTE_TEST absent"; exit 1; }
+          code=$(curl -s -o /tmp/r.txt -w "%{http_code}" -X POST \
+            "https://acxfzftptzgdhaakldve.supabase.co/auth/v1/recover?redirect_to=https%3A%2F%2Fpixiartpro.github.io%2Fsen-pei%2Fapp.html" \
+            -H "apikey: sb_publishable_7bsk8ewqRUebVTqLrqbiaQ_UX78uMfr" \
+            -H "Content-Type: application/json" \
+            -d "{\"email\":\"$EMAIL\"}")
+          echo "Réponse : $code"
+          test "$code" = "200" || { cat /tmp/r.txt; exit 1; }
