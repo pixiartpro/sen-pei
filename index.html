@@ -37,7 +37,14 @@
   .hero .veil{position:absolute;inset:0;background:
       linear-gradient(90deg, rgba(15,8,5,.92) 0%, rgba(15,8,5,.55) 42%, rgba(15,8,5,.12) 70%, rgba(15,8,5,.4) 100%),
       linear-gradient(180deg, rgba(15,8,5,.5) 0%, transparent 30%, transparent 60%, var(--terre) 99%)}
-  .hero .wrap{position:relative;z-index:2;padding-top:40px;padding-bottom:60px}
+  .hero .wrap{position:relative;z-index:2;padding-top:40px;padding-bottom:60px;width:100%;min-width:0}
+  .hero .tete{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+  .hero .portes{display:flex;flex-wrap:wrap;gap:12px;margin-top:4px}
+  .hero .portes .btn{margin-top:0}
+  .btn2{display:inline-block;border:1px solid rgba(248,239,225,.45);color:var(--creme);border-radius:14px;padding:15px 26px;font-size:16px;font-weight:600;text-decoration:none;transition:background .2s ease-out,transform .15s ease-out}
+  .btn2:hover{background:rgba(248,239,225,.08)}
+  .btn,.btn2{transition:transform .15s ease-out}
+  .btn:active,.btn2:active{transform:scale(.97)}
   .logo{font-family:'Fraunces',serif;font-weight:700;font-size:30px;letter-spacing:-.5px;
     background:linear-gradient(92deg,var(--safran),var(--brique));-webkit-background-clip:text;background-clip:text;color:transparent}
   .hero h1{font-family:'Fraunces',serif;font-weight:600;font-size:62px;line-height:1.01;letter-spacing:-1.5px;margin:26px 0 20px}
@@ -102,7 +109,7 @@
   footer{border-top:1px solid var(--ligne);padding:30px 0;text-align:center}
   footer .logo{font-size:22px}
   .pied-legal{margin-top:10px;font-size:13px;color:var(--muet)}
-  @media(max-width:760px){.pains,.faces,.uniq,.modele{grid-template-columns:1fr}.hero h1{font-size:44px}h2{font-size:30px}}
+  @media(max-width:760px){.pains,.faces,.uniq,.modele{grid-template-columns:1fr}.hero h1{font-size:44px}h2{font-size:30px}.wrap{padding:0 20px}.hero .portes a{flex:1 1 100%;text-align:center}}
 </style>
 </head>
 <body>
@@ -111,16 +118,19 @@
     <div class="bg"><img src="assets/scene-1.png" alt=""></div>
     <div class="veil"></div>
     <div class="wrap">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px">
+      <div class="tete">
         <div><div class="logo">Sén Péi</div><div class="sig" style="margin-top:5px">un Monde Pixie</div></div>
         <nav style="display:flex;gap:18px;align-items:center;padding-top:4px">
           <a href="decouvrir.html" style="color:var(--creme);font-size:14px;opacity:.9;text-decoration:none">Découvrir</a>
-          <a href="app.html" style="color:var(--creme);font-size:14px;border:1px solid var(--ligne);border-radius:999px;padding:8px 15px;text-decoration:none">Mon espace</a>
+          <a href="app.html#inscription" style="color:var(--creme);font-size:14px;border:1px solid var(--ligne);border-radius:999px;padding:8px 15px;text-decoration:none">S'inscrire</a>
         </nav>
       </div>
       <h1>Trouve ta scène.<br>Trouve tes <em>artistes</em>.</h1>
       <p class="one">Sén Péi réunit les lieux qui programment et les artistes péi qui créent — au même endroit, enfin.</p>
-      <div class="scroll">↓ le projet en une page</div>
+      <div class="portes">
+        <a class="btn" href="app.html#inscription-lieu">Je suis un lieu : publier une date</a>
+        <a class="btn2" href="decouvrir.html">Je suis un artiste : voir les appels</a>
+      </div>
     </div>
   </header>
 
@@ -128,11 +138,11 @@
     <div class="wrap">
       <div class="eyebrow"><span></span> Le constat</div>
       <h2>La scène péi se cherche à l'aveugle</h2>
-      <p class="lead">Artistes et lieux passent leur temps à se rater. Tout repose sur le réseau perso et le bouche-à-oreille — et les annuaires nationaux, eux, ignorent l'île ou périment aussitôt.</p>
+      <p class="lead">Artistes et lieux passent leur temps à se rater. Tout repose sur le réseau perso et le bouche-à-oreille.</p>
       <div class="pains">
         <div class="pain"><i>🎤</i><b>Les artistes</b><span>galèrent à décrocher des dates et à savoir qui programme quoi.</span></div>
         <div class="pain"><i>🎟️</i><b>Les lieux</b><span>galèrent à trouver les bons artistes, au bon moment, au bon niveau.</span></div>
-        <div class="pain"><i>🗂️</i><b>Les fichiers</b><span>nationaux oublient l'Outre-mer et sont morts à peine achetés.</span></div>
+        <div class="pain"><i>🗂️</i><b>Les dates</b><span>se passent de bouche à oreille, et se perdent avant d'arriver aux bonnes personnes.</span></div>
       </div>
     </div>
   </section>
@@ -157,8 +167,8 @@
           <h3>Côté artistes</h3>
           <ul>
             <li>Une fiche avec <b style="font-weight:500">leur vidéo</b></li>
-            <li>Ils repèrent les bons lieux et les <b style="font-weight:500">contactent</b></li>
-            <li>Ils répondent aux appels et <b style="font-weight:500">suivent leurs relances</b></li>
+            <li>Ils voient les <b style="font-weight:500">appels ouverts</b>, lieu par lieu</li>
+            <li>Ils se proposent et <b style="font-weight:500">suivent leurs réponses</b> dans leur espace</li>
           </ul>
         </div>
       </div>
@@ -174,8 +184,8 @@
       <div class="eyebrow"><span></span> Notre force</div>
       <h2>Ce que personne d'autre ne fait</h2>
       <div class="uniq">
-        <div class="u"><div class="ic">🧲</div><b>La demande active</b><span>Le mur des besoins : impossible à googler, impossible à copier.</span></div>
-        <div class="u"><div class="ic">📍</div><b>Local & à jour</b><span>100 % péi, tenu vivant par les lieux — là où le national est mort.</span></div>
+        <div class="u"><div class="ic">🧲</div><b>La demande active</b><span>Le mur des besoins : des dates à pourvoir, publiées par les lieux eux-mêmes.</span></div>
+        <div class="u"><div class="ic">📍</div><b>Local & à jour</b><span>100 % péi, tenu à jour par les lieux et les artistes eux-mêmes.</span></div>
         <div class="u"><div class="ic">🎬</div><b>Une vraie vitrine</b><span>Ta fiche avec ta vidéo, gratuite pendant le lancement. Et PIX-I-ART filme les artistes qui veulent briller.</span></div>
       </div>
     </div>
@@ -214,9 +224,9 @@
   <section class="cta">
     <div class="wrap">
       <h2>Monte sur scène.</h2>
-      <p class="lead" style="margin:14px auto 0">Lieux, bars, artistes — rejoignez la scène vivante de La Réunion.</p>
+      <p class="lead" style="margin:14px auto 0">Lieux, bars, artistes : rejoins la scène vivante de La Réunion.</p>
       <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:26px">
-        <a class="btn" href="app.html" style="margin-top:0">Rejoindre Sén Péi</a>
+        <a class="btn" href="app.html#inscription" style="margin-top:0">Rejoindre Sén Péi</a>
         <a href="decouvrir.html" style="display:inline-block;border:1px solid var(--ligne);border-radius:14px;padding:16px 30px;font-size:17px;color:var(--creme);text-decoration:none">Découvrir la scène</a>
       </div>
     </div>

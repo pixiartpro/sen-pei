@@ -577,6 +577,13 @@ async function candidater(besoinId){
   else if(data.session){ await afterLogin(data.session.user) }
   else {
     show($('auth'),true)
+    // arrivée par un bouton « S'inscrire » / « Je suis un lieu » : onglet Inscription ouvert, type choisi
+    const porte=location.hash.match(/^#inscription(?:-(lieu|artiste))?$/)
+    if(porte){
+      $('tab-signup').click()
+      if(porte[1])document.querySelector(`#form-signup .opt[data-type="${porte[1]}"]`)?.click()
+      history.replaceState(null,'',location.pathname)
+    }
     if(erreurLien){
       history.replaceState(null,'',location.pathname)
       flash($('auth-msg'),erreurLien==='otp_expired'?"Ce lien a expiré ou a déjà servi. Connecte-toi, ou demande un nouveau lien avec « Mot de passe oublié ».":"Ce lien ne marche pas. Connecte-toi, ou demande un nouveau lien avec « Mot de passe oublié ».",false)
