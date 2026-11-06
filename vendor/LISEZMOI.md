@@ -29,6 +29,23 @@ const { createClient } = window.supabase
 </script>
 ```
 
+## qrcode-generator (QR code de l'espace artiste)
+
+- Fichier : `qrcode-generator-1.4.4.js`
+- Version : 1.4.4 (figée), de Kazuhiko Arase
+- Source : le paquet npm `qrcode-generator@1.4.4`
+  (https://registry.npmjs.org/qrcode-generator/-/qrcode-generator-1.4.4.tgz).
+  Le fichier est `package/qrcode.js`, copié tel quel, sans retouche.
+- Empreinte du paquet, vérifiée le vendredi 06/11/2026 contre celle du registre npm :
+  `sha512-HM7yY8O2ilqhmULxGMpcHSF1EhJJ9yBj8gvDEuZ6M+KGJ0YY2hKpnXvRD+hZPLrDVck3ExIGhmPtSdcjC+guuw==`
+- Empreinte du fichier (sha384, la même que dans l'attribut `integrity` de `app.html`) :
+  `sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k`
+- Licence : MIT, écrite en tête du fichier.
+
+Il dessine le QR code dans le navigateur de l'artiste : rien n'est envoyé à un autre site.
+Seule `app.html` le charge, pour la carte « Mon QR code ». Pour changer de version, même
+méthode que ci-dessous (le fichier est `package/qrcode.js`).
+
 ## Changer de version
 
 1. `npm pack @supabase/supabase-js@<version>` dans un dossier vide, puis comparer l'empreinte
