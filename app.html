@@ -96,7 +96,14 @@
   .qr-lien{font-size:12.5px;color:var(--muet);text-align:center;word-break:break-all}
   .btn2{background:transparent;border:1px solid var(--ligne);color:var(--creme);font-weight:500;margin-top:10px}
   .btn:active,.opt:active{transform:scale(.98)}
-  #affiche-print,#ft-print{display:none}
+  #affiche-print,#ft-print,#sl-print{display:none}
+  .outil{border-top:1px solid var(--ligne);padding:14px 0 4px}
+  .outil summary{cursor:pointer;font-size:15px;font-weight:500;min-height:28px}
+  .outil[open] summary{color:var(--safran);margin-bottom:6px}
+  .outil textarea{margin-top:8px;min-height:140px}
+  .lienbtn{display:flex;align-items:center;justify-content:center;text-decoration:none;margin-top:10px}
+  .cl{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--ligne);font-size:14.5px;cursor:pointer}
+  .cl input{width:22px;height:22px;flex:none;margin-top:1px;accent-color:var(--brique)}
   .ft-ligne{display:grid;gap:6px;margin-top:8px;align-items:center}
   .ft-ligne.mus{grid-template-columns:1fr 36px;margin-top:12px}
   .ft-ligne.mus select{grid-column:1}
@@ -130,7 +137,12 @@
     @page{size:A4;margin:0}
     body{background:#fff !important;min-height:0}
     body>*:not(#affiche-print):not(#ft-print){display:none !important}
-    body:not([data-imprime=ft]) #affiche-print{display:block}
+    body:not([data-imprime=ft]):not([data-imprime=setlist]) #affiche-print{display:block}
+    body[data-imprime=setlist] #sl-print{display:block}
+    #sl-print .sl{padding:18mm 20mm;color:#1F0F09}
+    #sl-print .sl h1{font-family:'Fraunces',serif;font-size:26pt;margin-bottom:2mm}
+    #sl-print .sl .s{font-size:11pt;color:#7a5a43;margin-bottom:8mm}
+    #sl-print .sl ol{font-size:17pt;line-height:1.55;padding-left:12mm}
     body[data-imprime=ft] #ft-print{display:block}
     #ft-print .ft{border-radius:0;padding:14mm 16mm;font-size:11pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     #ft-print .ft-plan svg{max-height:110mm}
@@ -361,6 +373,41 @@
     <div class="msg" id="ft-msg"></div>
   </section>
 
+  <!-- MES OUTILS DE CONCERT — côté ARTISTE (rien n'est envoyé ni gardé par Sén Péi) -->
+  <section id="artiste-outils" class="card hide">
+    <h2 style="margin-bottom:8px">Mes outils de concert</h2>
+    <p class="sub" style="margin-bottom:6px">Pour démarcher un lieu et préparer le jour J.</p>
+
+    <details class="outil">
+      <summary>✉️&nbsp; Message pour démarcher un lieu</summary>
+      <p class="hint">Un texte prêt à envoyer, avec le lien de ta fiche. Modifie-le à ta façon : Sén Péi n'envoie rien à ta place.</p>
+      <textarea id="dm-texte" rows="9" maxlength="1500" aria-label="Message pour démarcher un lieu"></textarea>
+      <button class="btn" type="button" id="dm-copier">Copier le message</button>
+      <div class="row">
+        <a class="btn btn2 lienbtn" id="dm-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a>
+        <a class="btn btn2 lienbtn" id="dm-mail" href="#">E-mail</a>
+      </div>
+      <div class="msg" id="dm-msg"></div>
+    </details>
+
+    <details class="outil">
+      <summary>🎶&nbsp; Ma setlist à imprimer</summary>
+      <p class="hint">Un titre par ligne. Elle reste sur ce téléphone (Sén Péi ne la garde pas). Utile au lieu pour déclarer les droits d'auteur.</p>
+      <textarea id="sl-titres" rows="8" maxlength="3000" placeholder="Titre — auteur / compositeur" aria-label="Titres de la setlist"></textarea>
+      <label for="sl-sacem">N° de programme Sacem (si tu en as un)</label><input type="text" id="sl-sacem" maxlength="30" inputmode="numeric">
+      <button class="btn btn2" type="button" id="sl-imprimer">Imprimer ma setlist</button>
+    </details>
+
+    <details class="outil">
+      <summary>✅&nbsp; Check-list du jour J</summary>
+      <p class="hint">Tes coches restent sur ce téléphone.</p>
+      <div id="cl-liste"></div>
+      <button class="link" type="button" id="cl-reset" style="margin-top:10px">Tout décocher</button>
+    </details>
+
+    <p class="hint" style="margin-top:16px"><a class="vlink" href="jouer-dans-un-bar.html">Être payé pour jouer dans un bar : ce que disent les textes officiels →</a></p>
+  </section>
+
   <!-- APPELS — côté LIEU -->
   <section id="lieu-appels" class="card hide">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
@@ -413,6 +460,7 @@
 
 <!-- Fiche technique imprimée (invisible à l'écran) -->
 <div id="ft-print" aria-hidden="true"></div>
+<div id="sl-print" aria-hidden="true"></div>
 <script src="fiche-technique.js"></script>
 
 <!-- qrcode-generator 1.4.4, hébergé sur le site (voir vendor/LISEZMOI.md) -->
@@ -575,7 +623,7 @@ async function loadFiche(){
     $('a-dispo').value=data.dispo||'';setChips($('a-disc'),data.disciplines)
     document.querySelectorAll('[data-lien]').forEach(i=>i.value=(data.liens&&typeof data.liens[i.dataset.lien]==='string')?data.liens[i.dataset.lien]:'')
     if(data.liens&&Object.keys(data.liens).length)$('a-liens-zone').open=true
-    ft=FT.nettoyer(data.fiche_technique)
+    ft=FT.nettoyer(data.fiche_technique);ftEnregistree=!!ft
   }
   majLienFiche()
 }
@@ -634,7 +682,7 @@ async function afterLogin(user){
   show($('form-lieu'),isLieu);show($('form-artiste'),!isLieu)
   await loadFiche()
   if(isLieu){ show($('lieu-appels'),true); await loadLieuAppels() }
-  else { show($('artiste-appels'),true); await loadAgenda(); majFT(); await loadMyCandidatures(); await loadOpenAppels() }
+  else { show($('artiste-appels'),true); await loadAgenda(); majFT(); majOutils(); await loadMyCandidatures(); await loadOpenAppels() }
 }
 
 // SAVE LIEU
@@ -662,7 +710,7 @@ $('save-artiste').onclick=async()=>{
                    : await sb.from('scene_artistes').insert(payload).select().single()
   if(res.error)return flash($('espace-msg'),res.error.message,false)
   ficheId=res.data.id;majLienFiche();flash($('espace-msg'),'Fiche enregistrée ✓',true)
-  await loadAgenda();majFT();await loadMyCandidatures();await loadOpenAppels()
+  await loadAgenda();majFT();majOutils();await loadMyCandidatures();await loadOpenAppels()
 }
 
 // ===== MES LIENS (réseaux) =====
@@ -695,7 +743,7 @@ function lireLiens(){
 
 // ===== MA FICHE TECHNIQUE =====
 // Choisir une formule remplit un modèle ; on ajuste ; on enregistre dans la fiche (colonne fiche_technique).
-let ft=null, ftModifiee=false
+let ft=null, ftModifiee=false, ftEnregistree=false
 const opts=(liste,val)=>liste.map(o=>{const [v,t]=Array.isArray(o)?o:[o,o];return `<option value="${esc(String(v))}"${String(v)===String(val)?' selected':''}>${esc(t)}</option>`}).join('')
 const PLACES_OPT=Object.entries(FT.PLACES)
 function majFT(){
@@ -763,7 +811,8 @@ $('ft-save').onclick=async()=>{
   const propre=FT.nettoyer(ft)
   const {error}=await sb.from('scene_artistes').update({fiche_technique:propre}).eq('id',ficheId)
   if(error)return flash($('ft-msg'),"La fiche technique n'a pas pu être enregistrée. Réessaie dans un instant.",false)
-  ft=propre;ftModifiee=false;dessinerLignesFT();apercuFT()
+  ft=propre;ftModifiee=false;ftEnregistree=true;dessinerLignesFT();apercuFT()
+  if(!dmTouche)majOutils()
   flash($('ft-msg'),'Fiche technique enregistrée ✓ Elle apparaît sur ta fiche publique.',true)
 }
 $('ft-imprimer').onclick=()=>{
@@ -771,13 +820,71 @@ $('ft-imprimer').onclick=()=>{
   document.body.dataset.imprime='ft';window.print()
 }
 $('ft-lien').onclick=async()=>{
-  if(ftModifiee)return flash($('ft-msg'),"Enregistre d'abord ta fiche technique : le lien montre la version enregistrée.",false)
+  if(ftModifiee||!ftEnregistree)return flash($('ft-msg'),"Enregistre d'abord ta fiche technique : le lien montre la version enregistrée.",false)
   const url=SITE+'fiche.html?type=artiste&id='+encodeURIComponent(ficheId)+'#technique'
   if(navigator.share){try{await navigator.share({title:'Fiche technique — '+($('a-nom').value.trim()||profil.nom),url});return}catch(e){if(e.name==='AbortError')return}}
   try{await navigator.clipboard.writeText(url);flash($('ft-msg'),'Lien copié ✓ Colle-le dans ton message au lieu.',true)}
   catch(e){flash($('ft-msg'),'Ton lien : '+url,true)}
 }
 window.addEventListener('afterprint',()=>{delete document.body.dataset.imprime})
+
+// ===== MES OUTILS DE CONCERT =====
+// Rien ne part vers Sén Péi : le message s'ouvre dans WhatsApp ou l'e-mail du téléphone au toucher,
+// la setlist et les coches restent dans ce téléphone (stockage local, facultatif).
+const loc={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}}
+const CHECK=['Fiche technique envoyée au lieu','Horaires d’arrivée, de balance et de passage confirmés',
+  'Déclaration réglée avec le lieu (GUSO ou contrat de cession)','Setlist prête (et n° de programme Sacem si tu en as un)',
+  'Câbles, piles, pieds, multiprise, accordeur','Une tenue de rechange, de l’eau','Après le concert : garder ton attestation GUSO ou ta fiche de paie']
+let dmTouche=false
+function texteDemarchage(){
+  const nom=$('a-nom').value.trim()||profil.nom||'', disc=getChips($('a-disc')).slice(0,2).join(', '), zone=$('a-zone').value
+  const formule=ftEnregistree&&!ftModifiee?FT.FORMULES[ft.formule]:''
+  const url=SITE+'fiche.html?type=artiste&id='+encodeURIComponent(ficheId)
+  const infos=[disc.toLowerCase(),formule.toLowerCase(),zone].filter(Boolean).join(' · ')
+  return `Bonjour,
+
+Je suis ${nom}${infos?` (${infos})`:''}. Je cherche des dates dans votre lieu.
+
+Vous pouvez me voir jouer${ftEnregistree?', et lire ma fiche technique,':''} ici :
+${url}
+
+Pour la déclaration (GUSO ou contrat de cession), on voit ensemble ce qui vous convient.
+
+Au plaisir d'échanger,
+${nom}`
+}
+function majLiensDm(){
+  const t=$('dm-texte').value
+  $('dm-whatsapp').href='https://wa.me/?text='+encodeURIComponent(t)
+  $('dm-mail').href='mailto:?subject='+encodeURIComponent('Proposition de concert — '+($('a-nom').value.trim()||profil.nom||''))+'&body='+encodeURIComponent(t)
+}
+function majOutils(){
+  const sec=$('artiste-outils')
+  if(profil?.type!=='artiste'||!ficheId)return show(sec,false)
+  if(!dmTouche)$('dm-texte').value=texteDemarchage()
+  majLiensDm()
+  $('sl-titres').value=loc.get('senpei-setlist')||'';$('sl-sacem').value=loc.get('senpei-setlist-sacem')||''
+  const coches=JSON.parse(loc.get('senpei-checklist')||'[]')
+  $('cl-liste').innerHTML=CHECK.map((t,i)=>`<label class="cl"><input type="checkbox" data-cl="${i}"${coches.includes(i)?' checked':''}><span>${esc(t)}</span></label>`).join('')
+  show(sec,true)
+}
+$('dm-texte').addEventListener('input',()=>{dmTouche=true;majLiensDm()})
+$('dm-copier').onclick=async()=>{
+  try{await navigator.clipboard.writeText($('dm-texte').value);flash($('dm-msg'),'Message copié ✓ Colle-le dans ta messagerie.',true)}
+  catch(e){$('dm-texte').select();flash($('dm-msg'),'Le message est sélectionné : copie-le avec ton téléphone.',true)}
+}
+$('sl-titres').addEventListener('input',()=>loc.set('senpei-setlist',$('sl-titres').value))
+$('sl-sacem').addEventListener('input',()=>loc.set('senpei-setlist-sacem',$('sl-sacem').value))
+$('cl-liste').addEventListener('change',()=>loc.set('senpei-checklist',JSON.stringify([...$('cl-liste').querySelectorAll('input:checked')].map(i=>+i.dataset.cl))))
+$('cl-reset').onclick=()=>{$('cl-liste').querySelectorAll('input').forEach(i=>i.checked=false);loc.set('senpei-checklist','[]')}
+$('sl-imprimer').onclick=()=>{
+  const titres=$('sl-titres').value.split('\n').map(t=>t.trim()).filter(Boolean)
+  const sacem=$('sl-sacem').value.trim()
+  $('sl-print').innerHTML=`<div class="sl"><h1>${esc($('a-nom').value.trim()||profil.nom||'Setlist')}</h1>
+    <div class="s">Setlist${sacem?' · n° de programme Sacem : '+esc(sacem):''}</div>
+    <ol>${titres.map(t=>`<li>${esc(t)}</li>`).join('')}</ol></div>`
+  document.body.dataset.imprime='setlist';window.print()
+}
 
 // ===== MES DATES PRISES (agenda de l'artiste) =====
 // La base ne garde que le jour : ni lieu, ni client, ni note. Un toucher note ou libère un jour.
