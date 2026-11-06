@@ -45,7 +45,8 @@ const CDN = /jsdelivr|unpkg\.com|esm\.sh|cdnjs|skypack|jspm\.io/i;
 // Ne la changer qu'après un nouveau oui de Guillaume sur un nouveau texte : node banc-mentions.mjs --empreinte
 // Complément « boîte à outils de l'artiste » (3 phrases) validé par Guillaume le vendredi 06/11/2026.
 // Empreinte d'avant (texte du 03/11/2026) : a2941b303b6d54669fec95b64ad327007fa8e45db7b4644d3dd3aced028b923c
-const EMPREINTE_TEXTE = '1acf1cdfb5039f5424b1524ed4b85711b885e06518fb98befcc5a6f02670965f';
+// Hébergeurs complétés, validés par Guillaume le vendredi 06/11/2026. Empreinte d'avant : 1acf1cdfb5039f5424b1524ed4b85711b885e06518fb98befcc5a6f02670965f
+const EMPREINTE_TEXTE = 'd9fc48b510e57a0f29cf588461a6d58028c03a2da93f29c32f98f89a2b92b350';
 
 const resultats = [];
 const verifie = (nom, ok, detail = '') => resultats.push({ nom, ok: !!ok, detail });
@@ -86,6 +87,10 @@ if (ml !== null) {
     [...ml.matchAll(/<!--[\s\S]*?-->/g)].some((c) => c[0].includes(phraseJsdelivr)));
   verifie('La page s\'habille avec commun.css et les polices du site',
     /<link[^>]+href="commun\.css"/.test(actif) && /fonts\/fraunces-var\.woff2/.test(actif));
+
+  // Hébergeurs : nom, adresse ET téléphone ou contact (LCEN, art. 1-1 I), ajouté le vendredi 06/11/2026
+  verifie('Hébergeur GitHub : nom, adresse et téléphone', t.includes('GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107') && t.includes('téléphone : +1 877 448 4820'));
+  verifie('Hébergeur Supabase : entité contractante, adresse et contact', t.includes('Supabase Pte. Ltd., 65 Chulia Street') && t.includes('privacy@supabase.com') && !t.includes('Supabase, Inc.'));
 
   // 6. Le repère de date
   if (!MISE_EN_LIGNE) {
