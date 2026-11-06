@@ -69,7 +69,23 @@
   .share.ok{color:var(--safran);border-color:var(--safran)}
   .loading,.notfound{padding:50px 0;text-align:center;color:var(--muet)}
   footer{border-top:1px solid var(--ligne);margin-top:34px;padding:24px 0;text-align:center;color:var(--muet);font-size:13px}
+  .liens{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .liens a{display:inline-flex;align-items:center;min-height:40px;padding:8px 14px;border-radius:999px;border:1px solid var(--ligne);color:var(--creme);text-decoration:none;font-size:14px}
+  .liens a:active{transform:scale(.97)}
+  #technique{margin-top:26px;scroll-margin-top:16px}
+  #technique h2{margin-bottom:12px}
+  .imprimer-ft{margin-top:12px}
+  @media print{
+    @page{size:A4;margin:0}
+    body{background:#fff !important}
+    body.imprime-ft .wrap>*:not(#content),body.imprime-ft #content>*:not(#technique),body.imprime-ft #technique>*:not(.ft){display:none !important}
+    body.imprime-ft .wrap{max-width:none;padding:0;margin:0}
+    body.imprime-ft #technique{margin:0}
+    body.imprime-ft .ft{border-radius:0;padding:14mm 16mm;font-size:11pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    body.imprime-ft .ft-plan svg{max-height:110mm}
+  }
 </style>
+<style id="ft-css"></style>
 </head>
 <body>
 <div class="wrap">
@@ -84,6 +100,7 @@
 </div>
 
 <!-- supabase-js 2.118.0, hébergé sur le site (voir vendor/LISEZMOI.md) -->
+<script src="fiche-technique.js"></script>
 <script src="vendor/supabase-js-2.118.0.js" integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK"></script>
 <script type="module">
 const { createClient } = window.supabase
@@ -148,7 +165,7 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
 ;(async()=>{
   if(!id||(type!=='lieu'&&type!=='artiste'))return notfound()
   const table=type==='lieu'?'scene_lieux':'scene_artistes'
-  const cols=type==='lieu'?'id,nom,type_lieu,commune,zone,jauge,disciplines,description,contact,site_web':'id,nom,disciplines,bio,zone,video_url,references_jouees,tarif_indicatif,dispo'
+  const cols=type==='lieu'?'id,nom,type_lieu,commune,zone,jauge,disciplines,description,contact,site_web':'id,nom,disciplines,bio,zone,video_url,references_jouees,tarif_indicatif,dispo,liens,fiche_technique'
   const {data}=await sb.from(table).select(cols).eq('id',id).maybeSingle()
   if(!data)return notfound()
   document.title=(data.nom||'Fiche')+' — Sén Péi'
@@ -171,8 +188,14 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
   }else{
     const emb=embed(data.video_url)
     // Agenda : seulement le jour (ni lieu, ni client). Les 12 prochains.
+    // Visible des seuls comptes connectés (la base ne répond rien à un visiteur sans compte).
     const {data:dp}=await sb.from('scene_dates_prises').select('jour').eq('artiste_id',id).gte('jour',today).order('jour').limit(12)
     const pris=(dp||[]).map(d=>d.jour)
+    // Liens réseaux : adresses http(s) seulement, simples liens (aucun module chargé chez eux)
+    const NOMS={instagram:'Instagram',facebook:'Facebook',youtube:'YouTube',tiktok:'TikTok',spotify:'Spotify',autre:'Lien'}
+    const liens=(data.liens&&typeof data.liens==='object')?Object.keys(NOMS).filter(k=>typeof data.liens[k]==='string'&&safeUrl(data.liens[k])&&/^https:/.test(safeUrl(data.liens[k]))).map(k=>[k==='autre'?host(safeUrl(data.liens[k])):NOMS[k],safeUrl(data.liens[k])]):[]
+    const ftHtml=window.FT?FT.fiche(data.fiche_technique,data.nom):''
+    if(ftHtml)document.getElementById('ft-css').textContent=FT.CSS
     C.innerHTML=`<div class="card">
       <span class="kind artiste">Artiste</span>
       <h1>${esc(data.nom)}</h1>
@@ -183,9 +206,16 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
       ${data.bio?`<div class="desc">${esc(data.bio)}</div>`:''}
       ${data.references_jouees?`<div class="field"><div class="l">Déjà joué à</div><div class="v">${esc(data.references_jouees)}</div></div>`:''}
       ${data.dispo?`<div class="field"><div class="l">Disponibilités</div><div class="v">${esc(data.dispo)}</div></div>`:''}
+      ${liens.length?`<div class="field"><div class="l">Retrouve-moi</div><div class="liens">${liens.map(([n,u])=>`<a href="${esc(u)}" target="_blank" rel="noopener nofollow">${esc(n)} ↗</a>`).join('')}</div></div>`:''}
       ${pris.length?`<div class="field"><div class="l">Prochaines dates déjà prises</div><div class="tagrow">${pris.map(d=>`<span class="tg pris">${esc(dateFr(d))}</span>`).join('')}</div></div>`:''}
     </div>
+    ${ftHtml?`<section id="technique"><h2>Fiche technique</h2>${ftHtml}<button class="share imprimer-ft" id="imprimer-ft" type="button">🖨 Imprimer la fiche technique</button></section>`:''}
     <a class="cta" href="app.html">Tu cherches un artiste ? Rejoins Sén Péi →</a>`
+    if(ftHtml){
+      document.getElementById('imprimer-ft').onclick=()=>{document.body.classList.add('imprime-ft');window.print()}
+      window.addEventListener('afterprint',()=>document.body.classList.remove('imprime-ft'))
+      if(location.hash==='#technique')document.getElementById('technique').scrollIntoView()
+    }
     if(emb)lecteur(document.getElementById('lire-video'),emb,data.nom)
   }
   partage(data.nom)

@@ -96,7 +96,19 @@
   .qr-lien{font-size:12.5px;color:var(--muet);text-align:center;word-break:break-all}
   .btn2{background:transparent;border:1px solid var(--ligne);color:var(--creme);font-weight:500;margin-top:10px}
   .btn:active,.opt:active{transform:scale(.98)}
-  #affiche-print{display:none}
+  #affiche-print,#ft-print{display:none}
+  .ft-ligne{display:grid;gap:6px;margin-top:8px;align-items:center}
+  .ft-ligne.mus{grid-template-columns:1fr 36px;margin-top:12px}
+  .ft-ligne.mus select{grid-column:1}
+  .ft-ligne.mus .x{grid-row:1 / span 2;grid-column:2;height:100%}
+  @media (max-width:480px){.card{padding:20px}}
+  .ft-ligne input,.ft-ligne select{padding:11px 9px;font-size:14px;min-width:0}
+  .ft-ligne .x{width:36px;height:44px;border-radius:10px;border:1px solid var(--ligne);background:transparent;color:var(--muet);font-size:18px;cursor:pointer}
+  .ft-ajout{margin-top:10px;font-size:14px;min-height:36px}
+  #ft-apercu .ft{margin-top:4px}
+  button.chip{background:none;color:inherit;font:inherit;font-size:13px}
+  .liens-zone{margin-top:18px;border:1px solid var(--ligne);border-radius:12px;padding:12px 14px}
+  .liens-zone summary{cursor:pointer;font-size:14.5px;color:var(--safran);min-height:24px}
   /* Agenda : mes dates prises */
   .mois{display:flex;align-items:center;justify-content:space-between;margin:6px 0 10px}
   .mois b{font-family:'Fraunces',serif;font-size:17px;font-weight:600;text-transform:capitalize}
@@ -117,8 +129,12 @@
   @media print{
     @page{size:A4;margin:0}
     body{background:#fff !important;min-height:0}
-    body>*:not(#affiche-print){display:none !important}
-    #affiche-print{display:block}
+    body>*:not(#affiche-print):not(#ft-print){display:none !important}
+    body:not([data-imprime=ft]) #affiche-print{display:block}
+    body[data-imprime=ft] #ft-print{display:block}
+    #ft-print .ft{border-radius:0;padding:14mm 16mm;font-size:11pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #ft-print .ft-plan svg{max-height:110mm}
+    #ft-print .ft-entrees tr{break-inside:avoid}
     .affiche{background:#FBF6F0;color:#1F0F09;width:210mm;height:297mm;padding:28mm 22mm;
       display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;
       -webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -139,6 +155,7 @@
     .affiche.carte .pied{display:none}
   }
 </style>
+<style id="ft-css"></style>
 </head>
 <body>
 <div class="wrap">
@@ -260,6 +277,22 @@
       </div>
       <label>Où avez-vous déjà joué ? (références)</label><textarea id="a-ref" placeholder="ex. Kabardock, Cité des Arts, Sakifo…"></textarea>
       <label>Disponibilités</label><select id="a-dispo"></select>
+      <details class="liens-zone" id="a-liens-zone">
+        <summary>Mes liens (Instagram, Facebook, Spotify…)</summary>
+        <div class="hint" style="margin-bottom:4px">Ils s'affichent sur ta fiche publique : elle devient le lien unique à mettre en bio. Une adresse ou un @pseudo.</div>
+        <div class="row">
+          <div><label for="lk-instagram">Instagram</label><input type="text" id="lk-instagram" data-lien="instagram" placeholder="@ton.pseudo" autocapitalize="off" autocomplete="off"></div>
+          <div><label for="lk-facebook">Facebook</label><input type="text" id="lk-facebook" data-lien="facebook" placeholder="facebook.com/…" autocapitalize="off" autocomplete="off"></div>
+        </div>
+        <div class="row">
+          <div><label for="lk-youtube">YouTube</label><input type="text" id="lk-youtube" data-lien="youtube" placeholder="youtube.com/@…" autocapitalize="off" autocomplete="off"></div>
+          <div><label for="lk-tiktok">TikTok</label><input type="text" id="lk-tiktok" data-lien="tiktok" placeholder="@ton.pseudo" autocapitalize="off" autocomplete="off"></div>
+        </div>
+        <div class="row">
+          <div><label for="lk-spotify">Spotify</label><input type="text" id="lk-spotify" data-lien="spotify" placeholder="open.spotify.com/…" autocapitalize="off" autocomplete="off"></div>
+          <div><label for="lk-autre">Autre lien</label><input type="text" id="lk-autre" data-lien="autre" placeholder="Deezer, Bandcamp, site…" autocapitalize="off" autocomplete="off"></div>
+        </div>
+      </details>
       <button class="btn" id="save-artiste">Enregistrer ma fiche</button>
     </div>
 
@@ -295,6 +328,37 @@
     <button class="btn" type="button" id="qr-imprimer">Imprimer ou enregistrer en PDF</button>
     <button class="btn btn2" type="button" id="qr-image">Télécharger l'image du QR code</button>
     <p class="hint">L'image se glisse dans Canva, sur un flyer ou une story.</p>
+  </section>
+
+  <!-- MA FICHE TECHNIQUE — côté ARTISTE -->
+  <section id="artiste-ft" class="card hide">
+    <h2 style="margin-bottom:8px">Ma fiche technique</h2>
+    <p class="sub" style="margin-bottom:6px">Pour que le lieu sache quoi préparer : ta formule, ta place sur scène, ce qu'il faut brancher. Elle s'imprime et s'envoie par lien.</p>
+    <label>Ta formule</label>
+    <div class="chips" id="ft-formules" role="group" aria-label="Formule"></div>
+    <div class="hint">Choisir une formule remplit un exemple, à modifier ensuite.</div>
+    <label for="ft-sono">La sono</label><select id="ft-sono" data-ft="sono"></select>
+    <label>Sur scène (qui, et où)</label>
+    <div id="ft-musiciens"></div>
+    <button class="link ft-ajout" type="button" id="ft-add-mus">+ Ajouter quelqu'un</button>
+    <div id="ft-bloc-sono">
+      <label>Entrées à brancher sur la sono du lieu</label>
+      <div id="ft-entrees"></div>
+      <button class="link ft-ajout" type="button" id="ft-add-ent">+ Ajouter une entrée</button>
+      <label for="ft-retours">Retours (enceintes tournées vers vous)</label><select id="ft-retours" data-ft="retours"></select>
+    </div>
+    <div class="row">
+      <div><label for="ft-prises">Prises électriques</label><select id="ft-prises" data-ft="prises"></select></div>
+      <div><label for="ft-set">Durée du set</label><select id="ft-set" data-ft="set"></select></div>
+    </div>
+    <label for="ft-installation">Temps d'installation</label><select id="ft-installation" data-ft="installation"></select>
+    <label for="ft-notes">À savoir (facultatif)</label><textarea id="ft-notes" data-ft="notes" maxlength="400" placeholder="ex. on joue sans batterie, besoin d'une chaise sans accoudoirs…"></textarea>
+    <label>Aperçu</label>
+    <div id="ft-apercu"></div>
+    <button class="btn" type="button" id="ft-save">Enregistrer ma fiche technique</button>
+    <button class="btn btn2" type="button" id="ft-imprimer">Imprimer ou enregistrer en PDF</button>
+    <button class="btn btn2" type="button" id="ft-lien">Envoyer le lien de ma fiche technique</button>
+    <div class="msg" id="ft-msg"></div>
   </section>
 
   <!-- APPELS — côté LIEU -->
@@ -346,6 +410,10 @@
     </div>
   </div>
 </div>
+
+<!-- Fiche technique imprimée (invisible à l'écran) -->
+<div id="ft-print" aria-hidden="true"></div>
+<script src="fiche-technique.js"></script>
 
 <!-- qrcode-generator 1.4.4, hébergé sur le site (voir vendor/LISEZMOI.md) -->
 <script src="vendor/qrcode-generator-1.4.4.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k"></script>
@@ -505,6 +573,9 @@ async function loadFiche(){
     $('a-nom').value=data.nom||'';$('a-bio').value=data.bio||'';$('a-video').value=data.video_url||''
     $('a-zone').value=data.zone||'';$('a-tarif').value=data.tarif_indicatif||'';$('a-ref').value=data.references_jouees||''
     $('a-dispo').value=data.dispo||'';setChips($('a-disc'),data.disciplines)
+    document.querySelectorAll('[data-lien]').forEach(i=>i.value=(data.liens&&typeof data.liens[i.dataset.lien]==='string')?data.liens[i.dataset.lien]:'')
+    if(data.liens&&Object.keys(data.liens).length)$('a-liens-zone').open=true
+    ft=FT.nettoyer(data.fiche_technique)
   }
   majLienFiche()
 }
@@ -519,6 +590,7 @@ function majLienFiche(){
 // ===== MON QR CODE (artiste) =====
 // Le QR pointe toujours vers le site en ligne, même quand on essaie l'appli ailleurs.
 const SITE='https://pixiartpro.github.io/sen-pei/'
+document.getElementById('ft-css').textContent=FT.CSS
 let qrCode=null
 function majQr(){
   const sec=$('artiste-qr')
@@ -540,7 +612,7 @@ document.querySelectorAll('[data-format]').forEach(b=>b.addEventListener('pointe
   document.querySelectorAll('[data-format]').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-pressed',x===b)})
   $('affiche').classList.toggle('carte',b.dataset.format==='carte')
 }))
-$('qr-imprimer').onclick=()=>{remplirAffiche();window.print()}
+$('qr-imprimer').onclick=()=>{remplirAffiche();document.body.dataset.imprime='affiche';window.print()}
 $('qr-image').onclick=()=>{
   if(!qrCode)return
   const n=qrCode.getModuleCount(),cel=20,marge=4*cel,c=document.createElement('canvas')
@@ -562,7 +634,7 @@ async function afterLogin(user){
   show($('form-lieu'),isLieu);show($('form-artiste'),!isLieu)
   await loadFiche()
   if(isLieu){ show($('lieu-appels'),true); await loadLieuAppels() }
-  else { show($('artiste-appels'),true); await loadAgenda(); await loadMyCandidatures(); await loadOpenAppels() }
+  else { show($('artiste-appels'),true); await loadAgenda(); majFT(); await loadMyCandidatures(); await loadOpenAppels() }
 }
 
 // SAVE LIEU
@@ -584,12 +656,128 @@ $('save-artiste').onclick=async()=>{
     bio:$('a-bio').value.trim()||null,video_url:$('a-video').value.trim()||null,zone:$('a-zone').value||null,
     tarif_indicatif:$('a-tarif').value.trim()||null,references_jouees:$('a-ref').value.trim()||null,dispo:$('a-dispo').value.trim()||null}
   if(!payload.nom)return flash($('espace-msg'),'Indique au moins ton nom d’artiste.',false)
+  const lk=lireLiens();if(lk.erreur)return flash($('espace-msg'),lk.erreur,false)
+  payload.liens=lk.liens
   const res=ficheId? await sb.from('scene_artistes').update(payload).eq('id',ficheId).select().single()
                    : await sb.from('scene_artistes').insert(payload).select().single()
   if(res.error)return flash($('espace-msg'),res.error.message,false)
   ficheId=res.data.id;majLienFiche();flash($('espace-msg'),'Fiche enregistrée ✓',true)
-  await loadAgenda();await loadMyCandidatures();await loadOpenAppels()
+  await loadAgenda();majFT();await loadMyCandidatures();await loadOpenAppels()
 }
+
+// ===== MES LIENS (réseaux) =====
+// Un @pseudo devient une adresse ; chaque réseau doit pointer chez lui (pas de lien piège).
+const RESEAUX={
+  instagram:{nom:'Instagram',dom:['instagram.com'],pseudo:p=>'https://www.instagram.com/'+p},
+  facebook:{nom:'Facebook',dom:['facebook.com','fb.com','fb.me']},
+  youtube:{nom:'YouTube',dom:['youtube.com','youtu.be']},
+  tiktok:{nom:'TikTok',dom:['tiktok.com'],pseudo:p=>'https://www.tiktok.com/@'+p},
+  spotify:{nom:'Spotify',dom:['spotify.com','spotify.link']},
+  autre:{nom:'Autre lien',dom:null}
+}
+function lireLiens(){
+  const liens={}
+  for(const i of document.querySelectorAll('[data-lien]')){
+    const k=i.dataset.lien, r=RESEAUX[k], v=i.value.trim()
+    if(!v)continue
+    let url
+    // pseudo : « @ti.kaf » ou « ti.kaf » (mais « instagram.com » reste une adresse)
+    const ps=v.match(/^@?([A-Za-z0-9._]{2,30})$/)
+    if(r.pseudo&&ps&&(v.startsWith('@')||!/\.(com|fr|re|net|org|be|me|link|io)$/i.test(v)))url=r.pseudo(ps[1])
+    else url=safeUrl(v)
+    if(!url||url.length>300)return {erreur:`Le lien ${r.nom} ne ressemble pas à une adresse. Copie-le depuis ton profil.`}
+    const h=new URL(url).hostname.replace(/^www\.|^m\.|^open\./,'')
+    if(r.dom&&!r.dom.some(d=>h===d||h.endsWith('.'+d)))return {erreur:`Le lien ${r.nom} doit mener à ${r.dom[0]}.`}
+    liens[k]=url
+  }
+  return {liens:Object.keys(liens).length?liens:null}
+}
+
+// ===== MA FICHE TECHNIQUE =====
+// Choisir une formule remplit un modèle ; on ajuste ; on enregistre dans la fiche (colonne fiche_technique).
+let ft=null, ftModifiee=false
+const opts=(liste,val)=>liste.map(o=>{const [v,t]=Array.isArray(o)?o:[o,o];return `<option value="${esc(String(v))}"${String(v)===String(val)?' selected':''}>${esc(t)}</option>`}).join('')
+const PLACES_OPT=Object.entries(FT.PLACES)
+function majFT(){
+  const sec=$('artiste-ft')
+  if(profil?.type!=='artiste'||!ficheId)return show(sec,false)
+  if(!ft)ft=FT.modele('solo')
+  $('ft-formules').innerHTML=Object.entries(FT.FORMULES).map(([k,t])=>`<button type="button" class="chip${ft.formule===k?' on':''}" data-formule="${k}" aria-pressed="${ft.formule===k}">${t}</button>`).join('')
+  $('ft-sono').innerHTML=opts(Object.entries(FT.SONO),ft.sono)
+  $('ft-set').innerHTML=opts([['','—'],...FT.SETS],ft.set)
+  $('ft-retours').innerHTML=opts([...Array(9).keys()].map(n=>[n,n?String(n):'aucun']),ft.retours)
+  $('ft-prises').innerHTML=opts([...Array(13).keys()].map(n=>[n,n?String(n):'aucune']),ft.prises)
+  $('ft-installation').innerHTML=opts([[0,'—'],10,15,20,30,40,45,60,90,120].map(n=>Array.isArray(n)?n:[n,n+' min']),ft.installation)
+  $('ft-notes').value=ft.notes||''
+  dessinerLignesFT();apercuFT();blocSono();show(sec,true)
+}
+// Sono apportée par l'artiste : la liste des entrées et les retours ne regardent pas le lieu (gardés, mais repliés)
+function blocSono(){show($('ft-bloc-sono'),ft.sono!=='artiste')}
+function dessinerLignesFT(){
+  $('ft-musiciens').innerHTML=ft.musiciens.map((x,i)=>`<div class="ft-ligne mus">
+      <input type="text" maxlength="40" value="${esc(x.nom)}" data-mus="${i}" aria-label="Qui (personne ${i+1})" placeholder="ex. Voix et guitare">
+      <select data-mus-place="${i}" aria-label="Place sur scène (personne ${i+1})">${opts(PLACES_OPT,x.place)}</select>
+      <button type="button" class="x" data-mus-x="${i}" aria-label="Retirer la personne ${i+1}">×</button></div>`).join('')||'<p class="hint">Personne pour l’instant.</p>'
+  $('ft-entrees').innerHTML=ft.entrees.map((x,i)=>`<div class="ft-ligne mus">
+      <input type="text" maxlength="40" value="${esc(x.source)}" data-ent="${i}" aria-label="Source (entrée ${i+1})" placeholder="ex. Voix">
+      <select data-ent-br="${i}" aria-label="Branchement (entrée ${i+1})">${opts(FT.BRANCHEMENTS,x.branchement)}</select>
+      <button type="button" class="x" data-ent-x="${i}" aria-label="Retirer l'entrée ${i+1}">×</button></div>`).join('')||'<p class="hint">Aucune entrée pour l’instant.</p>'
+}
+function apercuFT(){$('ft-apercu').innerHTML=FT.fiche(ft,$('a-nom').value.trim()||profil.nom)}
+function modifFT(){ftModifiee=true;apercuFT()}
+$('artiste-ft').addEventListener('input',e=>{
+  const t=e.target,d=t.dataset
+  if(d.mus!==undefined)ft.musiciens[d.mus].nom=t.value
+  else if(d.ent!==undefined)ft.entrees[d.ent].source=t.value
+  else if(d.ft==='notes')ft.notes=t.value
+  else return
+  modifFT()
+})
+$('artiste-ft').addEventListener('change',e=>{
+  const t=e.target,d=t.dataset
+  if(d.musPlace!==undefined)ft.musiciens[d.musPlace].place=t.value
+  else if(d.entBr!==undefined)ft.entrees[d.entBr].branchement=t.value
+  else if(d.ft&&d.ft!=='notes')ft[d.ft]=['retours','prises','installation'].includes(d.ft)?parseInt(t.value,10)||0:t.value
+  else return
+  blocSono();modifFT()
+})
+$('artiste-ft').addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return
+  const d=t.dataset
+  if(d.formule){
+    if(d.formule===ft.formule)return
+    if((ftModifiee||ft.entrees.length)&&!confirm(`Remplacer ta fiche par le modèle « ${FT.FORMULES[d.formule]} » ? Tu pourras l'ajuster ensuite.`))return
+    ft=FT.modele(d.formule);ftModifiee=true;majFT();return
+  }
+  if(d.musX!==undefined){ft.musiciens.splice(+d.musX,1)}
+  else if(d.entX!==undefined){ft.entrees.splice(+d.entX,1)}
+  else if(t.id==='ft-add-mus'){if(ft.musiciens.length>=10)return;ft.musiciens.push({nom:'',place:'A2'})}
+  else if(t.id==='ft-add-ent'){if(ft.entrees.length>=24)return;ft.entrees.push({source:'',branchement:'Micro chant'})}
+  else return
+  dessinerLignesFT();modifFT()
+  if(t.id==='ft-add-mus')$('ft-musiciens').querySelector('.ft-ligne:last-child input')?.focus()
+  if(t.id==='ft-add-ent')$('ft-entrees').querySelector('.ft-ligne:last-child input')?.focus()
+})
+$('ft-save').onclick=async()=>{
+  if(!ficheId)return flash($('ft-msg'),"Enregistre d'abord ta fiche artiste.",false)
+  const propre=FT.nettoyer(ft)
+  const {error}=await sb.from('scene_artistes').update({fiche_technique:propre}).eq('id',ficheId)
+  if(error)return flash($('ft-msg'),"La fiche technique n'a pas pu être enregistrée. Réessaie dans un instant.",false)
+  ft=propre;ftModifiee=false;dessinerLignesFT();apercuFT()
+  flash($('ft-msg'),'Fiche technique enregistrée ✓ Elle apparaît sur ta fiche publique.',true)
+}
+$('ft-imprimer').onclick=()=>{
+  $('ft-print').innerHTML=FT.fiche(ft,$('a-nom').value.trim()||profil.nom)
+  document.body.dataset.imprime='ft';window.print()
+}
+$('ft-lien').onclick=async()=>{
+  if(ftModifiee)return flash($('ft-msg'),"Enregistre d'abord ta fiche technique : le lien montre la version enregistrée.",false)
+  const url=SITE+'fiche.html?type=artiste&id='+encodeURIComponent(ficheId)+'#technique'
+  if(navigator.share){try{await navigator.share({title:'Fiche technique — '+($('a-nom').value.trim()||profil.nom),url});return}catch(e){if(e.name==='AbortError')return}}
+  try{await navigator.clipboard.writeText(url);flash($('ft-msg'),'Lien copié ✓ Colle-le dans ton message au lieu.',true)}
+  catch(e){flash($('ft-msg'),'Ton lien : '+url,true)}
+}
+window.addEventListener('afterprint',()=>{delete document.body.dataset.imprime})
 
 // ===== MES DATES PRISES (agenda de l'artiste) =====
 // La base ne garde que le jour : ni lieu, ni client, ni note. Un toucher note ou libère un jour.
@@ -602,6 +790,8 @@ async function loadAgenda(){
   if(profil?.type!=='artiste'||!ficheId){prises=new Set();return show(sec,false)}
   const auj=today(), [a,m]=auj.split('-').map(Number)
   if(!agA){agA=a;agM=m-1}
+  // les jours passés ne servent plus : on les efface (garder le moins de données possible)
+  await sb.from('scene_dates_prises').delete().eq('artiste_id',ficheId).lt('jour',auj)
   const {data,error}=await sb.from('scene_dates_prises').select('jour').eq('artiste_id',ficheId).gte('jour',auj)
   if(error){flash($('ag-msg'),"L'agenda n'a pas pu se charger. Réessaie dans un instant.",false)}
   prises=new Set((data||[]).map(d=>d.jour))
