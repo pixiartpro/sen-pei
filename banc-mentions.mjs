@@ -46,7 +46,8 @@ const CDN = /jsdelivr|unpkg\.com|esm\.sh|cdnjs|skypack|jspm\.io/i;
 // Complément « boîte à outils de l'artiste » (3 phrases) validé par Guillaume le vendredi 06/11/2026.
 // Empreinte d'avant (texte du 03/11/2026) : a2941b303b6d54669fec95b64ad327007fa8e45db7b4644d3dd3aced028b923c
 // Hébergeurs complétés, validés par Guillaume le vendredi 06/11/2026. Empreinte d'avant : 1acf1cdfb5039f5424b1524ed4b85711b885e06518fb98befcc5a6f02670965f
-const EMPREINTE_TEXTE = 'd9fc48b510e57a0f29cf588461a6d58028c03a2da93f29c32f98f89a2b92b350';
+// Contact public de l'artiste, validé par Guillaume le vendredi 06/11/2026. Empreinte d'avant : d9fc48b510e57a0f29cf588461a6d58028c03a2da93f29c32f98f89a2b92b350
+const EMPREINTE_TEXTE = 'b3c17fa43e6cde0ea9a7bf02d74c6499cc51c5b55a424151ba0d61b0d298ad78';
 
 const resultats = [];
 const verifie = (nom, ok, detail = '') => resultats.push({ nom, ok: !!ok, detail });
@@ -132,8 +133,8 @@ for (const p of PAGES) {
 // 3. La ligne sous le formulaire d'inscription d'app.html
 const app = lire('app.html');
 const inscription = app && (sansCommentairesHtml(app).match(/<form id="form-signup"[\s\S]*?<\/form>/) || [])[0];
-verifie('app.html : ligne « Votre fiche, et le contact d\'un lieu, sont publics. » + lien, dans le formulaire d\'inscription',
-  inscription && new RegExp(`Votre fiche, et le contact d'un lieu, sont publics\\.\\s*${lienMentions.source}`).test(inscription));
+verifie('app.html : ligne « Ta fiche, et le contact que tu y indiques, sont publics. » + lien, dans le formulaire d\'inscription',
+  inscription && new RegExp(`Ta fiche, et le contact que tu y indiques, sont publics\\.\\s*${lienMentions.source}`).test(inscription));
 
 // 4. Plus aucune référence active à jsDelivr ni à un autre CDN (les commentaires sont tolérés)
 const fichiers = [];
