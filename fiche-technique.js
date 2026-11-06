@@ -39,15 +39,15 @@
   // Nettoie une fiche venue de la base ou du formulaire : formes et longueurs bornées
   function nettoyer(f) {
     if (!f || typeof f !== 'object' || Array.isArray(f)) return null
-    const formule = Object.hasOwn(FORMULES, f.formule) ? f.formule : 'solo'
+    const formule = Object.prototype.hasOwnProperty.call(FORMULES, f.formule) ? f.formule : 'solo'
     return {
       v: 1, formule,
       musiciens: (Array.isArray(f.musiciens) ? f.musiciens : []).slice(0, 10)
-        .map(x => ({ nom: txt(x && x.nom, 40).trim(), place: Object.hasOwn(PLACES, x && x.place) ? x.place : 'A2' })).filter(x => x.nom),
+        .map(x => ({ nom: txt(x && x.nom, 40).trim(), place: Object.prototype.hasOwnProperty.call(PLACES, x && x.place) ? x.place : 'A2' })).filter(x => x.nom),
       entrees: (Array.isArray(f.entrees) ? f.entrees : []).slice(0, 24)
         .map(x => ({ source: txt(x && x.source, 40).trim(), branchement: BRANCHEMENTS.includes(x && x.branchement) ? x.branchement : 'Autre' })).filter(x => x.source),
       retours: entier(f.retours, 8), prises: entier(f.prises, 12),
-      sono: Object.hasOwn(SONO, f.sono) ? f.sono : 'a_voir',
+      sono: Object.prototype.hasOwnProperty.call(SONO, f.sono) ? f.sono : 'a_voir',
       installation: entier(f.installation, 180),
       set: SETS.includes(f.set) ? f.set : '',
       notes: txt(f.notes, 400).trim()

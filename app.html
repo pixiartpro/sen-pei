@@ -635,7 +635,7 @@ $('form-mdp').addEventListener('submit',async e=>{
 async function loadFiche(){
   const table=profil.type==='lieu'?'scene_lieux':'scene_artistes'
   const {data}=await sb.from(table).select('*').eq('profil_id',profil.id).limit(1).maybeSingle()
-  if(!data){ficheId=null;if(profil.type==='lieu')$('l-nom').value=profil.nom||'';else $('a-nom').value=profil.nom||'';majLienFiche();return}
+  if(!data){ficheId=null;const n=$(profil.type==='lieu'?'l-nom':'a-nom');if(!n.value)n.value=profil.nom||'';majLienFiche();return}
   ficheId=data.id
   if(profil.type==='lieu'){
     $('l-nom').value=data.nom||'';$('l-type').value=data.type_lieu||'';$('l-zone').value=data.zone||''
@@ -647,7 +647,7 @@ async function loadFiche(){
     $('a-dispo').value=data.dispo||'';setChips($('a-disc'),data.disciplines)
     document.querySelectorAll('[data-lien]').forEach(i=>i.value=(data.liens&&typeof data.liens[i.dataset.lien]==='string')?data.liens[i.dataset.lien]:'')
     document.querySelectorAll('[data-contact]').forEach(i=>i.value=(data.liens&&typeof data.liens[i.dataset.contact]==='string')?data.liens[i.dataset.contact]:'')
-    if(data.liens&&Object.keys(data.liens).some(k=>Object.hasOwn(RESEAUX,k)))$('a-liens-zone').open=true
+    if(data.liens&&Object.keys(data.liens).some(k=>Object.prototype.hasOwnProperty.call(RESEAUX,k)))$('a-liens-zone').open=true
     ft=FT.nettoyer(data.fiche_technique);ftEnregistree=!!ft
   }
   majLienFiche()
@@ -753,8 +753,10 @@ const RESEAUX={
 function telInter(v){
   let d=v.replace(/[\s.\-()]/g,'')
   if(/^00/.test(d))d='+'+d.slice(2)
+  d=d.replace(/^\+(262|33)0/,'+$1')        // « +262 0692… » : le 0 en trop après l'indicatif
+  if(/^\+0/.test(d))return null
   if(/^\+\d{9,14}$/.test(d))return d
-  if(/^0(262|263|692|693|639)\d{6}$/.test(d))return '+262'+d.slice(1)
+  if(/^0(262|263|269|692|693|639)\d{6}$/.test(d))return '+262'+d.slice(1)
   if(/^0[1-9]\d{8}$/.test(d))return '+33'+d.slice(1)
   return null
 }
@@ -1004,7 +1006,7 @@ const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'sho
 const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
 const concert=b=>b.date_concert?('concert le '+dateFr(b.date_concert)):null
 const STATUTS={ouvert:'ouvert',pourvu:'pourvu',clos:'clos',envoye:'envoyée',vu:'vue',retenu:'retenue ✓',refuse:'pas retenue'}
-const badge=st=>{const k=Object.hasOwn(STATUTS,st)?st:'';return `<span class="badge ${k}">${esc(STATUTS[st]||st||'envoyée')}</span>`}
+const badge=st=>{const k=Object.prototype.hasOwnProperty.call(STATUTS,st)?st:'';return `<span class="badge ${k}">${esc(STATUTS[st]||st||'envoyée')}</span>`}
 
 // --- côté LIEU ---
 $('toggle-new-appel').onclick=()=>show($('new-appel-form'),$('new-appel-form').classList.contains('hide'))
