@@ -97,6 +97,23 @@
   .btn2{background:transparent;border:1px solid var(--ligne);color:var(--creme);font-weight:500;margin-top:10px}
   .btn:active,.opt:active{transform:scale(.98)}
   #affiche-print{display:none}
+  /* Agenda : mes dates prises */
+  .mois{display:flex;align-items:center;justify-content:space-between;margin:6px 0 10px}
+  .mois b{font-family:'Fraunces',serif;font-size:17px;font-weight:600;text-transform:capitalize}
+  .nav{width:44px;height:44px;border-radius:12px;border:1px solid var(--ligne);background:transparent;color:var(--creme);font-size:18px;cursor:pointer}
+  .nav:disabled{opacity:.3;cursor:default}
+  .grille{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+  .js{font-size:11px;color:var(--muet);text-align:center;padding-bottom:2px}
+  .j{height:44px;border-radius:11px;border:1px solid var(--ligne);background:rgba(255,233,210,.04);color:var(--creme);
+     font-size:15px;font-family:inherit;cursor:pointer;transition:transform .15s ease-out,background .15s ease-out}
+  .j:active{transform:scale(.94)}
+  .j.passe{opacity:.3;cursor:default}
+  .j.pris{background:var(--brique);border-color:var(--brique);color:#fff;font-weight:600}
+  .j.attente{opacity:.6}
+  .j.vide{visibility:hidden}
+  .alerte{display:inline-block;margin-top:6px;font-size:13px;color:var(--corail);background:rgba(255,122,71,.12);
+     border:1px solid rgba(255,122,71,.35);border-radius:8px;padding:3px 9px}
+  .libre{display:inline-block;margin-top:6px;font-size:13px;color:var(--muet)}
   @media print{
     @page{size:A4;margin:0}
     body{background:#fff !important;min-height:0}
@@ -250,6 +267,20 @@
     <a class="vlink hide" id="voir-fiche" href="#" target="_blank" rel="noopener">Voir ma fiche publique, comme les autres la voient →</a>
   </section>
 
+  <!-- MES DATES PRISES — côté ARTISTE (agenda) -->
+  <section id="artiste-agenda" class="card hide">
+    <h2 style="margin-bottom:8px">Mes dates prises</h2>
+    <p class="sub" style="margin-bottom:12px">Touche les jours où tu joues déjà ailleurs. Les lieux verront seulement « déjà pris », jamais où ni pour qui.</p>
+    <div class="mois">
+      <button class="nav" type="button" id="ag-avant" aria-label="Mois précédent">‹</button>
+      <b id="ag-titre" aria-live="polite"></b>
+      <button class="nav" type="button" id="ag-apres" aria-label="Mois suivant">›</button>
+    </div>
+    <div class="grille" id="ag-grille"></div>
+    <p class="hint" id="ag-resume"></p>
+    <div class="msg" id="ag-msg"></div>
+  </section>
+
   <!-- MON QR CODE — côté ARTISTE (visible dès que la fiche est enregistrée) -->
   <section id="artiste-qr" class="card hide">
     <h2 style="margin-bottom:8px">Mon QR code</h2>
@@ -278,6 +309,8 @@
         <div><label>Discipline recherchée</label><select id="ap-disc"></select></div>
         <div><label>Période</label><select id="ap-periode"></select></div>
       </div>
+      <label>Date du concert (facultatif)</label><input type="date" id="ap-concert">
+      <div class="hint">Avec une date, tu verras quels artistes sont déjà pris ce jour-là.</div>
       <div class="row">
         <div><label>Date limite de candidature</label><input type="date" id="ap-limite"></div>
         <div><label>Jauge</label><input type="number" id="ap-jauge" min="0"></div>
@@ -529,7 +562,7 @@ async function afterLogin(user){
   show($('form-lieu'),isLieu);show($('form-artiste'),!isLieu)
   await loadFiche()
   if(isLieu){ show($('lieu-appels'),true); await loadLieuAppels() }
-  else { show($('artiste-appels'),true); await loadMyCandidatures(); await loadOpenAppels() }
+  else { show($('artiste-appels'),true); await loadAgenda(); await loadMyCandidatures(); await loadOpenAppels() }
 }
 
 // SAVE LIEU
@@ -555,8 +588,60 @@ $('save-artiste').onclick=async()=>{
                    : await sb.from('scene_artistes').insert(payload).select().single()
   if(res.error)return flash($('espace-msg'),res.error.message,false)
   ficheId=res.data.id;majLienFiche();flash($('espace-msg'),'Fiche enregistrée ✓',true)
-  await loadMyCandidatures();await loadOpenAppels()
+  await loadAgenda();await loadMyCandidatures();await loadOpenAppels()
 }
+
+// ===== MES DATES PRISES (agenda de l'artiste) =====
+// La base ne garde que le jour : ni lieu, ni client, ni note. Un toucher note ou libère un jour.
+const JOURS=['lun.','mar.','mer.','jeu.','ven.','sam.','dim.']
+const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre']
+const isoJ=(a,m,j)=>a+'-'+String(m+1).padStart(2,'0')+'-'+String(j).padStart(2,'0')
+let prises=new Set(), enCours=new Set(), agA=0, agM=0
+async function loadAgenda(){
+  const sec=$('artiste-agenda')
+  if(profil?.type!=='artiste'||!ficheId){prises=new Set();return show(sec,false)}
+  const auj=today(), [a,m]=auj.split('-').map(Number)
+  if(!agA){agA=a;agM=m-1}
+  const {data,error}=await sb.from('scene_dates_prises').select('jour').eq('artiste_id',ficheId).gte('jour',auj)
+  if(error){flash($('ag-msg'),"L'agenda n'a pas pu se charger. Réessaie dans un instant.",false)}
+  prises=new Set((data||[]).map(d=>d.jour))
+  dessinerAgenda();show(sec,true)
+}
+function dessinerAgenda(){
+  const auj=today(), [a0,m0]=auj.split('-').map(Number), ecart=(agA-a0)*12+(agM-(m0-1))
+  $('ag-titre').textContent=MOIS[agM]+' '+agA
+  $('ag-avant').disabled=ecart<=0; $('ag-apres').disabled=ecart>=23
+  const g=$('ag-grille');g.innerHTML=JOURS.map(j=>'<div class="js" aria-hidden="true">'+j.slice(0,3)+'</div>').join('')
+  const premier=(new Date(agA,agM,1).getDay()+6)%7, nb=new Date(agA,agM+1,0).getDate()
+  for(let i=0;i<premier;i++)g.insertAdjacentHTML('beforeend','<span class="j vide" aria-hidden="true"></span>')
+  for(let j=1;j<=nb;j++){
+    const k=isoJ(agA,agM,j), passe=k<auj, p=prises.has(k)
+    const b=document.createElement('button');b.type='button';b.textContent=j
+    b.className='j'+(passe?' passe':'')+(p?' pris':'')+(enCours.has(k)?' attente':'')
+    b.setAttribute('aria-pressed',p);b.setAttribute('aria-label',dateFr(k)+(p?', déjà pris':', libre'))
+    if(passe)b.disabled=true;else b.addEventListener('pointerdown',e=>{e.preventDefault();basculer(k)})
+    b.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&!passe){e.preventDefault();basculer(k)}})
+    g.appendChild(b)
+  }
+  const n=prises.size
+  $('ag-resume').textContent=n?(n+(n>1?' dates notées':' date notée')+'. Enregistré tout de suite, pas de bouton à toucher.'):'Aucune date notée pour l’instant.'
+}
+async function basculer(k){
+  if(enCours.has(k)||!ficheId)return
+  const etait=prises.has(k);enCours.add(k)
+  etait?prises.delete(k):prises.add(k);dessinerAgenda()   // affiché tout de suite
+  const res=etait
+    ?await sb.from('scene_dates_prises').delete().eq('artiste_id',ficheId).eq('jour',k)
+    :await sb.from('scene_dates_prises').insert({artiste_id:ficheId,jour:k})
+  enCours.delete(k)
+  if(res.error&&!/un_par_jour|duplicate/i.test(res.error.message)){
+    etait?prises.add(k):prises.delete(k)                     // on remet comme avant
+    flash($('ag-msg'),/deux ans/.test(res.error.message)?res.error.message:"Ce jour n'a pas pu être enregistré. Vérifie ta connexion et réessaie.",false)
+  }
+  dessinerAgenda()
+}
+$('ag-avant').onclick=()=>{agM--;if(agM<0){agM=11;agA--}dessinerAgenda()}
+$('ag-apres').onclick=()=>{agM++;if(agM>11){agM=0;agA++}dessinerAgenda()}
 
 // ===== APPELS À CANDIDATURE =====
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
@@ -572,6 +657,7 @@ const today=()=>new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'
 const ouvert=b=>!b.date_limite||b.date_limite>=today()
 const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'})
 const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
+const concert=b=>b.date_concert?('concert le '+dateFr(b.date_concert)):null
 const STATUTS={ouvert:'ouvert',pourvu:'pourvu',clos:'clos',envoye:'envoyée',vu:'vue',retenu:'retenue ✓',refuse:'pas retenue'}
 const badge=st=>{const k=Object.hasOwn(STATUTS,st)?st:'';return `<span class="badge ${k}">${esc(STATUTS[st]||st||'envoyée')}</span>`}
 
@@ -582,14 +668,15 @@ $('publish-appel').onclick=async()=>{
   const titre=$('ap-titre').value.trim()
   if(!titre)return flash($('appels-msg'),"Donne un titre à ton appel.",false)
   const payload={lieu_id:ficheId,titre,discipline:$('ap-disc').value.trim()||null,periode:$('ap-periode').value.trim()||null,
-    date_limite:$('ap-limite').value||null,jauge:$('ap-jauge').value?parseInt($('ap-jauge').value):null,
+    date_limite:$('ap-limite').value||null,date_concert:$('ap-concert').value||null,jauge:$('ap-jauge').value?parseInt($('ap-jauge').value):null,
     commune:$('l-commune').value.trim()||null,description:$('ap-desc').value.trim()||null,statut:'ouvert'}
   const res=await sb.from('scene_besoins').insert(payload).select().single()
   if(res.error)return flash($('appels-msg'),res.error.message,false)
-  ;['ap-titre','ap-disc','ap-periode','ap-limite','ap-jauge','ap-desc'].forEach(i=>$(i).value='')
+  ;['ap-titre','ap-disc','ap-periode','ap-concert','ap-limite','ap-jauge','ap-desc'].forEach(i=>$(i).value='')
   show($('new-appel-form'),false);flash($('appels-msg'),'Appel publié ✓',true);await loadLieuAppels()
 }
 
+let besoinsLieu=new Map()
 async function loadLieuAppels(){
   if(!ficheId){$('appels-list').innerHTML='<p class="hint">Enregistre ta fiche lieu pour pouvoir publier des appels.</p>';return}
   const {data}=await sb.from('scene_besoins').select('*').eq('lieu_id',ficheId).order('created_at',{ascending:false})
@@ -597,13 +684,14 @@ async function loadLieuAppels(){
   $('appels-list').innerHTML=data.map(b=>`
     <div class="appel">
       <div class="appel-h"><b>${esc(b.titre)}</b>${badge(b.statut==='ouvert'&&!ouvert(b)?'clos':b.statut)}</div>
-      <div class="hint">${[b.discipline,b.periode,limite(b),b.jauge?('jauge '+b.jauge):null].filter(Boolean).map(esc).join(' · ')}</div>
+      <div class="hint">${[concert(b),b.discipline,b.periode,limite(b),b.jauge?('jauge '+b.jauge):null].filter(Boolean).map(esc).join(' · ')}</div>
       <div class="appel-actions">
         <button class="link" data-cand="${b.id}">Voir les candidatures</button>
         ${b.statut==='ouvert'?`<button class="link" data-pourvu="${b.id}">Marquer pourvu</button>`:''}
       </div>
       <div class="cand-zone hide" id="cand-${b.id}"></div>
     </div>`).join('')
+  besoinsLieu=new Map(data.map(b=>[b.id,b]))
   $('appels-list').querySelectorAll('[data-cand]').forEach(btn=>btn.onclick=()=>loadCandidatures(btn.dataset.cand))
   $('appels-list').querySelectorAll('[data-pourvu]').forEach(btn=>btn.onclick=async()=>{
     await sb.from('scene_besoins').update({statut:'pourvu'}).eq('id',btn.dataset.pourvu);await loadLieuAppels()
@@ -614,9 +702,17 @@ async function loadCandidatures(besoinId){
   const zone=$('cand-'+besoinId);show(zone,true)
   const {data}=await sb.from('scene_reponses').select('*, scene_artistes(nom, video_url, disciplines)').eq('besoin_id',besoinId).order('created_at',{ascending:false})
   if(!data||!data.length){zone.innerHTML='<p class="hint">Pas encore de candidature.</p>';return}
+  // Agenda : qui est déjà pris le jour du concert (on ne sait ni où ni pour qui)
+  const jour=besoinsLieu.get(besoinId)?.date_concert
+  let pris=new Set()
+  if(jour){
+    const {data:dp}=await sb.from('scene_dates_prises').select('artiste_id').eq('jour',jour).in('artiste_id',data.map(r=>r.artiste_id))
+    pris=new Set((dp||[]).map(d=>d.artiste_id))
+  }
   zone.innerHTML=data.map(r=>{const a=r.scene_artistes||{};return `
     <div class="cand">
       <div><b>${esc(a.nom||'Artiste')}</b> ${badge(r.statut)}</div>
+      ${jour?(pris.has(r.artiste_id)?'<span class="alerte">⚠ Déjà pris ce jour-là</span>':'<span class="libre">Aucune date prise notée ce jour-là</span>'):''}
       ${(a.disciplines&&a.disciplines.length)?`<div class="hint">${esc(a.disciplines.join(', '))}</div>`:''}
       ${r.message?`<div class="cand-msg">${esc(r.message)}</div>`:''}
       ${safeUrl(a.video_url)?`<a class="vlink" href="${esc(safeUrl(a.video_url))}" target="_blank" rel="noopener nofollow">▶ voir la vidéo</a>`:''}
@@ -649,7 +745,8 @@ async function loadOpenAppels(){
   $('open-appels-list').innerHTML=data.map(b=>{const l=b.scene_lieux||{};const already=myCandBesoinIds.has(b.id);return `
     <div class="appel">
       <div class="appel-h"><b>${esc(b.titre)}</b></div>
-      <div class="hint">${[l.nom,b.discipline,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>
+      <div class="hint">${[l.nom,concert(b),b.discipline,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>
+      ${b.date_concert&&prises.has(b.date_concert)?'<span class="alerte">⚠ Tu as noté ce jour comme déjà pris</span>':''}
       ${b.description?`<div class="cand-msg">${esc(b.description)}</div>`:''}
       ${already?'<div class="hint" style="color:var(--safran)">✓ Tu as déjà candidaté</div>':`
         <div class="cand-form"><input class="cand-input" id="msg-${b.id}" placeholder="Un mot pour te présenter…">
