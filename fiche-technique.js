@@ -65,7 +65,7 @@
     ;(f.musiciens || []).forEach(x => { (parCase[x.place] ||= []).push(x.nom) })
     let cases = ''
     ;['C', 'B', 'A'].forEach((rang, ri) => [1, 2, 3].forEach((col, ci) => {
-      const k = rang + col, x = x0 + ci * cw, y = y0 + ri * ch, noms = (parCase[k] || []).slice(0, 2)
+      const k = rang + col, x = x0 + ci * cw, y = y0 + ri * ch, tous = parCase[k] || [], noms = tous.length > 2 ? [tous[0], '+ ' + (tous.length - 1) + ' autres'] : tous
       cases += `<rect x="${x + 3}" y="${y + 3}" width="${cw - 6}" height="${ch - 6}" rx="9" fill="${noms.length ? '#F6BE54' : 'none'}" fill-opacity="${noms.length ? .25 : 0}" stroke="#7a5a43" stroke-opacity=".35" stroke-dasharray="${noms.length ? '0' : '3 4'}"/>`
       const lignes = noms.flatMap((n, i) => coupe(n).map(t => ({ t, i })))
       lignes.forEach((l, i) => {

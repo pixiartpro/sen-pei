@@ -166,7 +166,9 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
   if(!id||(type!=='lieu'&&type!=='artiste'))return notfound()
   const table=type==='lieu'?'scene_lieux':'scene_artistes'
   const cols=type==='lieu'?'id,nom,type_lieu,commune,zone,jauge,disciplines,description,contact,site_web':'id,nom,disciplines,bio,zone,video_url,references_jouees,tarif_indicatif,dispo,liens,fiche_technique'
-  const {data}=await sb.from(table).select(cols).eq('id',id).maybeSingle()
+  let {data,error}=await sb.from(table).select(cols).eq('id',id).maybeSingle()
+  // filet : si la base n'a pas encore les colonnes de la boîte à outils, on affiche la fiche sans elles
+  if(error&&type==='artiste')({data}=await sb.from(table).select(cols.replace(',liens,fiche_technique','')).eq('id',id).maybeSingle())
   if(!data)return notfound()
   document.title=(data.nom||'Fiche')+' — Sén Péi'
   const resume=(type==='lieu'?data.description:data.bio)||((type==='lieu'?'Lieu':'Artiste')+' de la scène péi, sur Sén Péi.')
@@ -193,7 +195,11 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
     const pris=(dp||[]).map(d=>d.jour)
     // Liens réseaux : adresses http(s) seulement, simples liens (aucun module chargé chez eux)
     const NOMS={instagram:'Instagram',facebook:'Facebook',youtube:'YouTube',tiktok:'TikTok',spotify:'Spotify',autre:'Lien'}
-    const liens=(data.liens&&typeof data.liens==='object')?Object.keys(NOMS).filter(k=>typeof data.liens[k]==='string'&&safeUrl(data.liens[k])&&/^https:/.test(safeUrl(data.liens[k]))).map(k=>[k==='autre'?host(safeUrl(data.liens[k])):NOMS[k],safeUrl(data.liens[k])]):[]
+    // le nom du réseau n'est affiché que si le lien mène bien chez lui ; sinon on montre le vrai domaine
+    const DOMS={instagram:['instagram.com'],facebook:['facebook.com','fb.com','fb.me'],youtube:['youtube.com','youtu.be'],tiktok:['tiktok.com'],spotify:['spotify.com','spotify.link']}
+    const chezLui=(k,u)=>{const d=DOMS[k];if(!d)return false;const h=new URL(u).hostname.replace(/^www\.|^m\.|^open\./,'');return d.some(x=>h===x||h.endsWith('.'+x))}
+    const https=u=>{const x=safeUrl(u);return x?x.replace(/^http:/,'https:'):null}
+    const liens=(data.liens&&typeof data.liens==='object'&&!Array.isArray(data.liens))?Object.keys(NOMS).filter(k=>typeof data.liens[k]==='string'&&https(data.liens[k])).map(k=>{const u=https(data.liens[k]);return [chezLui(k,u)?NOMS[k]:host(u),u]}):[]
     const ftHtml=window.FT?FT.fiche(data.fiche_technique,data.nom):''
     if(ftHtml)document.getElementById('ft-css').textContent=FT.CSS
     C.innerHTML=`<div class="card">
@@ -207,7 +213,7 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
       ${data.references_jouees?`<div class="field"><div class="l">Déjà joué à</div><div class="v">${esc(data.references_jouees)}</div></div>`:''}
       ${data.dispo?`<div class="field"><div class="l">Disponibilités</div><div class="v">${esc(data.dispo)}</div></div>`:''}
       ${liens.length?`<div class="field"><div class="l">Retrouve-moi</div><div class="liens">${liens.map(([n,u])=>`<a href="${esc(u)}" target="_blank" rel="noopener nofollow">${esc(n)} ↗</a>`).join('')}</div></div>`:''}
-      ${pris.length?`<div class="field"><div class="l">Prochaines dates déjà prises</div><div class="tagrow">${pris.map(d=>`<span class="tg pris">${esc(dateFr(d))}</span>`).join('')}</div></div>`:''}
+      ${pris.length?`<div class="field"><div class="l">Prochaines dates déjà prises (visible des seuls inscrits)</div><div class="tagrow">${pris.map(d=>`<span class="tg pris">${esc(dateFr(d))}</span>`).join('')}</div></div>`:''}
     </div>
     ${ftHtml?`<section id="technique"><h2>Fiche technique</h2>${ftHtml}<button class="share imprimer-ft" id="imprimer-ft" type="button">🖨 Imprimer la fiche technique</button></section>`:''}
     <a class="cta" href="app.html">Tu cherches un artiste ? Rejoins Sén Péi →</a>`
