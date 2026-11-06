@@ -2,17 +2,25 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://acxfzftptzgdhaakldve.supabase.co wss://acxfzftptzgdhaakldve.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Ton espace Sén Péi : ta fiche, tes appels, tes candidatures.">
 <meta name="theme-color" content="#1A0E08">
 <meta property="og:site_name" content="Sén Péi — un Monde Pixie">
 <meta property="og:title" content="Mon espace — Sén Péi">
 <meta property="og:description" content="Ton espace Sén Péi : ta fiche, tes appels, tes candidatures.">
-<meta property="og:image" content="https://pixiartpro.github.io/sen-pei/assets/scene-1.png">
+<meta property="og:image" content="https://pixiartpro.github.io/sen-pei/assets/og-sen-pei.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Une scène de concert à La Réunion, avec le nom Sén Péi">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pixiartpro.github.io/sen-pei/app.html">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:locale" content="fr_FR">
 <meta name="robots" content="noindex">
 <title>Sén Péi — mon espace</title>
 <link rel="preload" href="fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="canonical" href="https://pixiartpro.github.io/sen-pei/app.html">
 <link rel="stylesheet" href="commun.css">
 <script>document.addEventListener('touchstart',function(){},{passive:true})</script>
 <style>
@@ -30,7 +38,7 @@
   .brand{display:flex;flex-direction:column;line-height:1}
   .logo{font-family:'Fraunces',serif;font-weight:700;font-size:26px;
     background:linear-gradient(92deg,var(--safran),var(--brique));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .sig{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muet);margin-top:4px}
+  .sig{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muet);margin-top:4px}
   #whoami{font-size:13px;color:var(--muet);display:flex;align-items:center;gap:12px}
   .link{color:var(--safran);cursor:pointer;background:none;border:none;font-size:13px}
 
@@ -73,7 +81,7 @@
   .appel-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
   .appel-h b{font-size:15.5px;font-family:'Fraunces',serif}
   .appel-actions{display:flex;gap:14px;margin-top:11px;flex-wrap:wrap;align-items:center}
-  .badge{font-size:11px;padding:3px 10px;border-radius:999px;background:rgba(255,233,210,.1);text-transform:capitalize}
+  .badge{font-size:12px;padding:3px 10px;border-radius:999px;background:rgba(255,233,210,.1);text-transform:capitalize}
   .badge.ouvert,.badge.retenu{background:rgba(120,190,130,.18);color:#cdeccf}
   .badge.pourvu,.badge.clos,.badge.refuse{background:rgba(226,75,74,.15);color:#f3b4b4}
   .badge.envoye,.badge.vu{background:rgba(246,190,84,.16);color:var(--safran)}
@@ -124,7 +132,7 @@
   .nav{width:44px;height:44px;border-radius:12px;border:1px solid var(--ligne);background:transparent;color:var(--creme);font-size:18px;cursor:pointer}
   .nav:disabled{opacity:.3;cursor:default}
   .grille{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-  .js{font-size:11px;color:var(--muet);text-align:center;padding-bottom:2px}
+  .js{font-size:12px;color:var(--muet);text-align:center;padding-bottom:2px}
   .j{height:44px;border-radius:11px;border:1px solid var(--ligne);background:rgba(255,233,210,.04);color:var(--creme);
      font-size:15px;font-family:inherit;cursor:pointer;transition:transform .15s ease-out,background .15s ease-out}
   .j{touch-action:manipulation}
@@ -173,6 +181,7 @@
 <style id="ft-css"></style>
 </head>
 <body>
+<a class="aller-contenu" href="#contenu">Aller au contenu</a>
 <div class="wrap">
   <header>
     <div class="brand"><div class="logo">Sén Péi</div><div class="sig">un Monde Pixie</div></div>
@@ -181,6 +190,7 @@
       <div id="whoami"></div>
     </div>
   </header>
+  <span id="contenu" tabindex="-1"></span>
 
   <!-- AUTH -->
   <section id="auth" class="card hide">

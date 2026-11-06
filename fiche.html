@@ -2,13 +2,19 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://acxfzftptzgdhaakldve.supabase.co wss://acxfzftptzgdhaakldve.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Une fiche lieu ou artiste de la scène réunionnaise, sur Sén Péi.">
 <meta name="theme-color" content="#1A0E08">
 <meta property="og:site_name" content="Sén Péi — un Monde Pixie">
 <meta property="og:title" content="Une fiche de la scène péi — Sén Péi">
 <meta property="og:description" content="Une fiche lieu ou artiste de la scène réunionnaise, sur Sén Péi.">
-<meta property="og:image" content="https://pixiartpro.github.io/sen-pei/assets/scene-1.png">
+<meta property="og:image" content="https://pixiartpro.github.io/sen-pei/assets/og-sen-pei.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Une scène de concert à La Réunion, avec le nom Sén Péi">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:locale" content="fr_FR">
 <title>Sén Péi — fiche</title>
 <link rel="preload" href="fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
@@ -27,7 +33,7 @@
   header{display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--ligne)}
   .brand{display:flex;flex-direction:column;line-height:1}
   .logo{font-family:'Fraunces',serif;font-weight:700;font-size:24px;background:linear-gradient(92deg,var(--safran),var(--brique));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .sig{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muet);margin-top:3px}
+  .sig{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muet);margin-top:3px}
   .back{font-size:14px;color:var(--safran);text-decoration:none}
   .card{background:linear-gradient(180deg,var(--panel),var(--terre2));border:1px solid var(--ligne);border-radius:20px;padding:30px;margin-top:28px}
   .kind{display:inline-block;font-size:12px;letter-spacing:1px;text-transform:uppercase;border-radius:999px;padding:5px 13px;margin-bottom:14px}
@@ -88,6 +94,7 @@
 <style id="ft-css"></style>
 </head>
 <body>
+<a class="aller-contenu" href="#contenu">Aller au contenu</a>
 <div class="wrap">
   <header>
     <a href="decouvrir.html" style="display:flex;flex-direction:column;line-height:1;text-decoration:none">
@@ -95,7 +102,7 @@
     </a>
     <a class="back" href="decouvrir.html">← Découvrir</a>
   </header>
-  <div id="content"><div class="loading">Chargement…</div></div>
+  <div id="content" tabindex="-1"><span id="contenu"></span><div class="loading">Chargement…</div></div>
   <footer>Sén Péi — un Monde Pixie · La Réunion<br><a class="mentions" href="mentions-legales.html">Mentions légales et données personnelles</a></footer>
 </div>
 

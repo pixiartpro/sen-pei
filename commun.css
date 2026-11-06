@@ -27,8 +27,14 @@ button:active,.btn:active,.cta:active,.go:active,.share:active{transform:scale(.
 /* Lien « Mentions légales et données personnelles » du pied de page : discret, mais souligné
    pour qu'on le reconnaisse comme un lien, et assez haut pour le doigt */
 a.mentions{color:inherit;text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;
-  display:inline-block;padding:6px 0}
+  display:inline-flex;align-items:center;min-height:44px}
 a.mentions:hover{color:#F6BE54}
+
+/* Lien « Aller au contenu » : caché, il apparaît au premier Tab du clavier */
+.aller-contenu{position:absolute;left:-9999px;top:8px;z-index:100;background:#F6BE54;color:#2a1206;font:600 15px 'Inter',system-ui,sans-serif;
+  padding:12px 16px;border-radius:10px;text-decoration:none}
+.aller-contenu:focus{left:16px}
+#contenu:focus{outline:none}
 
 /* En-tête sur téléphone : les liens ne se cassent jamais sur deux lignes */
 nav a,.sig{white-space:nowrap}

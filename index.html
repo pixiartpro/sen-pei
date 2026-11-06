@@ -2,16 +2,30 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://acxfzftptzgdhaakldve.supabase.co wss://acxfzftptzgdhaakldve.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="La place de marché de la scène péi : les lieux de La Réunion publient qui ils cherchent, les artistes répondent. Un Monde Pixie.">
 <meta name="theme-color" content="#1A0E08">
 <meta property="og:site_name" content="Sén Péi — un Monde Pixie">
 <meta property="og:title" content="Sén Péi — trouve ta scène, trouve tes artistes">
 <meta property="og:description" content="La place de marché de la scène péi : les lieux de La Réunion publient qui ils cherchent, les artistes répondent. Un Monde Pixie.">
-<meta property="og:image" content="https://pixiartpro.github.io/sen-pei/assets/scene-1.png">
+<meta property="og:image" content="https://pixiartpro.github.io/sen-pei/assets/og-sen-pei.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Une scène de concert à La Réunion, avec le nom Sén Péi">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pixiartpro.github.io/sen-pei/">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:locale" content="fr_FR">
 <title>Sén Péi — trouve ta scène, trouve tes artistes</title>
 <link rel="preload" href="fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"WebSite","@id":"https://pixiartpro.github.io/sen-pei/#site","name":"Sén Péi","alternateName":"Sén Péi — un Monde Pixie","url":"https://pixiartpro.github.io/sen-pei/","inLanguage":"fr-FR","publisher":{"@id":"https://pixiartpro.github.io/sen-pei/#pixiart"}},
+ {"@type":"Organization","@id":"https://pixiartpro.github.io/sen-pei/#pixiart","name":"PIX-I-ART","email":"contact@pix-i-art.re","address":{"@type":"PostalAddress","addressLocality":"Sainte-Clotilde","addressRegion":"La Réunion","addressCountry":"FR"}}
+]}
+</script>
+<link rel="canonical" href="https://pixiartpro.github.io/sen-pei/">
 <link rel="stylesheet" href="commun.css">
 <script>document.addEventListener('touchstart',function(){},{passive:true})</script>
 <style>
@@ -28,7 +42,7 @@
   .eyebrow span{width:7px;height:7px;border-radius:50%;background:var(--corail)}
   h2{font-family:'Fraunces',serif;font-weight:600;font-size:40px;line-height:1.08;letter-spacing:-.5px;margin-bottom:22px}
   p.lead{font-size:18px;line-height:1.65;color:#EAD9C5;max-width:680px}
-  .sig{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muet)}
+  .sig{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muet)}
 
   /* HERO */
   .hero{position:relative;min-height:88vh;display:flex;align-items:center;overflow:hidden}
@@ -113,9 +127,10 @@
 </style>
 </head>
 <body>
+<a class="aller-contenu" href="#contenu">Aller au contenu</a>
 
   <header class="hero">
-    <div class="bg"><img src="assets/scene-1.png" alt=""></div>
+    <div class="bg"><img src="assets/scene-1.webp" alt="" width="1600" height="894" fetchpriority="high"></div>
     <div class="veil"></div>
     <div class="wrap">
       <div class="tete">
@@ -125,7 +140,7 @@
           <a href="app.html#inscription" style="color:var(--creme);font-size:14px;border:1px solid var(--ligne);border-radius:999px;padding:8px 15px;text-decoration:none">S'inscrire</a>
         </nav>
       </div>
-      <h1>Trouve ta scène.<br>Trouve tes <em>artistes</em>.</h1>
+      <h1 id="contenu" tabindex="-1">Trouve ta scène.<br>Trouve tes <em>artistes</em>.</h1>
       <p class="one">Sén Péi réunit les lieux qui programment et les artistes péi qui créent — au même endroit, enfin.</p>
       <div class="portes">
         <a class="btn" href="app.html#inscription-lieu">Je suis un lieu : publier une date</a>
@@ -212,7 +227,7 @@
   </section>
 
   <section class="vision">
-    <div class="bg"><img src="assets/scene-3.png" alt=""></div>
+    <div class="bg"><img src="assets/scene-3.webp" alt="" width="1600" height="894" loading="lazy" decoding="async"></div>
     <div class="veil"></div>
     <div class="wrap">
       <div class="eyebrow" style="justify-content:center"><span></span> La vision</div>

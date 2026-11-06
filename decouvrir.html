@@ -2,16 +2,24 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://acxfzftptzgdhaakldve.supabase.co wss://acxfzftptzgdhaakldve.supabase.co; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Lieux, artistes et appels à candidature de La Réunion, consultables sans compte.">
 <meta name="theme-color" content="#1A0E08">
 <meta property="og:site_name" content="Sén Péi — un Monde Pixie">
 <meta property="og:title" content="Découvrir la scène péi — Sén Péi">
 <meta property="og:description" content="Lieux, artistes et appels à candidature de La Réunion, consultables sans compte.">
-<meta property="og:image" content="https://pixiartpro.github.io/sen-pei/assets/scene-1.png">
+<meta property="og:image" content="https://pixiartpro.github.io/sen-pei/assets/og-sen-pei.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Une scène de concert à La Réunion, avec le nom Sén Péi">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pixiartpro.github.io/sen-pei/decouvrir.html">
+<meta name="twitter:card" content="summary_large_image">
 <meta property="og:locale" content="fr_FR">
 <title>Sén Péi — découvrir la scène péi</title>
 <link rel="preload" href="fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="canonical" href="https://pixiartpro.github.io/sen-pei/decouvrir.html">
 <link rel="stylesheet" href="commun.css">
 <script>document.addEventListener('touchstart',function(){},{passive:true})</script>
 <style>
@@ -27,7 +35,7 @@
   header{display:flex;align-items:center;justify-content:space-between;padding:20px 0;position:relative;z-index:3}
   .brand{display:flex;flex-direction:column;line-height:1}
   .logo{font-family:'Fraunces',serif;font-weight:700;font-size:26px;background:linear-gradient(92deg,var(--safran),var(--brique));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .sig{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muet);margin-top:3px}
+  .sig{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muet);margin-top:3px}
   nav a{font-size:14px;color:var(--creme);opacity:.9;margin-left:22px}
   nav a.cta{border:1px solid var(--ligne);border-radius:999px;padding:9px 16px;opacity:1}
 
@@ -43,7 +51,7 @@
   .lead{font-size:17px;color:#EAD9C5;max-width:540px;margin-bottom:26px;line-height:1.55}
   .search{background:rgba(28,14,8,.6);border:1px solid var(--ligne);border-radius:16px;padding:10px;display:grid;grid-template-columns:1fr 1fr 1.3fr auto;gap:9px;backdrop-filter:blur(8px);max-width:760px}
   .fld{display:flex;flex-direction:column;gap:3px;padding:7px 11px;border-radius:11px}
-  .fld label{font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muet)}
+  .fld label{font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--muet)}
   .fld select,.fld input{background:transparent;border:none;color:var(--creme);font-size:15px;padding:2px 0;outline:none;width:100%}
   .fld select option{background:#27150D}
   .go{background:linear-gradient(92deg,var(--brique),var(--safran));color:#2a1206;border:none;border-radius:12px;padding:0 20px;font-size:15px;font-weight:600;cursor:pointer}
@@ -60,7 +68,7 @@
   .ccard .meta{font-size:13.5px;color:var(--muet);margin-top:4px}
   .ccard .desc{font-size:14px;color:#E6D4C0;margin-top:10px;line-height:1.5}
   .tagrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
-  .tg{font-size:11.5px;padding:3px 10px;border-radius:999px;background:rgba(255,233,210,.07)}
+  .tg{font-size:12px;padding:3px 10px;border-radius:999px;background:rgba(255,233,210,.07)}
   .tg.kind{background:rgba(246,190,84,.14);color:var(--safran)}
   .tg.kindb{background:rgba(255,122,71,.16);color:var(--corail)}
   .vlink{display:inline-block;margin-top:12px;color:var(--corail);font-size:13.5px}
@@ -75,8 +83,9 @@
 </style>
 </head>
 <body>
+<a class="aller-contenu" href="#contenu">Aller au contenu</a>
   <section class="hero">
-    <div class="bg"><img src="assets/scene-1.png" alt=""></div>
+    <div class="bg"><img src="assets/scene-1.webp" alt="" width="1600" height="894" fetchpriority="high"></div>
     <div class="veil"></div>
     <div class="wrap">
       <header>
@@ -85,7 +94,7 @@
       </header>
       <div class="inner">
         <div class="eyebrow"><span></span> La scène vivante de La Réunion</div>
-        <h1>Trouve ta scène.<br>Trouve tes <em>artistes</em>.</h1>
+        <h1 id="contenu" tabindex="-1">Découvre la <em>scène péi</em>.</h1>
         <p class="lead">Lieux, bars, festivals et artistes péi, réunis au même endroit. Cherche, découvre, mets-toi en relation.</p>
         <div class="search">
           <div class="fld"><label>Zone</label>
