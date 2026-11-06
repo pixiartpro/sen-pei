@@ -43,7 +43,9 @@ const CDN = /jsdelivr|unpkg\.com|esm\.sh|cdnjs|skypack|jspm\.io/i;
 // sur le brouillon mentions-legales-BROUILLON-2026-11-03.html : contenu de la balise <main> (texte ET
 // balises, donc les liens et adresses), ligne de date masquée, espaces normalisés (fonction corps).
 // Ne la changer qu'après un nouveau oui de Guillaume sur un nouveau texte : node banc-mentions.mjs --empreinte
-const EMPREINTE_TEXTE = 'a2941b303b6d54669fec95b64ad327007fa8e45db7b4644d3dd3aced028b923c';
+// Complément « boîte à outils de l'artiste » (3 phrases) validé par Guillaume le vendredi 06/11/2026.
+// Empreinte d'avant (texte du 03/11/2026) : a2941b303b6d54669fec95b64ad327007fa8e45db7b4644d3dd3aced028b923c
+const EMPREINTE_TEXTE = '1acf1cdfb5039f5424b1524ed4b85711b885e06518fb98befcc5a6f02670965f';
 
 const resultats = [];
 const verifie = (nom, ok, detail = '') => resultats.push({ nom, ok: !!ok, detail });
@@ -96,7 +98,7 @@ if (ml !== null) {
   // Le texte est-il celui validé, mot pour mot ? Toujours contrôlé, par l'empreinte.
   const empreintePage = sha256(corps(ml));
   if (AFFICHE_EMPREINTE) console.log(`Empreinte du texte actuel (balise <main>, date masquée) : ${empreintePage}\n`);
-  verifie('Texte mot pour mot celui validé le 03/11/2026 (empreinte sha256 de <main>, date mise à part)',
+  verifie('Texte mot pour mot celui validé (03/11/2026, complété le 06/11/2026) (empreinte sha256 de <main>, date mise à part)',
     corps(ml).length > 0 && empreintePage === EMPREINTE_TEXTE,
     `empreinte ${empreintePage}, attendue ${EMPREINTE_TEXTE}${BROUILLON ? '' : ' — pour voir où est l\'écart : --brouillon <fichier>'}`);
 
