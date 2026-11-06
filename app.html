@@ -124,6 +124,8 @@
   #cl-reset{min-height:44px}
   #ft-apercu .ft{margin-top:4px}
   button.chip{background:none;color:inherit;font:inherit;font-size:13px}
+  .contact-zone{margin-top:18px;border:1px solid rgba(246,190,84,.35);background:rgba(246,190,84,.06);border-radius:12px;padding:12px 14px}
+  .contact-zone b{font-size:14.5px}
   .liens-zone{margin-top:18px;border:1px solid var(--ligne);border-radius:12px;padding:12px 14px}
   .liens-zone summary{cursor:pointer;font-size:14.5px;color:var(--safran);min-height:44px;display:flex;align-items:center}
   /* Agenda : mes dates prises */
@@ -202,8 +204,8 @@
     </div>
 
     <form id="form-login">
-      <label>Email</label><input type="email" id="login-email" required>
-      <label>Mot de passe</label><input type="password" id="login-pass" required>
+      <label for="login-email">Email</label><input type="email" id="login-email" required>
+      <label for="login-pass">Mot de passe</label><input type="password" id="login-pass" required>
       <button class="btn" type="submit">Se connecter</button>
       <p class="hint"><button type="button" class="link" id="mdp-oublie">Mot de passe oublié, ou pas de mot de passe ?</button></p>
     </form>
@@ -214,9 +216,9 @@
         <div class="opt on" data-type="lieu">🏛️ Un lieu / bar</div>
         <div class="opt" data-type="artiste">🎤 Un artiste</div>
       </div>
-      <label>Nom (du lieu ou de l'artiste)</label><input type="text" id="su-nom" required>
-      <label>Email</label><input type="email" id="su-email" required>
-      <label>Mot de passe</label><input type="password" id="su-pass" minlength="6" required>
+      <label for="su-nom">Nom (du lieu ou de l'artiste)</label><input type="text" id="su-nom" required>
+      <label for="su-email">Email</label><input type="email" id="su-email" required>
+      <label for="su-pass">Mot de passe</label><input type="password" id="su-pass" minlength="6" required>
       <div class="hint">Au moins 6 caractères.</div>
       <button class="btn" type="submit">Créer mon compte</button>
       <p class="hint legal-ligne">Votre fiche, et le contact d'un lieu, sont publics. <a href="mentions-legales.html" target="_blank" rel="noopener">Mentions légales et données personnelles</a></p>
@@ -242,7 +244,7 @@
     <h1>Nouveau mot de passe</h1>
     <p class="sub">Choisis ton nouveau mot de passe pour Sén Péi.</p>
     <form id="form-mdp">
-      <label>Nouveau mot de passe</label><input type="password" id="mdp-nouveau" minlength="6" required>
+      <label for="mdp-nouveau">Nouveau mot de passe</label><input type="password" id="mdp-nouveau" minlength="6" required>
       <div class="hint">Au moins 6 caractères.</div>
       <button class="btn" type="submit">Enregistrer</button>
     </form>
@@ -257,9 +259,9 @@
     <!-- FICHE LIEU -->
     <div id="form-lieu" class="hide">
       <h2>Ma fiche lieu</h2>
-      <label>Nom du lieu</label><input type="text" id="l-nom">
+      <label for="l-nom">Nom du lieu</label><input type="text" id="l-nom">
       <div class="row">
-        <div><label>Type</label>
+        <div><label for="l-type">Type</label>
           <select id="l-type">
             <option value="">—</option>
             <option>Salle de spectacle</option><option>Festival</option><option>Bar / café-concert</option>
@@ -267,20 +269,20 @@
             <option>Comité des fêtes</option><option>Hôtel / restaurant</option><option>Autre</option>
           </select>
         </div>
-        <div><label>Zone</label>
+        <div><label for="l-zone">Zone</label>
           <select id="l-zone"><option value="">—</option><option>Nord</option><option>Sud</option><option>Est</option><option>Ouest</option></select>
         </div>
       </div>
       <div class="row">
-        <div><label>Commune</label><select id="l-commune"></select></div>
-        <div><label>Jauge (places)</label><select id="l-jauge"></select></div>
+        <div><label for="l-commune">Commune</label><select id="l-commune"></select></div>
+        <div><label for="l-jauge">Jauge (places)</label><select id="l-jauge"></select></div>
       </div>
-      <label>Ce que vous programmez</label>
+      <label>Ce que tu programmes</label>
       <div class="chips" id="l-disc"></div>
-      <label>Description</label><textarea id="l-desc" placeholder="Présentez votre lieu, votre programmation…"></textarea>
+      <label for="l-desc">Description</label><textarea id="l-desc" placeholder="Présente ton lieu, ta programmation…"></textarea>
       <div class="row">
-        <div><label>Contact</label><input type="text" id="l-contact" placeholder="email ou téléphone"></div>
-        <div><label>Site web</label><input type="text" id="l-site"></div>
+        <div><label for="l-contact">Contact</label><input type="text" id="l-contact" placeholder="email ou téléphone"></div>
+        <div><label for="l-site">Site web</label><input type="text" id="l-site"></div>
       </div>
       <button class="btn" id="save-lieu">Enregistrer ma fiche</button>
     </div>
@@ -288,20 +290,28 @@
     <!-- FICHE ARTISTE -->
     <div id="form-artiste" class="hide">
       <h2>Ma fiche artiste</h2>
-      <label>Nom d'artiste / du groupe</label><input type="text" id="a-nom">
+      <label for="a-nom">Nom d'artiste / du groupe</label><input type="text" id="a-nom">
       <label>Disciplines</label>
       <div class="chips" id="a-disc"></div>
-      <label>Bio</label><textarea id="a-bio" placeholder="Présentez votre univers…"></textarea>
-      <label>Lien vidéo (obligatoire pour être visible)</label><input type="text" id="a-video" placeholder="YouTube, Vimeo, Insta…">
-      <div class="hint">C'est votre meilleure carte de visite : on vous voit jouer.</div>
+      <label for="a-bio">Bio</label><textarea id="a-bio" placeholder="Présente ton univers…"></textarea>
+      <label for="a-video">Lien vidéo (obligatoire pour être visible)</label><input type="text" id="a-video" placeholder="YouTube, Vimeo, Insta…">
+      <div class="hint">C'est ta meilleure carte de visite : on te voit jouer.</div>
       <div class="row">
-        <div><label>Zone</label>
+        <div><label for="a-zone">Zone</label>
           <select id="a-zone"><option value="">—</option><option>Nord</option><option>Sud</option><option>Est</option><option>Ouest</option><option>Toute l'île</option></select>
         </div>
-        <div><label>Tarif indicatif</label><select id="a-tarif"></select></div>
+        <div><label for="a-tarif">Tarif indicatif</label><select id="a-tarif"></select></div>
       </div>
-      <label>Où avez-vous déjà joué ? (références)</label><textarea id="a-ref" placeholder="ex. Kabardock, Cité des Arts, Sakifo…"></textarea>
-      <label>Disponibilités</label><select id="a-dispo"></select>
+      <label for="a-ref">Où as-tu déjà joué ? (références)</label><textarea id="a-ref" placeholder="ex. Kabardock, Cité des Arts, Sakifo…"></textarea>
+      <label for="a-dispo">Disponibilités</label><select id="a-dispo"></select>
+      <div class="contact-zone">
+        <b>Comment un lieu te contacte</b>
+        <div class="hint">Facultatif, mais c'est ce qui permet à un bar de te proposer une date depuis ta fiche ou ton QR code. Ce que tu mets ici est <b>visible de tous</b> sur ta fiche.</div>
+        <div class="row">
+          <div><label for="ct-tel">Téléphone ou WhatsApp</label><input type="tel" id="ct-tel" data-contact="tel" placeholder="0692 12 34 56" autocomplete="off" inputmode="tel"></div>
+          <div><label for="ct-email">E-mail</label><input type="email" id="ct-email" data-contact="email" placeholder="toi@exemple.re" autocomplete="off" autocapitalize="off"></div>
+        </div>
+      </div>
       <details class="liens-zone" id="a-liens-zone">
         <summary>Mes liens (Instagram, Facebook, Spotify…)</summary>
         <div class="hint" style="margin-bottom:4px">Ils s'affichent sur ta fiche publique : elle devient le lien unique à mettre en bio. Colle l'adresse de ton profil (ou ton @pseudo pour Instagram, TikTok et YouTube).</div>
@@ -319,6 +329,7 @@
         </div>
       </details>
       <button class="btn" id="save-artiste">Enregistrer ma fiche</button>
+      <p class="hint" id="a-annonce-outils">Une fois ta fiche enregistrée, tu trouveras ici ton agenda, ton QR code, ta fiche technique et tes outils de concert.</p>
     </div>
 
     <div class="msg" id="espace-msg"></div>
@@ -370,7 +381,7 @@
       <label>Entrées à brancher sur la sono du lieu</label>
       <div id="ft-entrees"></div>
       <button class="link ft-ajout" type="button" id="ft-add-ent">+ Ajouter une entrée</button>
-      <label for="ft-retours">Retours (enceintes tournées vers vous)</label><select id="ft-retours" data-ft="retours"></select>
+      <label for="ft-retours">Retours (enceintes tournées vers les musiciens)</label><select id="ft-retours" data-ft="retours"></select>
     </div>
     <div class="row">
       <div><label for="ft-prises">Prises électriques</label><select id="ft-prises" data-ft="prises"></select></div>
@@ -428,18 +439,18 @@
       <button class="link" id="toggle-new-appel">+ Nouvel appel</button>
     </div>
     <div id="new-appel-form" class="hide" style="margin-top:16px">
-      <label>Titre de l'appel</label><input type="text" id="ap-titre" placeholder="ex. Duo pour apéros-concerts du vendredi">
+      <label for="ap-titre">Titre de l'appel</label><input type="text" id="ap-titre" placeholder="ex. Duo pour apéros-concerts du vendredi">
       <div class="row">
-        <div><label>Discipline recherchée</label><select id="ap-disc"></select></div>
-        <div><label>Période</label><select id="ap-periode"></select></div>
+        <div><label for="ap-disc">Discipline recherchée</label><select id="ap-disc"></select></div>
+        <div><label for="ap-periode">Période</label><select id="ap-periode"></select></div>
       </div>
       <label for="ap-concert">Date du concert (facultatif)</label><input type="date" id="ap-concert">
       <div class="hint">Avec une date, tu verras quels artistes sont déjà pris ce jour-là.</div>
       <div class="row">
-        <div><label>Date limite de candidature</label><input type="date" id="ap-limite"></div>
-        <div><label>Jauge</label><input type="number" id="ap-jauge" min="0"></div>
+        <div><label for="ap-limite">Date limite de candidature</label><input type="date" id="ap-limite"></div>
+        <div><label for="ap-jauge">Jauge</label><input type="number" id="ap-jauge" min="0"></div>
       </div>
-      <label>Description</label><textarea id="ap-desc" placeholder="Détaillez ce que vous cherchez…"></textarea>
+      <label for="ap-desc">Description</label><textarea id="ap-desc" placeholder="Détaille ce que tu cherches…"></textarea>
       <button class="btn" id="publish-appel">Publier l'appel</button>
     </div>
     <div id="appels-list" style="margin-top:14px"></div>
@@ -624,7 +635,7 @@ $('form-mdp').addEventListener('submit',async e=>{
 async function loadFiche(){
   const table=profil.type==='lieu'?'scene_lieux':'scene_artistes'
   const {data}=await sb.from(table).select('*').eq('profil_id',profil.id).limit(1).maybeSingle()
-  if(!data){ficheId=null;majLienFiche();return}
+  if(!data){ficheId=null;if(profil.type==='lieu')$('l-nom').value=profil.nom||'';else $('a-nom').value=profil.nom||'';majLienFiche();return}
   ficheId=data.id
   if(profil.type==='lieu'){
     $('l-nom').value=data.nom||'';$('l-type').value=data.type_lieu||'';$('l-zone').value=data.zone||''
@@ -635,7 +646,8 @@ async function loadFiche(){
     $('a-zone').value=data.zone||'';$('a-tarif').value=data.tarif_indicatif||'';$('a-ref').value=data.references_jouees||''
     $('a-dispo').value=data.dispo||'';setChips($('a-disc'),data.disciplines)
     document.querySelectorAll('[data-lien]').forEach(i=>i.value=(data.liens&&typeof data.liens[i.dataset.lien]==='string')?data.liens[i.dataset.lien]:'')
-    if(data.liens&&Object.keys(data.liens).length)$('a-liens-zone').open=true
+    document.querySelectorAll('[data-contact]').forEach(i=>i.value=(data.liens&&typeof data.liens[i.dataset.contact]==='string')?data.liens[i.dataset.contact]:'')
+    if(data.liens&&Object.keys(data.liens).some(k=>Object.hasOwn(RESEAUX,k)))$('a-liens-zone').open=true
     ft=FT.nettoyer(data.fiche_technique);ftEnregistree=!!ft
   }
   majLienFiche()
@@ -643,6 +655,7 @@ async function loadFiche(){
 
 // Lien vers la fiche publique dès qu'une fiche existe
 function majLienFiche(){
+  show($('a-annonce-outils'),!ficheId)
   const a=$('voir-fiche');if(!ficheId)return show(a,false)
   a.href=`fiche.html?type=${profil.type==='lieu'?'lieu':'artiste'}&id=${ficheId}`;show(a,true)
   majQr()
@@ -686,7 +699,7 @@ $('qr-image').onclick=()=>{
 async function afterLogin(user){
   profil=await ensureProfil(user)
   if(!profil)return
-  show($('auth'),false);show($('espace'),true)
+  show($('auth'),false);show($('espace'),true);window.scrollTo(0,0)
   $('whoami').innerHTML=`${esc(profil.nom||user.email)} · <button class="link" id="logout">Déconnexion</button>`
   $('logout').onclick=async()=>{await sb.auth.signOut();location.reload()}
   const isLieu=profil.type==='lieu'
@@ -736,6 +749,15 @@ const RESEAUX={
   spotify:{nom:'Spotify',dom:['spotify.com','spotify.link']},
   autre:{nom:'Autre lien',dom:null}
 }
+// 0692 12 34 56 → +262692123456 ; 06 12 34 56 78 → +33612345678 ; +262… gardé
+function telInter(v){
+  let d=v.replace(/[\s.\-()]/g,'')
+  if(/^00/.test(d))d='+'+d.slice(2)
+  if(/^\+\d{9,14}$/.test(d))return d
+  if(/^0(262|263|692|693|639)\d{6}$/.test(d))return '+262'+d.slice(1)
+  if(/^0[1-9]\d{8}$/.test(d))return '+33'+d.slice(1)
+  return null
+}
 function lireLiens(){
   const liens={}
   for(const i of document.querySelectorAll('[data-lien]')){
@@ -753,6 +775,10 @@ function lireLiens(){
     if(/^(l|lm)\./.test(u.hostname)||/\/(l\.php|redirect)/i.test(u.pathname)||/^https?:/i.test(u.searchParams.get('u')||u.searchParams.get('q')||''))return {erreur:`Le lien ${r.nom} est un lien de redirection : copie l'adresse de ton profil.`}
     liens[k]=url
   }
+  // Contact public (facultatif) : téléphone au format international, e-mail simple
+  const tel=$('ct-tel').value.trim(), mail=$('ct-email').value.trim()
+  if(tel){const t=telInter(tel);if(!t)return {erreur:"Le numéro ne ressemble pas à un numéro de téléphone (ex. 0692 12 34 56)."};liens.tel=t}
+  if(mail){if(mail.length>120||!/^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i.test(mail))return {erreur:"L'adresse e-mail ne ressemble pas à une adresse (ex. toi@exemple.re)."};liens.email=mail}
   return {liens:Object.keys(liens).length?liens:null}
 }
 

@@ -78,6 +78,7 @@
   .liens{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
   .liens a{display:inline-flex;align-items:center;min-height:40px;padding:8px 14px;border-radius:999px;border:1px solid var(--ligne);color:var(--creme);text-decoration:none;font-size:14px}
   .liens a:active{transform:scale(.97)}
+  .liens a.go-contact{background:linear-gradient(92deg,#D2602F,#F6BE54);color:#2a1206;border:none;font-weight:600}
   #technique{margin-top:26px;scroll-margin-top:16px}
   #technique h2{margin-bottom:12px}
   .imprimer-ft{margin-top:12px}
@@ -208,6 +209,19 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
     const https=u=>{const x=safeUrl(u);return x?x.replace(/^http:/,'https:'):null}
     const liens=(data.liens&&typeof data.liens==='object'&&!Array.isArray(data.liens))?Object.keys(NOMS).filter(k=>typeof data.liens[k]==='string'&&https(data.liens[k])).map(k=>{const u=https(data.liens[k]);return [chezLui(k,u)?NOMS[k]:host(u),u]}):[]
     const ftHtml=window.FT?FT.fiche(data.fiche_technique,data.nom):''
+    // Lui proposer une date : contact indiqué par l'artiste (téléphone, e-mail), sinon ses réseaux, sinon un appel
+    const L=(data.liens&&typeof data.liens==='object'&&!Array.isArray(data.liens))?data.liens:{}
+    const tel=typeof L.tel==='string'&&/^\+\d{9,14}$/.test(L.tel)?L.tel:null
+    const mail=typeof L.email==='string'&&/^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i.test(L.email)&&L.email.length<=120?L.email:null
+    const mot=encodeURIComponent(`Bonjour ${data.nom||''}, je vous ai découvert sur Sén Péi. Je voudrais vous proposer une date : `)
+    const boutons=[
+      tel?`<a class="go-contact" href="https://wa.me/${tel.slice(1)}?text=${mot}" target="_blank" rel="noopener">WhatsApp</a>`:'',
+      tel?`<a class="go-contact" href="tel:${tel}">Appeler</a>`:'',
+      mail?`<a class="go-contact" href="mailto:${encodeURIComponent(mail)}?subject=${encodeURIComponent('Proposition de date — Sén Péi')}&body=${mot}">E-mail</a>`:''].join('')
+    const contactHtml=`<div class="field contact"><div class="l">Lui proposer une date</div>${boutons
+      ?`<div class="liens">${boutons}</div>`
+      :(liens.length?`<div class="v">Écris-lui sur ses réseaux, juste au-dessus.</div>`
+        :`<div class="v">Cet artiste n'a pas encore indiqué comment le joindre. Publie ton besoin sur Sén Péi : il pourra y répondre. <a href="app.html#inscription-lieu" style="color:var(--safran)">Publier une date →</a></div>`)}</div>`
     if(ftHtml)document.getElementById('ft-css').textContent=FT.CSS
     C.innerHTML=`<div class="card">
       <span class="kind artiste">Artiste</span>
@@ -220,6 +234,7 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
       ${data.references_jouees?`<div class="field"><div class="l">Déjà joué à</div><div class="v">${esc(data.references_jouees)}</div></div>`:''}
       ${data.dispo?`<div class="field"><div class="l">Disponibilités</div><div class="v">${esc(data.dispo)}</div></div>`:''}
       ${liens.length?`<div class="field"><div class="l">Retrouve-moi</div><div class="liens">${liens.map(([n,u])=>`<a href="${esc(u)}" target="_blank" rel="noopener nofollow">${esc(n)} ↗</a>`).join('')}</div></div>`:''}
+      ${contactHtml}
       ${pris.length?`<div class="field"><div class="l">Prochaines dates déjà prises (visible des seuls inscrits)</div><div class="tagrow">${pris.map(d=>`<span class="tg pris">${esc(dateFr(d))}</span>`).join('')}</div></div>`:''}
     </div>
     ${ftHtml?`<section id="technique"><h2>Fiche technique</h2>${ftHtml}<button class="share imprimer-ft" id="imprimer-ft" type="button">🖨 Imprimer la fiche technique</button></section>`:''}

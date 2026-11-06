@@ -170,7 +170,7 @@ function render(){
   $('g-appels').innerHTML=ap.length?ap.map(b=>{const l=b.scene_lieux||{};return `
     <div class="ccard besoin-card">
       <div class="nom">${esc(b.titre)}</div>
-      <div class="meta">${[l.nom,l.commune,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>
+      <div class="meta">${[l.nom,l.commune,b.date_concert?('concert le '+dateFr(b.date_concert)):null,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>
       ${b.description?`<div class="desc">${esc(b.description)}</div>`:''}
       <div class="tagrow">${b.discipline?`<span class="tg kindb">${esc(b.discipline)}</span>`:''}${b.jauge?`<span class="tg">jauge ${b.jauge}</span>`:''}</div>
       <a class="vlink" href="fiche.html?type=lieu&id=${b.lieu_id}">Voir le lieu →</a>
