@@ -519,7 +519,7 @@ buildChips($('l-disc')); buildChips($('a-disc'))
 const COMMUNES=['Saint-Denis','Sainte-Marie','Sainte-Suzanne','Saint-André','Bras-Panon','Salazie','Saint-Benoît','La Plaine-des-Palmistes','Sainte-Rose','Saint-Philippe','Saint-Joseph','Petite-Île','Saint-Pierre','Le Tampon','Entre-Deux',"L'Étang-Salé",'Saint-Louis','Cilaos','Les Avirons','Saint-Leu','Trois-Bassins','Saint-Paul','Le Port','La Possession']
 const JAUGES=[{v:'50',t:'≤ 50'},{v:'100',t:'~ 100'},{v:'150',t:'~ 150'},{v:'200',t:'~ 200'},{v:'300',t:'~ 300'},{v:'500',t:'~ 500'},{v:'800',t:'~ 800'},{v:'1500',t:'1000+'}]
 const PERIODES=['Juin 2026','Juillet 2026','Août 2026','Septembre 2026','Octobre 2026','Novembre 2026','Décembre 2026','Début 2027','Récurrent','Flexible']
-const TARIFS=['Sur devis','Bénévole / défraiement','< 300 €','300–600 €','600–1000 €','1000 €+']
+const TARIFS=['Sur devis','< 300 €','300–600 €','600–1000 €','1000 €+']
 const DISPOS=['Week-ends','En semaine','Soirs','Vacances scolaires','Toute période','Sur demande']
 function fillSelect(id,items,ph){const s=$(id);if(!s)return;s.innerHTML='';const o0=document.createElement('option');o0.value='';o0.textContent=ph||'—';s.appendChild(o0);items.forEach(it=>{const o=document.createElement('option');if(it&&typeof it==='object'){o.value=it.v;o.textContent=it.t}else{o.value=it;o.textContent=it}s.appendChild(o)})}
 fillSelect('l-commune',COMMUNES,'Choisir…');fillSelect('l-jauge',JAUGES,'Choisir…')
