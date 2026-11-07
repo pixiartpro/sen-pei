@@ -1091,6 +1091,9 @@ async function loadMyCandidatures(){
 }
 
 async function loadOpenAppels(){
+  // la liste est redessinée (fiche enregistrée, jour d'agenda, autre candidature) :
+  // on garde les mots déjà tapés, sinon une candidature partirait vide
+  const brouillons={};document.querySelectorAll('#open-appels-list .cand-input').forEach(i=>{if(i.value)brouillons[i.id]=i.value})
   const {data:tous}=await sb.from('scene_besoins').select('*, scene_lieux(nom, commune)').eq('statut','ouvert').order('created_at',{ascending:false})
   const data=(tous||[]).filter(ouvert)
   if(!data.length){$('open-appels-list').innerHTML='<p class="hint">Aucun appel ouvert pour le moment.</p>';return}
@@ -1105,6 +1108,7 @@ async function loadOpenAppels(){
         <button class="mini ok" data-postuler="${b.id}">Candidater</button></div>`}
     </div>`}).join('')
   $('open-appels-list').querySelectorAll('[data-postuler]').forEach(btn=>btn.onclick=()=>candidater(btn.dataset.postuler))
+  for(const [id,v] of Object.entries(brouillons)){const i=document.getElementById(id);if(i)i.value=v}
 }
 
 async function candidater(besoinId){
