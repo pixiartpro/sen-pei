@@ -133,7 +133,7 @@ const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
 const remu=b=>{const d=(b.remuneration_detail||'').trim()
   if(b.remuneration==='cachet')return 'Cachet prévu'+(d?' : '+d:', montant à convenir')
   if(b.remuneration==='amateur')return 'Sans cachet, pratique amateur'+(d?' · frais remboursés : '+d:'')
-  return null}
+  return 'Rémunération non précisée : demande au lieu'}
 const host=u=>{try{return new URL(u).host.replace(/^www\./,'')}catch(e){return u}}
 const p=new URLSearchParams(location.search)
 const type=p.get('type'), id=p.get('id')

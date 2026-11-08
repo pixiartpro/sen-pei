@@ -158,7 +158,7 @@ const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
 const remu=b=>{const d=(b.remuneration_detail||'').trim()
   if(b.remuneration==='cachet')return 'Cachet prévu'+(d?' : '+d:', montant à convenir')
   if(b.remuneration==='amateur')return 'Sans cachet, pratique amateur'+(d?' · frais remboursés : '+d:'')
-  return null}
+  return 'Rémunération non précisée : demande au lieu'}
 
 DISCIPLINES.forEach(d=>{const o=document.createElement('option');o.textContent=d;$('f-disc').appendChild(o)})
 

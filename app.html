@@ -1072,7 +1072,7 @@ const concert=b=>b.date_concert?('concert le '+dateFr(b.date_concert)):null
 const remu=b=>{const d=(b.remuneration_detail||'').trim()
   if(b.remuneration==='cachet')return 'Cachet prévu'+(d?' : '+d:', montant à convenir')
   if(b.remuneration==='amateur')return 'Sans cachet, pratique amateur'+(d?' · frais remboursés : '+d:'')
-  return null}
+  return 'Rémunération non précisée : demande au lieu'}
 const REMU_AIDE={
   cachet:['Montant ou précision (facultatif)','ex. 150 € pour le duo, 2 × 45 min, chapeau en complément','Sans montant, les artistes lisent « montant à convenir ».'],
   amateur:['Frais remboursés (obligatoire)','ex. déplacement remboursé, ou « aucun »','Lis « Jouer dans un bar » avant de choisir cette option, et précise les frais que tu rembourses, ou écris « aucun ».']}
