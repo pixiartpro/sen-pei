@@ -212,6 +212,29 @@ verifie('Vidéos : fiche.html ne crée le lecteur que dans un gestionnaire de cl
     && /(?:\.onclick\s*=|addEventListener\(\s*['"]click['"])[^}]{0,80}$/.test(ficheCode.slice(Math.max(0, iCree - 200), iCree)),
   iCree > 0 ? 'createElement(\'iframe\') hors d\'un .onclick' : 'createElement(\'iframe\') absent');
 
+// QR imprimés (garde-fou repris de Pixie Mariage, 08/11/2026) : le papier ne se corrige pas.
+// Chaque QR déjà imprimé doit toujours mener à une vraie fiche. Le jour où un domaine propre est branché,
+// GitHub Pages renvoie l'ancienne adresse vers la nouvelle en gardant la page et ses paramètres : il ne reste
+// qu'une façon de casser un QR distribué, renommer la page visée ou changer ses paramètres. Ces contrôles l'empêchent.
+// Un nouveau document imprimé avec un QR = une ligne de plus dans IMPRIMES.
+const SITE_QR = 'https://pixiartpro.github.io/sen-pei/';
+const IMPRIMES = [
+  { page: 'fiche.html', params: ['type', 'id'], document: 'affiche A4 et carte du QR de l\'artiste, image PNG du QR (Mes outils de concert)' },
+  { page: 'fiche.html', params: ['type', 'id'], document: 'lien de la fiche technique imprimée (#technique)' },
+];
+const appCode = app ? sansCommentairesCode(app) : '';
+verifie('QR imprimés : l\'adresse de base des QR reste ' + SITE_QR,
+  new RegExp(`const SITE='${echappe(SITE_QR)}'`).test(appCode), 'constante SITE changée dans app.html : les QR déjà imprimés ne mèneraient plus au même endroit');
+verifie('QR imprimés : app.html fabrique toujours fiche.html?type=artiste&id=…',
+  (appCode.match(/SITE\+'fiche\.html\?type=artiste&id='\+encodeURIComponent\(ficheId\)/g) || []).length >= 1,
+  'forme de l\'adresse du QR changée dans app.html');
+for (const { page, params, document } of IMPRIMES) {
+  const src = lire(page), code = src ? sansCommentairesCode(sansCommentairesHtml(src)) : '';
+  const manquants = params.filter((k) => !new RegExp(`\\.get\\(\\s*['"]${k}['"]\\s*\\)`).test(code));
+  verifie(`QR imprimés : ${page} existe et lit ${params.join(' et ')} (${document})`, src && manquants.length === 0,
+    !src ? `${page} a disparu : le QR mènerait à une page vide` : `paramètre(s) plus lu(s) : ${manquants.join(', ')}`);
+}
+
 // Verdict
 let rouges = 0;
 for (const r of resultats) {
