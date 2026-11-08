@@ -90,7 +90,8 @@ if (ml !== null) {
     /<link[^>]+href="commun\.css"/.test(actif) && /fonts\/fraunces-var\.woff2/.test(actif));
 
   // Hébergeurs : nom, adresse ET téléphone ou contact (LCEN, art. 1-1 I), ajouté le vendredi 06/11/2026
-  verifie('Hébergeur GitHub : nom, adresse et téléphone', t.includes('GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107') && t.includes('téléphone : +1 877 448 4820'));
+  // Téléphone retiré le 08/11/2026 : GitHub n'en publie aucun officiellement (analyse croisée) ; le contact suffit (LCEN : « téléphone ou contact »)
+  verifie('Hébergeur GitHub : nom, adresse et contact', t.includes('GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107') && t.includes('contact : github.com/contact') && !t.includes('877 448 4820'));
   verifie('Hébergeur Supabase : entité contractante, adresse et contact', t.includes('Supabase Pte. Ltd., 65 Chulia Street') && t.includes('privacy@supabase.com') && !t.includes('Supabase, Inc.'));
 
   // 6. Le repère de date
