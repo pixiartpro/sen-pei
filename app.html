@@ -81,6 +81,8 @@
   .msg.err{display:block;background:rgba(226,75,74,.12);border:1px solid rgba(226,75,74,.4);color:#f3b4b4}
   .hide{display:none}
   .hint{font-size:12.5px;color:var(--muet);margin-top:6px}
+  .hint a{color:var(--safran);text-underline-offset:3px}
+  .remu{display:inline-block;margin-top:8px;font-size:13.5px;font-weight:600;color:var(--safran);border:1px solid var(--ligne);border-radius:10px;padding:5px 10px}
   .appel{border:1px solid var(--ligne);border-radius:13px;padding:16px;margin-top:12px}
   .appel-h{display:flex;justify-content:space-between;align-items:center;gap:10px}
   .appel-h b{font-size:15.5px;font-family:'Fraunces',serif}
@@ -304,7 +306,7 @@
       <div class="chips" id="a-disc"></div>
       <label for="a-bio">Bio</label><textarea id="a-bio" placeholder="Présente ton univers…"></textarea>
       <label for="a-video">Lien vidéo (fortement conseillé)</label><input type="url" id="a-video" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="YouTube, Vimeo, Insta…">
-      <div class="hint">C'est ta meilleure carte de visite : on te voit jouer.</div>
+      <div class="hint">C'est ta meilleure carte de visite : on te voit jouer. Pas encore de vidéo ? Tu peux quand même répondre aux appels. Ta propre vidéo, ou celle du vidéaste de ton choix, convient.</div>
       <div class="row">
         <div><label for="a-zone">Zone</label>
           <select id="a-zone"><option value="">—</option><option>Nord</option><option>Sud</option><option>Est</option><option>Ouest</option><option>Toute l'île</option></select>
@@ -459,7 +461,14 @@
         <div><label for="ap-limite">Date limite de candidature</label><input type="date" id="ap-limite"></div>
         <div><label for="ap-jauge">Jauge</label><input type="number" id="ap-jauge" min="0"></div>
       </div>
-      <label for="ap-desc">Description</label><textarea id="ap-desc" placeholder="Détaille ce que tu cherches : style, horaires, sono sur place, cachet proposé…"></textarea>
+      <label id="ap-remu-l">Comment l'artiste est payé ? (obligatoire)</label>
+      <div class="choice" role="group" aria-labelledby="ap-remu-l">
+        <button type="button" class="opt" data-remu="cachet" aria-pressed="false">Cachet prévu</button>
+        <button type="button" class="opt" data-remu="amateur" aria-pressed="false">Sans cachet, pratique amateur</button>
+      </div>
+      <label for="ap-remu-detail" id="ap-remu-detail-l">Précision (facultatif)</label><input type="text" id="ap-remu-detail" maxlength="200" placeholder="ex. 150 € pour le duo, 2 × 45 min, chapeau en complément">
+      <div class="hint"><span id="ap-remu-hint">Les artistes voient ce choix sur ton appel, et choisissent en connaissance de cause.</span> <a href="jouer-dans-un-bar.html" target="_blank" rel="noopener">Jouer dans un bar : ce que disent les textes</a></div>
+      <label for="ap-desc">Description</label><textarea id="ap-desc" placeholder="Détaille ce que tu cherches : style, horaires, sono sur place…"></textarea>
       <button class="btn" id="publish-appel">Publier l'appel</button>
       <div class="msg" id="publish-msg"></div>
     </div>
@@ -536,6 +545,8 @@ function fr(err){
   if(/jwt|token.*expired|session/i.test(m))return "Ta session a expiré : recharge la page et reconnecte-toi."
   if(/row-level security|permission denied/i.test(m))return "Action refusée : recharge la page, et reconnecte-toi si besoin."
   if(/un_par_compte|déjà sa fiche/i.test(m))return "Ta fiche existe déjà : recharge la page pour la retrouver."
+  if(/remuneration_detail_check/i.test(m))return "Sans cachet : écris les frais que tu rembourses, ou « aucun » (200 caractères au plus)."
+  if(/remuneration_check/i.test(m))return "Dis comment l'artiste est payé : cachet prévu, ou sans cachet (pratique amateur)."
   if(/check constraint|too long|value too long/i.test(m))return "Un champ est trop long : raccourcis-le, puis réessaie."
   if(/^Sén Péi/.test(m))return m.replace(/^Sén Péi\s*:\s*/,'')   // règle du serveur, déjà écrite en français
   return m?"Ça n'est pas passé ("+m+")":"Ça n'est pas passé : vérifie ta connexion et réessaie."
@@ -1057,6 +1068,20 @@ const ouvert=b=>(!b.date_limite||b.date_limite>=today())&&(!b.date_concert||b.da
 const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'})
 const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
 const concert=b=>b.date_concert?('concert le '+dateFr(b.date_concert)):null
+// Rémunération d'un appel (migration 5) : dite en clair partout où l'appel apparaît
+const remu=b=>{const d=(b.remuneration_detail||'').trim()
+  if(b.remuneration==='cachet')return 'Cachet prévu'+(d?' : '+d:', montant à convenir')
+  if(b.remuneration==='amateur')return 'Sans cachet, pratique amateur'+(d?' · frais remboursés : '+d:'')
+  return null}
+const REMU_AIDE={
+  cachet:['Montant ou précision (facultatif)','ex. 150 € pour le duo, 2 × 45 min, chapeau en complément','Sans montant, les artistes lisent « montant à convenir ».'],
+  amateur:['Frais remboursés (obligatoire)','ex. déplacement remboursé, ou « aucun »','Lis « Jouer dans un bar » avant de choisir cette option, et précise les frais que tu rembourses, ou écris « aucun ».']}
+let remuChoisie=null
+function choisirRemu(v){remuChoisie=v
+  document.querySelectorAll('[data-remu]').forEach(x=>{x.classList.toggle('on',x.dataset.remu===v);x.setAttribute('aria-pressed',x.dataset.remu===v)})
+  const a=REMU_AIDE[v];if(!a)return
+  $('ap-remu-detail-l').textContent=a[0];$('ap-remu-detail').placeholder=a[1];$('ap-remu-hint').textContent=a[2]}
+document.querySelectorAll('[data-remu]').forEach(x=>x.onclick=()=>choisirRemu(x.dataset.remu))
 const STATUTS={ouvert:'ouvert',pourvu:'pourvu',clos:'clos',envoye:'envoyée',vu:'vue',retenu:'retenue ✓',refuse:'pas retenue'}
 const badge=st=>{const k=Object.prototype.hasOwnProperty.call(STATUTS,st)?st:'';return `<span class="badge ${k}">${esc(STATUTS[st]||st||'envoyée')}</span>`}
 
@@ -1080,12 +1105,17 @@ $('publish-appel').onclick=()=>occupe($('publish-appel'),'Publication…',async(
   if(!titre)return signaler($('publish-msg'),"Donne un titre à ton appel.",false)
   const pb=datesInvalides($('ap-concert').value,$('ap-limite').value)
   if(pb)return signaler($('publish-msg'),pb,false)
-  const payload={lieu_id:ficheId,titre,discipline:$('ap-disc').value.trim()||null,periode:$('ap-periode').value.trim()||null,
+  if(!remuChoisie)return signaler($('publish-msg'),"Dis comment l'artiste est payé : cachet prévu, ou sans cachet (pratique amateur).",false)
+  const detail=$('ap-remu-detail').value.trim()
+  if(remuChoisie==='amateur'&&!detail)return signaler($('publish-msg'),"Sans cachet : écris les frais que tu rembourses, ou « aucun ».",false)
+  const payload={lieu_id:ficheId,titre,remuneration:remuChoisie,remuneration_detail:detail||null,discipline:$('ap-disc').value.trim()||null,periode:$('ap-periode').value.trim()||null,
     date_limite:$('ap-limite').value||null,date_concert:$('ap-concert').value||null,jauge:$('ap-jauge').value?parseInt($('ap-jauge').value):null,
     commune:$('l-commune').value.trim()||null,description:$('ap-desc').value.trim()||null,statut:'ouvert'}
   const res=await sb.from('scene_besoins').insert(payload).select().single()
   if(res.error)return signaler($('publish-msg'),fr(res.error),false)
-  ;['ap-titre','ap-disc','ap-periode','ap-concert','ap-limite','ap-jauge','ap-desc'].forEach(i=>$(i).value='')
+  ;['ap-titre','ap-disc','ap-periode','ap-concert','ap-limite','ap-jauge','ap-desc','ap-remu-detail'].forEach(i=>$(i).value='')
+  remuChoisie=null;document.querySelectorAll('[data-remu]').forEach(x=>{x.classList.remove('on');x.setAttribute('aria-pressed','false')})
+  $('ap-remu-detail-l').textContent='Précision (facultatif)';$('ap-remu-detail').placeholder='ex. 150 € pour le duo, 2 × 45 min, chapeau en complément';$('ap-remu-hint').textContent='Les artistes voient ce choix sur ton appel, et choisissent en connaissance de cause.'
   $('publish-msg').className='msg';show($('new-appel-form'),false);flash($('appels-msg'),'Appel publié ✓',true);await loadLieuAppels()
 })
 
@@ -1105,6 +1135,7 @@ async function loadLieuAppels(){
     <div class="appel">
       <div class="appel-h"><b>${esc(b.titre)}</b>${badge(b.statut==='ouvert'&&!vivant?'clos':b.statut)}</div>
       <div class="hint">${[concert(b),b.discipline,b.periode,limite(b),b.jauge?('jauge '+b.jauge):null].filter(Boolean).map(esc).join(' · ')}</div>
+      ${remu(b)?`<div class="remu">${esc(remu(b))}</div>`:''}
       <div class="appel-actions">
         <button class="link" data-cand="${b.id}">${libCand(b)}</button>
         ${b.statut==='ouvert'&&vivant?`<button class="link" data-pourvu="${b.id}">Marquer pourvu</button>`:''}
@@ -1212,6 +1243,7 @@ async function loadOpenAppels(){
     <div class="appel">
       <div class="appel-h"><b>${esc(b.titre)}</b></div>
       <div class="hint">${[l.nom,concert(b),b.discipline,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>
+      ${remu(b)?`<div class="remu">${esc(remu(b))}</div>`:''}
       ${b.date_concert&&prises.has(b.date_concert)&&!already?'<span class="alerte">⚠ Tu as noté ce jour comme déjà pris</span>':''}
       ${b.description?`<div class="cand-msg">${esc(b.description)}</div>`:''}
       ${already?'<div class="hint" style="color:var(--safran)">✓ Tu as déjà candidaté</div>':myCandErreur?'<div class="hint">Recharge la page pour candidater.</div>':`

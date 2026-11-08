@@ -68,6 +68,7 @@
   .ccard .meta{font-size:13.5px;color:var(--muet);margin-top:4px}
   .ccard .desc{font-size:14px;color:#E6D4C0;margin-top:10px;line-height:1.5}
   .tagrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .remu{margin-top:10px;font-size:13.5px;font-weight:600;color:var(--safran)}
   .tg{font-size:12px;padding:3px 10px;border-radius:999px;background:rgba(255,233,210,.07)}
   .tg.kind{background:rgba(246,190,84,.14);color:var(--safran)}
   .tg.kindb{background:rgba(255,122,71,.16);color:var(--corail)}
@@ -153,6 +154,11 @@ const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'})
 const ouvert=b=>(!b.date_limite||b.date_limite>=today)&&(!b.date_concert||b.date_concert>=today)
 const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'})
 const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
+// Rémunération d'un appel (migration 5), dite en clair
+const remu=b=>{const d=(b.remuneration_detail||'').trim()
+  if(b.remuneration==='cachet')return 'Cachet prévu'+(d?' : '+d:', montant à convenir')
+  if(b.remuneration==='amateur')return 'Sans cachet, pratique amateur'+(d?' · frais remboursés : '+d:'')
+  return null}
 
 DISCIPLINES.forEach(d=>{const o=document.createElement('option');o.textContent=d;$('f-disc').appendChild(o)})
 
@@ -174,6 +180,7 @@ function render(){
     <div class="ccard besoin-card">
       <div class="nom">${esc(b.titre)}</div>
       <div class="meta">${[l.nom,l.commune,b.date_concert?('concert le '+dateFr(b.date_concert)):null,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>
+      ${remu(b)?`<div class="remu">${esc(remu(b))}</div>`:''}
       ${b.description?`<div class="desc">${esc(b.description)}</div>`:''}
       <div class="tagrow">${b.discipline?`<span class="tg kindb">${esc(b.discipline)}</span>`:''}${b.jauge?`<span class="tg">jauge ${b.jauge}</span>`:''}</div>
       <a class="vlink" href="fiche.html?type=lieu&id=${b.lieu_id}">Voir le lieu →</a>

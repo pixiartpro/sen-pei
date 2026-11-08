@@ -67,6 +67,7 @@
   .appel{border:1px solid var(--ligne);border-radius:13px;padding:15px;margin-top:11px}
   .appel b{font-family:'Fraunces',serif;font-size:16px}
   .appel .m{font-size:12.5px;color:var(--muet);margin-top:4px}
+  .appel .remu{font-size:13.5px;font-weight:600;color:var(--safran);margin-top:6px}
   .cta{display:inline-block;margin-top:24px;background:linear-gradient(92deg,var(--brique),var(--safran));color:#2a1206;border-radius:12px;padding:13px 24px;font-size:15px;font-weight:600;text-decoration:none}
   .ghost{border-top:1px solid var(--ligne);margin-top:6px}
   .share{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:none;border:1px solid var(--ligne);color:var(--creme);border-radius:999px;padding:10px 18px;font:500 14px 'Inter',system-ui,sans-serif;cursor:pointer}
@@ -129,6 +130,10 @@ const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'})
 const ouvert=b=>(!b.date_limite||b.date_limite>=today)&&(!b.date_concert||b.date_concert>=today)
 const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'})
 const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
+const remu=b=>{const d=(b.remuneration_detail||'').trim()
+  if(b.remuneration==='cachet')return 'Cachet prévu'+(d?' : '+d:', montant à convenir')
+  if(b.remuneration==='amateur')return 'Sans cachet, pratique amateur'+(d?' · frais remboursés : '+d:'')
+  return null}
 const host=u=>{try{return new URL(u).host.replace(/^www\./,'')}catch(e){return u}}
 const p=new URLSearchParams(location.search)
 const type=p.get('type'), id=p.get('id')
@@ -190,7 +195,7 @@ function panne(){C.innerHTML='<div class="notfound">Connexion impossible pour l�
 
   if(type==='lieu'){
     const {data:ap}=await sb.from('scene_besoins').select('*').eq('lieu_id',id).eq('statut','ouvert').order('created_at',{ascending:false})
-    const appels=(ap||[]).filter(ouvert).map(b=>`<div class="appel"><b>${esc(b.titre)}</b><div class="m">${[b.discipline,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>${b.description?`<div class="desc" style="margin-top:8px;font-size:14px">${esc(b.description)}</div>`:''}<a class="candidater" href="app.html?appel=${encodeURIComponent(b.id)}">Préparer ma candidature →</a></div>`).join('')
+    const appels=(ap||[]).filter(ouvert).map(b=>`<div class="appel"><b>${esc(b.titre)}</b><div class="m">${[b.discipline,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>${remu(b)?`<div class="remu">${esc(remu(b))}</div>`:''}${b.description?`<div class="desc" style="margin-top:8px;font-size:14px">${esc(b.description)}</div>`:''}<a class="candidater" href="app.html?appel=${encodeURIComponent(b.id)}">Préparer ma candidature →</a></div>`).join('')
     C.innerHTML=`<div class="card">
       <span class="kind lieu">Lieu</span>
       <h1>${esc(data.nom)}</h1>
