@@ -93,6 +93,8 @@
     body.imprime-ft .ft{border-radius:0;padding:14mm 16mm;font-size:11pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     body.imprime-ft .ft-plan svg{max-height:110mm}
   }
+  .candidater{display:inline-flex;align-items:center;min-height:44px;margin-top:6px;color:var(--safran);font-weight:600;text-decoration:none}
+  .suite{font-size:14px;color:var(--muet);margin-top:14px;line-height:1.5}
 </style>
 <style id="ft-css"></style>
 </head>
@@ -188,7 +190,7 @@ function panne(){C.innerHTML='<div class="notfound">Connexion impossible pour l�
 
   if(type==='lieu'){
     const {data:ap}=await sb.from('scene_besoins').select('*').eq('lieu_id',id).eq('statut','ouvert').order('created_at',{ascending:false})
-    const appels=(ap||[]).filter(ouvert).map(b=>`<div class="appel"><b>${esc(b.titre)}</b><div class="m">${[b.discipline,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>${b.description?`<div class="desc" style="margin-top:8px;font-size:14px">${esc(b.description)}</div>`:''}</div>`).join('')
+    const appels=(ap||[]).filter(ouvert).map(b=>`<div class="appel"><b>${esc(b.titre)}</b><div class="m">${[b.discipline,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>${b.description?`<div class="desc" style="margin-top:8px;font-size:14px">${esc(b.description)}</div>`:''}<a class="candidater" href="app.html?appel=${encodeURIComponent(b.id)}">Candidater à cet appel →</a></div>`).join('')
     C.innerHTML=`<div class="card">
       <span class="kind lieu">Lieu</span>
       <h1>${esc(data.nom)}</h1>
@@ -198,7 +200,7 @@ function panne(){C.innerHTML='<div class="notfound">Connexion impossible pour l�
       ${data.contact?`<div class="field"><div class="l">Contact</div><div class="v">${esc(data.contact)}</div></div>`:''}
       ${safeUrl(data.site_web)?`<div class="field"><div class="l">Site web</div><div class="v"><a href="${esc(safeUrl(data.site_web))}" target="_blank" rel="noopener nofollow" style="color:var(--safran)">${esc(host(safeUrl(data.site_web)))}</a></div></div>`:''}
     </div>
-    ${appels?`<h2>Ses appels à candidature</h2>${appels}<a class="cta" href="app.html">Candidater (connecte-toi) →</a>`:''}`
+    ${appels?`<h2>Ses appels à candidature</h2>${appels}<p class="suite">Ta candidature arrive dans l'espace Sén Péi du lieu. Sa réponse (retenue ou non) s'affiche dans ton espace, rubrique « Mes candidatures ».</p>`:''}`
   }else{
     const emb=embed(data.video_url)
     // Agenda : seulement le jour (ni lieu, ni client). Les 12 prochains.

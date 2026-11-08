@@ -96,6 +96,7 @@
   .mini:disabled{opacity:.6;cursor:default}
   .mini.ok{border-color:rgba(120,190,130,.5);color:#cdeccf}
   .cand-form{display:flex;gap:8px;margin-top:11px}
+  .appel.vise{border-color:var(--safran);box-shadow:0 0 0 2px rgba(246,190,84,.25)}
   .cand-input{flex:1}
   .legal-ligne{margin-top:14px;line-height:1.5}
   .legal-ligne a{color:var(--safran);text-underline-offset:3px}
@@ -460,6 +461,7 @@
       <button class="btn" id="publish-appel">Publier l'appel</button>
       <div class="msg" id="publish-msg"></div>
     </div>
+    <p class="hint">Les candidatures des artistes arrivent ici, sous chaque appel. Sén Péi n’envoie pas encore d’e-mail : reviens voir ton espace.</p>
     <div id="appels-list" style="margin-top:14px"></div>
     <div class="msg" id="appels-msg"></div>
   </section>
@@ -467,7 +469,7 @@
   <!-- APPELS — côté ARTISTE -->
   <section id="artiste-appels" class="card hide">
     <h2>Les appels ouverts</h2>
-    <p class="sub" style="margin-bottom:8px">Réponds aux lieux qui cherchent des artistes.</p>
+    <p class="sub" style="margin-bottom:8px">Réponds aux lieux qui cherchent des artistes. Ta candidature arrive dans l’espace du lieu ; sa réponse s’affiche ici, dans « Mes candidatures ». Sén Péi n’envoie pas encore d’e-mail : reviens voir.</p>
     <div id="open-appels-list"></div>
     <div class="msg" id="artiste-appels-msg"></div>
     <h2 style="margin-top:26px">Mes candidatures</h2>
@@ -746,7 +748,7 @@ async function afterLogin(user){
   $('espace-sub').textContent=isLieu?'Renseigne ta fiche : elle apparaîtra dans l’annuaire et tu pourras publier tes besoins.':'Renseigne ta fiche avec ta vidéo : c’est elle qui te rend visible des lieux.'
   show($('form-lieu'),isLieu);show($('form-artiste'),!isLieu)
   await loadFiche()
-  if(isLieu){ show($('lieu-appels'),true); await loadLieuAppels() }
+  if(isLieu){ oublierVise(); show($('lieu-appels'),true); await loadLieuAppels() }
   else { show($('artiste-appels'),true); await loadAgenda(); majFT(); majOutils(); await loadMyCandidatures(); await loadOpenAppels() }
 }
 
@@ -1214,6 +1216,18 @@ async function loadOpenAppels(){
     </div>`}).join('')
   $('open-appels-list').querySelectorAll('[data-postuler]').forEach(btn=>btn.onclick=()=>occupe(btn,'Envoi…',()=>candidater(btn.dataset.postuler)))
   for(const [id,v] of Object.entries(brouillons)){const i=document.getElementById(id);if(i)i.value=v}
+  allerAppelVise()
+}
+// Appel choisi sur la fiche d'un lieu (« Candidater à cet appel ») : retrouvé après connexion ou inscription
+const lireVise=()=>{try{return localStorage.getItem('senpei-appel-vise')}catch(e){return null}}
+const oublierVise=()=>{try{localStorage.removeItem('senpei-appel-vise')}catch(e){}}
+function allerAppelVise(){
+  const id=lireVise();if(!id)return
+  oublierVise()
+  const champ=document.getElementById('msg-'+id)
+  if(champ){const carte=champ.closest('.appel');carte.classList.add('vise');carte.scrollIntoView({block:'center'});champ.focus({preventScroll:true})}
+  else if(myCandBesoinIds.has(id))signaler($('artiste-appels-msg'),'Tu as déjà candidaté à cet appel : il est dans « Mes candidatures ».',true)
+  else signaler($('artiste-appels-msg'),'Cet appel n’accepte plus de candidatures.',false)
 }
 
 async function candidater(besoinId){
@@ -1227,12 +1241,16 @@ async function candidater(besoinId){
 
 // boot
 ;(async()=>{
+  // ?appel=<id> venu de la fiche d'un lieu : gardé jusqu'à la connexion (le lien de confirmation par e-mail perd l'adresse)
+  const vise=new URLSearchParams(location.search).get('appel')
+  if(vise&&/^[0-9a-z-]{1,64}$/i.test(vise)){try{localStorage.setItem('senpei-appel-vise',vise)}catch(e){};history.replaceState(null,'',location.pathname+location.hash)}
   const erreurLien=new URLSearchParams(location.hash.slice(1)).get('error_code')
   const {data}=await sb.auth.getSession()
   if(data.session&&enRecuperation){ montrerNouveauMdp() }
   else if(data.session){ await afterLogin(data.session.user) }
   else {
     show($('auth'),true)
+    if(lireVise())flash($('auth-msg'),"Pour candidater, connecte-toi, ou crée ton compte artiste : l'appel choisi t'attendra dans ton espace.",true)
     // arrivée par un bouton « S'inscrire » / « Je suis un lieu » : onglet Inscription ouvert, type choisi
     const porte=location.hash.match(/^#inscription(?:-(lieu|artiste))?$/)
     if(porte){
