@@ -52,7 +52,7 @@
   .search{background:rgba(28,14,8,.6);border:1px solid var(--ligne);border-radius:16px;padding:10px;display:grid;grid-template-columns:1fr 1fr 1.3fr auto;gap:9px;backdrop-filter:blur(8px);max-width:760px}
   .fld{display:flex;flex-direction:column;gap:3px;padding:7px 11px;border-radius:11px}
   .fld label{font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--muet)}
-  .fld select,.fld input{background:transparent;border:none;color:var(--creme);font-size:15px;padding:2px 0;outline:none;width:100%}
+  .fld select,.fld input{background:transparent;border:none;color:var(--creme);font-size:16px;padding:2px 0;outline:none;width:100%}
   .fld select option{background:#27150D}
   .go{background:linear-gradient(92deg,var(--brique),var(--safran));color:#2a1206;border:none;border-radius:12px;padding:0 20px;font-size:15px;font-weight:600;cursor:pointer}
 
@@ -147,7 +147,7 @@ const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"
 let LIEUX=[],ARTISTES=[],APPELS=[],ERREUR=false
 // Date limite passée = appel clos pour le public ; dates lues en français (heure de La Réunion)
 const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'})
-const ouvert=b=>!b.date_limite||b.date_limite>=today
+const ouvert=b=>(!b.date_limite||b.date_limite>=today)&&(!b.date_concert||b.date_concert>=today)
 const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'})
 const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
 

@@ -124,7 +124,7 @@ function safeUrl(u){
 }
 // Date limite passée = appel clos pour le public ; dates lues en français (heure de La Réunion)
 const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'})
-const ouvert=b=>!b.date_limite||b.date_limite>=today
+const ouvert=b=>(!b.date_limite||b.date_limite>=today)&&(!b.date_concert||b.date_concert>=today)
 const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'})
 const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
 const host=u=>{try{return new URL(u).host.replace(/^www\./,'')}catch(e){return u}}
@@ -171,6 +171,8 @@ function partage(nom){
   }
 }
 function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a href="decouvrir.html" style="color:var(--safran)">Retour à Découvrir →</a></div>'}
+// panne réseau : ce n'est pas une fiche disparue
+function panne(){C.innerHTML='<div class="notfound">Connexion impossible pour l’instant. <a href="" style="color:var(--safran)">Réessayer →</a></div>'}
 
 ;(async()=>{
   if(!id||(type!=='lieu'&&type!=='artiste'))return notfound()
@@ -178,8 +180,8 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
   const cols=type==='lieu'?'id,nom,type_lieu,commune,zone,jauge,disciplines,description,contact,site_web':'id,nom,disciplines,bio,zone,video_url,references_jouees,tarif_indicatif,dispo,liens,fiche_technique'
   let {data,error}=await sb.from(table).select(cols).eq('id',id).maybeSingle()
   // filet : si la base n'a pas encore les colonnes de la boîte à outils, on affiche la fiche sans elles
-  if(error&&type==='artiste')({data}=await sb.from(table).select(cols.replace(',liens,fiche_technique','')).eq('id',id).maybeSingle())
-  if(!data)return notfound()
+  if(error&&type==='artiste')({data,error}=await sb.from(table).select(cols.replace(',liens,fiche_technique','')).eq('id',id).maybeSingle())
+  if(!data)return error?panne():notfound()
   document.title=(data.nom||'Fiche')+' — Sén Péi'
   const resume=(type==='lieu'?data.description:data.bio)||((type==='lieu'?'Lieu':'Artiste')+' de la scène péi, sur Sén Péi.')
   document.querySelector('meta[name=description]').content=resume.slice(0,160)
@@ -216,7 +218,7 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
     const tel=typeof L.tel==='string'&&/^\+[1-9]\d{8,13}$/.test(L.tel.replace(/^\+(262|33)0/,'+$1'))?L.tel.replace(/^\+(262|33)0/,'+$1'):null
     const mobile=tel&&/^\+(262(69[23]|639)|33[67])/.test(tel)
     const mail=typeof L.email==='string'&&/^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i.test(L.email)&&L.email.length<=120?L.email:null
-    const mot=encodeURIComponent(`Bonjour ${data.nom||''}, j'ai vu votre fiche sur Sén Péi. Je suis [nom du lieu] et je voudrais vous proposer une date : `)
+    const mot=encodeURIComponent(`Bonjour ${data.nom||''}, j'ai vu votre fiche sur Sén Péi. Je voudrais vous proposer une date dans notre lieu : `)
     const boutons=[
       mobile?`<a class="go-contact" href="https://wa.me/${tel.slice(1)}?text=${mot}" target="_blank" rel="noopener">WhatsApp</a>`:'',
       tel?`<a class="go-contact" href="tel:${tel}">Appeler</a>`:'',
@@ -224,7 +226,7 @@ function notfound(){C.innerHTML='<div class="notfound">Fiche introuvable. <a hre
     const contactHtml=`<div class="field contact"><div class="l">Lui proposer une date</div>${boutons
       ?`<div class="liens">${boutons}</div>`
       :(liens.length?`<div class="v">Écris-lui sur ses réseaux, juste au-dessus.</div>`
-        :`<div class="v">Cette fiche n'indique pas encore de contact. Publie ton besoin sur Sén Péi : l'artiste pourra y répondre. <a class="publier" href="app.html">Se connecter ou s'inscrire pour publier une date →</a></div>`)}</div>`
+        :`<div class="v">Cette fiche n'indique pas encore de contact. Si l'artiste a candidaté à ton appel, il est prévenu dans son espace Sén Péi. Sinon, publie ta date : il pourra y répondre. <a class="publier" href="app.html#inscription-lieu">Publier une date →</a></div>`)}</div>`
     if(ftHtml)document.getElementById('ft-css').textContent=FT.CSS
     C.innerHTML=`<div class="card">
       <span class="kind artiste">Artiste</span>

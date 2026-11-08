@@ -40,7 +40,7 @@
     background:linear-gradient(92deg,var(--safran),var(--brique));-webkit-background-clip:text;background-clip:text;color:transparent}
   .sig{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muet);margin-top:4px}
   #whoami{font-size:13px;color:var(--muet);display:flex;align-items:center;gap:12px}
-  .link{color:var(--safran);cursor:pointer;background:none;border:none;font-size:13px}
+  .link{color:var(--safran);cursor:pointer;background:none;border:none;font-size:14px;min-height:44px;display:inline-flex;align-items:center;padding:0 4px}
 
   .card{background:linear-gradient(180deg,var(--panel),var(--terre2));border:1px solid var(--ligne);border-radius:18px;padding:26px;margin-top:26px}
   h1{font-family:'Fraunces',serif;font-weight:600;font-size:28px;margin-bottom:6px}
@@ -53,11 +53,13 @@
 
   label{display:block;font-size:12.5px;letter-spacing:.3px;color:var(--muet);margin:14px 0 6px}
   input,textarea,select{width:100%;background:rgba(255,233,210,.05);border:1px solid var(--ligne);border-radius:11px;
-    padding:12px 14px;color:var(--creme);font-size:15px;font-family:inherit}
+    padding:12px 14px;color:var(--creme);font-size:16px;font-family:inherit}  /* 16 px : sous ce seuil, l'iPhone zoome à chaque champ */
   input:focus,textarea:focus,select:focus{outline:none;border-color:var(--brique)}
   textarea{min-height:84px;resize:vertical}
   select option{background:#2C1810}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .row>*{min-width:0}
+  input[type=date]{min-width:0;max-width:100%;display:block}
 
   .choice{display:flex;gap:10px;margin-bottom:6px}
   .opt{flex:1;border:1px solid var(--ligne);border-radius:12px;padding:14px;text-align:center;cursor:pointer;font-size:14.5px}
@@ -66,7 +68,7 @@
   button.opt:active{border-color:var(--corail);background:rgba(255,122,71,.12)}
 
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-  .chip{border:1px solid var(--ligne);border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer;user-select:none}
+  .chip{border:1px solid var(--ligne);border-radius:999px;padding:0 16px;min-height:44px;display:inline-flex;align-items:center;font-size:14px;cursor:pointer;user-select:none}
   .chip.on{border-color:var(--safran);background:rgba(246,190,84,.14);color:var(--safran)}
 
   .btn{width:100%;margin-top:22px;background:linear-gradient(92deg,var(--brique),var(--safran));color:#2a1206;border:none;
@@ -90,7 +92,8 @@
   .cand-msg{font-size:14px;color:#E6D4C0;margin-top:7px;line-height:1.45;background:rgba(255,233,210,.04);padding:9px 11px;border-radius:9px}
   .cand-zone{margin-top:10px}
   .vlink{display:inline-block;margin-top:8px;color:var(--corail);font-size:13.5px;text-decoration:none}
-  .mini{border:1px solid var(--ligne);background:transparent;color:var(--creme);border-radius:9px;padding:7px 14px;font-size:13px;cursor:pointer}
+  .mini{border:1px solid var(--ligne);background:transparent;color:var(--creme);border-radius:9px;padding:0 16px;min-height:44px;font-size:14px;cursor:pointer}
+  .mini:disabled{opacity:.6;cursor:default}
   .mini.ok{border-color:rgba(120,190,130,.5);color:#cdeccf}
   .cand-form{display:flex;gap:8px;margin-top:11px}
   .cand-input{flex:1}
@@ -117,13 +120,14 @@
   .ft-ligne.mus select{grid-column:1}
   .ft-ligne.mus .x{grid-row:1 / span 2;grid-column:2;height:100%}
   @media (max-width:480px){.card{padding:20px}}
-  .ft-ligne input,.ft-ligne select{padding:11px 9px;font-size:14px;min-width:0}
+  .ft-ligne input,.ft-ligne select{padding:11px 9px;font-size:16px;min-width:0}
   .ft-ligne .x{width:36px;height:44px;border-radius:10px;border:1px solid var(--ligne);background:transparent;color:var(--muet);font-size:18px;cursor:pointer}
   .ft-ajout{margin-top:6px;font-size:14px;min-height:44px}
   #ft-formules .chip{min-height:44px;padding:0 16px;display:inline-flex;align-items:center}
   #cl-reset{min-height:44px}
   #ft-apercu .ft{margin-top:4px}
-  button.chip{background:none;color:inherit;font:inherit;font-size:13px}
+  button.chip{background:none;color:inherit;font:inherit;font-size:14px}
+  .dates-form{border-top:1px solid var(--ligne);margin-top:10px;padding-top:4px}
   .contact-zone{margin-top:18px;border:1px solid rgba(246,190,84,.35);background:rgba(246,190,84,.06);border-radius:12px;padding:12px 14px}
   .contact-zone b{font-size:14.5px}
   .liens-zone{margin-top:18px;border:1px solid var(--ligne);border-radius:12px;padding:12px 14px}
@@ -204,21 +208,22 @@
     </div>
 
     <form id="form-login">
-      <label for="login-email">Email</label><input type="email" id="login-email" required>
-      <label for="login-pass">Mot de passe</label><input type="password" id="login-pass" required>
+      <label for="login-email">Email</label><input type="email" id="login-email" autocomplete="username" autocapitalize="off" required>
+      <label for="login-pass">Mot de passe</label><input type="password" id="login-pass" autocomplete="current-password" required>
       <button class="btn" type="submit">Se connecter</button>
       <p class="hint"><button type="button" class="link" id="mdp-oublie">Mot de passe oublié, ou pas de mot de passe ?</button></p>
     </form>
 
     <form id="form-signup" class="hide">
-      <label>Je suis…</label>
-      <div class="choice">
-        <div class="opt on" data-type="lieu">🏛️ Un lieu / bar</div>
-        <div class="opt" data-type="artiste">🎤 Un artiste</div>
+      <label id="su-type-l">Je suis…</label>
+      <div class="choice" role="group" aria-labelledby="su-type-l">
+        <button type="button" class="opt" data-type="lieu" aria-pressed="false">🏛️ Un lieu / bar</button>
+        <button type="button" class="opt" data-type="artiste" aria-pressed="false">🎤 Un artiste</button>
       </div>
+      <div class="hint">Ce choix ne se change plus ensuite.</div>
       <label for="su-nom">Nom (du lieu ou de l'artiste)</label><input type="text" id="su-nom" required>
-      <label for="su-email">Email</label><input type="email" id="su-email" required>
-      <label for="su-pass">Mot de passe</label><input type="password" id="su-pass" minlength="6" required>
+      <label for="su-email">Email</label><input type="email" id="su-email" autocomplete="email" autocapitalize="off" required>
+      <label for="su-pass">Mot de passe</label><input type="password" id="su-pass" minlength="6" autocomplete="new-password" required>
       <div class="hint">Au moins 6 caractères.</div>
       <button class="btn" type="submit">Créer mon compte</button>
       <p class="hint legal-ligne">Ta fiche, et le contact que tu y indiques, sont publics. <a href="mentions-legales.html" target="_blank" rel="noopener">Mentions légales et données personnelles</a></p>
@@ -244,7 +249,7 @@
     <h1>Nouveau mot de passe</h1>
     <p class="sub">Choisis ton nouveau mot de passe pour Sén Péi.</p>
     <form id="form-mdp">
-      <label for="mdp-nouveau">Nouveau mot de passe</label><input type="password" id="mdp-nouveau" minlength="6" required>
+      <label for="mdp-nouveau">Nouveau mot de passe</label><input type="password" id="mdp-nouveau" minlength="6" autocomplete="new-password" required>
       <div class="hint">Au moins 6 caractères.</div>
       <button class="btn" type="submit">Enregistrer</button>
     </form>
@@ -281,9 +286,10 @@
       <div class="chips" id="l-disc"></div>
       <label for="l-desc">Description</label><textarea id="l-desc" placeholder="Présente ton lieu, ta programmation…"></textarea>
       <div class="row">
-        <div><label for="l-contact">Contact</label><input type="text" id="l-contact" placeholder="email ou téléphone"></div>
-        <div><label for="l-site">Site web</label><input type="text" id="l-site"></div>
+        <div><label for="l-contact">Contact</label><input type="text" id="l-contact" placeholder="email ou téléphone" autocapitalize="off" aria-describedby="l-contact-h"></div>
+        <div><label for="l-site">Site web</label><input type="url" id="l-site" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="monbar.re"></div>
       </div>
+      <div class="hint" id="l-contact-h">Le contact et le site sont visibles de tous sur ta fiche.</div>
       <button class="btn" id="save-lieu">Enregistrer ma fiche</button>
     </div>
 
@@ -294,7 +300,7 @@
       <label>Disciplines</label>
       <div class="chips" id="a-disc"></div>
       <label for="a-bio">Bio</label><textarea id="a-bio" placeholder="Présente ton univers…"></textarea>
-      <label for="a-video">Lien vidéo (obligatoire pour être visible)</label><input type="text" id="a-video" placeholder="YouTube, Vimeo, Insta…">
+      <label for="a-video">Lien vidéo (fortement conseillé)</label><input type="url" id="a-video" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="YouTube, Vimeo, Insta…">
       <div class="hint">C'est ta meilleure carte de visite : on te voit jouer.</div>
       <div class="row">
         <div><label for="a-zone">Zone</label>
@@ -439,7 +445,7 @@
       <button class="link" id="toggle-new-appel">+ Nouvel appel</button>
     </div>
     <div id="new-appel-form" class="hide" style="margin-top:16px">
-      <label for="ap-titre">Titre de l'appel</label><input type="text" id="ap-titre" placeholder="ex. Duo pour apéros-concerts du vendredi">
+      <label for="ap-titre">Titre de l'appel (obligatoire)</label><input type="text" id="ap-titre" placeholder="ex. Duo pour apéros-concerts du vendredi">
       <div class="row">
         <div><label for="ap-disc">Discipline recherchée</label><select id="ap-disc"></select></div>
         <div><label for="ap-periode">Période</label><select id="ap-periode"></select></div>
@@ -452,6 +458,7 @@
       </div>
       <label for="ap-desc">Description</label><textarea id="ap-desc" placeholder="Détaille ce que tu cherches…"></textarea>
       <button class="btn" id="publish-appel">Publier l'appel</button>
+      <div class="msg" id="publish-msg"></div>
     </div>
     <div id="appels-list" style="margin-top:14px"></div>
     <div class="msg" id="appels-msg"></div>
@@ -498,7 +505,13 @@ const SB_KEY='sb_publishable_7bsk8ewqRUebVTqLrqbiaQ_UX78uMfr'
 const sb=createClient(SB_URL, SB_KEY)
 
 const DISCIPLINES=['Maloya','Séga','Musique','Théâtre','Danse','Conte','Jeune public','Humour','DJ / électro','Cirque / rue']
-let signupType='lieu', profil=null, ficheId=null
+let signupType=null, profil=null, ficheId=null, ficheErreur=false, ficheModifiee=false
+// Fiche ou fiche technique tapées mais pas enregistrées : on prévient avant de quitter la page
+document.addEventListener('input',e=>{if(e.target.closest&&e.target.closest('#form-lieu,#form-artiste'))ficheModifiee=true})
+// un lien e-mail, téléphone ou WhatsApp n'est pas une sortie de page
+let sortieVoulue=false
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('a[href^="mailto:"],a[href^="tel:"],a[href^="sms:"]')){sortieVoulue=true;setTimeout(()=>sortieVoulue=false,1500)}},true)
+window.addEventListener('beforeunload',e=>{if(sortieVoulue)return;if(ficheModifiee||(typeof ftModifiee!=='undefined'&&ftModifiee)){e.preventDefault();e.returnValue=''}})
 const $=id=>document.getElementById(id)
 const show=(el,on)=>el.classList.toggle('hide',!on)
 function flash(el,txt,ok){el.textContent=txt;el.className='msg '+(ok?'ok':'err')}
@@ -509,27 +522,50 @@ function fr(err){
   if(/invalid login credentials/i.test(m))return "Adresse ou mot de passe incorrect."
   if(/email not confirmed/i.test(m))return "Ton adresse n'est pas encore confirmée : ouvre l'e-mail reçu et touche le lien."
   if(/rate limit|too many/i.test(m))return "Trop de demandes d'un coup. Réessaie dans quelques minutes."
-  if(/at least 6|password should/i.test(m))return "Le mot de passe doit faire au moins 6 caractères."
-  return m||"Une erreur est survenue. Réessaie dans un instant."
+  if(/different from the old/i.test(m))return "C'est ton ancien mot de passe : choisis-en un nouveau."
+  if(/at least 6|should be at least/i.test(m))return "Le mot de passe doit faire au moins 6 caractères."
+  if(/security purposes|after \d+ seconds/i.test(m))return "Demande déjà envoyée. Attends une minute avant de réessayer."
+  if(/weak|known to be|pwned/i.test(m))return "Ce mot de passe est trop courant : choisis-en un autre, plus long."
+  if(/invalid.*email|email.*invalid|unable to validate email/i.test(m))return "Cette adresse e-mail n'est pas acceptée : vérifie-la."
+  if(/signups? not allowed/i.test(m))return "Les inscriptions sont fermées pour l'instant. Réessaie plus tard."
+  if(/failed to fetch|load failed|network|networkerror/i.test(m))return "Pas de connexion : vérifie ton réseau et réessaie."
+  if(/jwt|token.*expired|session/i.test(m))return "Ta session a expiré : recharge la page et reconnecte-toi."
+  if(/row-level security|permission denied/i.test(m))return "Action refusée : recharge la page, et reconnecte-toi si besoin."
+  if(/un_par_compte|déjà sa fiche/i.test(m))return "Ta fiche existe déjà : recharge la page pour la retrouver."
+  if(/check constraint|too long|value too long/i.test(m))return "Un champ est trop long : raccourcis-le, puis réessaie."
+  if(/^Sén Péi/.test(m))return m.replace(/^Sén Péi\s*:\s*/,'')   // règle du serveur, déjà écrite en français
+  return m?"Ça n'est pas passé ("+m+")":"Ça n'est pas passé : vérifie ta connexion et réessaie."
 }
+// Bouton occupé pendant l'envoi : un double toucher ne part pas deux fois
+async function occupe(btn,txt,fn){
+  if(!btn||btn.disabled)return
+  const avant=btn.textContent;btn.disabled=true;btn.textContent=txt
+  try{return await fn()}finally{if(btn.isConnected){btn.disabled=false;btn.textContent=avant}}
+}
+// Message d'une action : affiché puis ramené à l'écran (sur téléphone il tombe souvent sous la liste)
+function signaler(el,txt,ok){flash(el,txt,ok);el.scrollIntoView({block:'center',behavior:'smooth'})}
 let typeVoulu=null, nomVoulu=''
 
 // build discipline chips
 function buildChips(container){
   container.innerHTML=''
   DISCIPLINES.forEach(d=>{
-    const c=document.createElement('div');c.className='chip';c.textContent=d
-    c.onclick=()=>c.classList.toggle('on');container.appendChild(c)
+    const c=document.createElement('button');c.type='button';c.className='chip';c.textContent=d;c.setAttribute('aria-pressed','false')
+    c.onclick=()=>{c.classList.toggle('on');c.setAttribute('aria-pressed',c.classList.contains('on'));ficheModifiee=true};container.appendChild(c)
   })
 }
 function getChips(container){return [...container.querySelectorAll('.chip.on')].map(c=>c.textContent)}
-function setChips(container,vals){[...container.querySelectorAll('.chip')].forEach(c=>c.classList.toggle('on',(vals||[]).includes(c.textContent)))}
+function setChips(container,vals){[...container.querySelectorAll('.chip')].forEach(c=>{const on=(vals||[]).includes(c.textContent);c.classList.toggle('on',on);c.setAttribute('aria-pressed',on)})}
 buildChips($('l-disc')); buildChips($('a-disc'))
 
 // listes pour les menus déroulants (le moins de saisie possible)
 const COMMUNES=['Saint-Denis','Sainte-Marie','Sainte-Suzanne','Saint-André','Bras-Panon','Salazie','Saint-Benoît','La Plaine-des-Palmistes','Sainte-Rose','Saint-Philippe','Saint-Joseph','Petite-Île','Saint-Pierre','Le Tampon','Entre-Deux',"L'Étang-Salé",'Saint-Louis','Cilaos','Les Avirons','Saint-Leu','Trois-Bassins','Saint-Paul','Le Port','La Possession']
 const JAUGES=[{v:'50',t:'≤ 50'},{v:'100',t:'~ 100'},{v:'150',t:'~ 150'},{v:'200',t:'~ 200'},{v:'300',t:'~ 300'},{v:'500',t:'~ 500'},{v:'800',t:'~ 800'},{v:'1500',t:'1000+'}]
-const PERIODES=['Juin 2026','Juillet 2026','Août 2026','Septembre 2026','Octobre 2026','Novembre 2026','Décembre 2026','Début 2027','Récurrent','Flexible']
+// Période : les 7 mois qui viennent, à partir du mois en cours (heure de La Réunion)
+const PERIODES=(()=>{const MO=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre']
+  const [a,m]=new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'}).split('-').map(Number),l=[]
+  for(let i=0;i<7;i++){const k=m-1+i;l.push(MO[k%12]+' '+(a+Math.floor(k/12)))}
+  return [...l,'Récurrent','Flexible']})()
 const TARIFS=['Sur devis','< 300 €','300–600 €','600–1000 €','1000 €+']
 const DISPOS=['Week-ends','En semaine','Soirs','Vacances scolaires','Toute période','Sur demande']
 function fillSelect(id,items,ph){const s=$(id);if(!s)return;s.innerHTML='';const o0=document.createElement('option');o0.value='';o0.textContent=ph||'—';s.appendChild(o0);items.forEach(it=>{const o=document.createElement('option');if(it&&typeof it==='object'){o.value=it.v;o.textContent=it.t}else{o.value=it;o.textContent=it}s.appendChild(o)})}
@@ -541,12 +577,13 @@ fillSelect('a-tarif',TARIFS,'Choisir…');fillSelect('a-dispo',DISPOS,'Choisir�
 $('tab-login').onclick=()=>{$('tab-login').classList.add('on');$('tab-signup').classList.remove('on');show($('form-login'),true);show($('form-signup'),false)}
 $('tab-signup').onclick=()=>{$('tab-signup').classList.add('on');$('tab-login').classList.remove('on');show($('form-login'),false);show($('form-signup'),true)}
 document.querySelectorAll('#form-signup .opt').forEach(o=>o.onclick=()=>{
-  document.querySelectorAll('#form-signup .opt').forEach(x=>x.classList.remove('on'));o.classList.add('on');signupType=o.dataset.type
+  document.querySelectorAll('#form-signup .opt').forEach(x=>{x.classList.toggle('on',x===o);x.setAttribute('aria-pressed',x===o)});signupType=o.dataset.type
 })
 
 // SIGN UP
-$('form-signup').addEventListener('submit',async e=>{
-  e.preventDefault()
+$('form-signup').addEventListener('submit',e=>{e.preventDefault();occupe(e.target.querySelector('button[type=submit]'),'Création…',inscrire)})
+async function inscrire(){
+  if(!signupType)return flash($('auth-msg'),"Choisis d'abord : un lieu / bar, ou un artiste.",false)
   const email=$('su-email').value.trim()
   const {data,error}=await sb.auth.signUp({
     email, password:$('su-pass').value,
@@ -566,18 +603,18 @@ $('form-signup').addEventListener('submit',async e=>{
   }
   if(data.session){ await afterLogin(data.user) }
   else { flash($('auth-msg'),"Compte créé ! Vérifie ta boîte mail pour confirmer, puis connecte-toi.",true) }
-})
+}
 
 // LOGIN
-$('form-login').addEventListener('submit',async e=>{
-  e.preventDefault()
+$('form-login').addEventListener('submit',e=>{e.preventDefault();occupe(e.target.querySelector('button[type=submit]'),'Connexion…',async()=>{
   const {data,error}=await sb.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-pass').value})
   if(error){return flash($('auth-msg'),fr(error),false)}
   await afterLogin(data.user)
-})
+})})
 
 async function ensureProfil(user){
-  let {data}=await sb.from('scene_profils').select('*').eq('id',user.id).maybeSingle()
+  let {data,error}=await sb.from('scene_profils').select('*').eq('id',user.id).maybeSingle()
+  if(error){show($('auth'),true);flash($('auth-msg'),"Connexion impossible pour l'instant : vérifie ta connexion, puis recharge la page.",false);return null}
   if(!data){
     const m=user.user_metadata||{}
     // type connu seulement si le compte a été créé sur Sén Péi ; sinon on le demande
@@ -634,7 +671,9 @@ $('form-mdp').addEventListener('submit',async e=>{
 
 async function loadFiche(){
   const table=profil.type==='lieu'?'scene_lieux':'scene_artistes'
-  const {data}=await sb.from(table).select('*').eq('profil_id',profil.id).limit(1).maybeSingle()
+  const {data,error}=await sb.from(table).select('*').eq('profil_id',profil.id).limit(1).maybeSingle()
+  ficheErreur=!!error
+  if(error){ficheId=null;majLienFiche();return flash($('espace-msg'),"Ta fiche n'a pas pu se charger : vérifie ta connexion, puis recharge la page. Rien n'est perdu.",false)}
   if(!data){ficheId=null;const n=$(profil.type==='lieu'?'l-nom':'a-nom');if(!n.value)n.value=profil.nom||'';majLienFiche();return}
   ficheId=data.id
   if(profil.type==='lieu'){
@@ -701,7 +740,7 @@ async function afterLogin(user){
   if(!profil)return
   show($('auth'),false);show($('espace'),true);window.scrollTo(0,0)
   $('whoami').innerHTML=`${esc(profil.nom||user.email)} · <button class="link" id="logout">Déconnexion</button>`
-  $('logout').onclick=async()=>{await sb.auth.signOut();location.reload()}
+  $('logout').onclick=async()=>{if((ficheModifiee||ftModifiee)&&!confirm('Tu as des changements pas encore enregistrés. Te déconnecter quand même ?'))return;ficheModifiee=ftModifiee=false;await sb.auth.signOut();location.reload()}
   const isLieu=profil.type==='lieu'
   $('hello').textContent=isLieu?'Mon espace lieu':'Mon espace artiste'
   $('espace-sub').textContent=isLieu?'Renseigne ta fiche : elle apparaîtra dans l’annuaire et tu pourras publier tes besoins.':'Renseigne ta fiche avec ta vidéo : c’est elle qui te rend visible des lieux.'
@@ -712,32 +751,38 @@ async function afterLogin(user){
 }
 
 // SAVE LIEU
-$('save-lieu').onclick=async()=>{
+$('save-lieu').onclick=()=>occupe($('save-lieu'),'Enregistrement…',async()=>{
+  if(ficheErreur)return flash($('espace-msg'),"Ta fiche n'a pas pu se charger : recharge la page avant d'enregistrer.",false)
+  const site=$('l-site').value.trim()
+  if(site&&!safeUrl(site))return flash($('espace-msg'),"Le site web ne ressemble pas à une adresse : copie-le depuis ton navigateur (ex. monbar.re).",false)
   const payload={profil_id:profil.id,nom:$('l-nom').value.trim(),type_lieu:$('l-type').value||null,zone:$('l-zone').value||null,
     commune:$('l-commune').value.trim()||null,jauge:$('l-jauge').value?parseInt($('l-jauge').value):null,
-    disciplines:getChips($('l-disc')),description:$('l-desc').value.trim()||null,contact:$('l-contact').value.trim()||null,site_web:$('l-site').value.trim()||null}
+    disciplines:getChips($('l-disc')),description:$('l-desc').value.trim()||null,contact:$('l-contact').value.trim()||null,site_web:site?safeUrl(site):null}
   if(!payload.nom)return flash($('espace-msg'),'Indique au moins le nom du lieu.',false)
   const res=ficheId? await sb.from('scene_lieux').update(payload).eq('id',ficheId).select().single()
                    : await sb.from('scene_lieux').insert(payload).select().single()
-  if(res.error)return flash($('espace-msg'),res.error.message,false)
-  ficheId=res.data.id;majLienFiche();flash($('espace-msg'),'Fiche enregistrée ✓',true)
+  if(res.error)return flash($('espace-msg'),fr(res.error),false)
+  ficheId=res.data.id;ficheModifiee=false;majLienFiche();flash($('espace-msg'),'Fiche enregistrée ✓',true)
   await loadLieuAppels()
-}
+})
 
 // SAVE ARTISTE
-$('save-artiste').onclick=async()=>{
+$('save-artiste').onclick=()=>occupe($('save-artiste'),'Enregistrement…',async()=>{
+  if(ficheErreur)return flash($('espace-msg'),"Ta fiche n'a pas pu se charger : recharge la page avant d'enregistrer.",false)
+  const video=$('a-video').value.trim()
+  if(video&&!safeUrl(video))return flash($('espace-msg'),"Le lien vidéo ne ressemble pas à une adresse : copie-le depuis YouTube ou ton navigateur (ex. youtu.be/…).",false)
   const payload={profil_id:profil.id,nom:$('a-nom').value.trim(),disciplines:getChips($('a-disc')),
-    bio:$('a-bio').value.trim()||null,video_url:$('a-video').value.trim()||null,zone:$('a-zone').value||null,
+    bio:$('a-bio').value.trim()||null,video_url:video?safeUrl(video):null,zone:$('a-zone').value||null,
     tarif_indicatif:$('a-tarif').value.trim()||null,references_jouees:$('a-ref').value.trim()||null,dispo:$('a-dispo').value.trim()||null}
   if(!payload.nom)return flash($('espace-msg'),'Indique au moins ton nom d’artiste.',false)
   const lk=lireLiens();if(lk.erreur)return flash($('espace-msg'),lk.erreur,false)
   payload.liens=lk.liens
   const res=ficheId? await sb.from('scene_artistes').update(payload).eq('id',ficheId).select().single()
                    : await sb.from('scene_artistes').insert(payload).select().single()
-  if(res.error)return flash($('espace-msg'),res.error.message,false)
-  ficheId=res.data.id;majLienFiche();flash($('espace-msg'),'Fiche enregistrée ✓',true)
+  if(res.error)return flash($('espace-msg'),fr(res.error),false)
+  ficheId=res.data.id;ficheModifiee=false;majLienFiche();flash($('espace-msg'),'Fiche enregistrée ✓',true)
   await loadAgenda();majFT();majOutils();await loadMyCandidatures();await loadOpenAppels()
-}
+})
 
 // ===== MES LIENS (réseaux) =====
 // Un @pseudo devient une adresse ; chaque réseau doit pointer chez lui (pas de lien piège).
@@ -849,7 +894,7 @@ $('artiste-ft').addEventListener('click',e=>{
   if(t.id==='ft-add-mus')$('ft-musiciens').querySelector('.ft-ligne:last-child input')?.focus()
   if(t.id==='ft-add-ent')$('ft-entrees').querySelector('.ft-ligne:last-child input')?.focus()
 })
-$('ft-save').onclick=async()=>{
+$('ft-save').onclick=()=>occupe($('ft-save'),'Enregistrement…',async()=>{
   if(!ficheId)return flash($('ft-msg'),"Enregistre d'abord ta fiche artiste.",false)
   const propre=FT.nettoyer(ft)
   const {error}=await sb.from('scene_artistes').update({fiche_technique:propre}).eq('id',ficheId)
@@ -857,7 +902,7 @@ $('ft-save').onclick=async()=>{
   ft=propre;ftModifiee=false;ftEnregistree=true;dessinerLignesFT();apercuFT()
   if(!dmTouche)majOutils()
   flash($('ft-msg'),'Fiche technique enregistrée ✓ Elle apparaît sur ta fiche publique.',true)
-}
+})
 $('ft-imprimer').onclick=()=>{
   $('ft-print').innerHTML=FT.fiche(ft,$('a-nom').value.trim()||profil.nom)
   document.body.dataset.imprime='ft';window.print()
@@ -943,6 +988,8 @@ async function loadAgenda(){
   if(!agA){agA=a;agM=m-1}
   // les jours passés ne servent plus : on les efface (garder le moins de données possible)
   await sb.from('scene_dates_prises').delete().eq('artiste_id',ficheId).lt('jour',auj)
+  // et ceux de plus d'un jour, que la règle de lecture cache (fonction serveur ; sans effet tant qu'elle n'existe pas)
+  if(typeof sb.rpc==='function')await sb.rpc('scene_purger_dates_passees')
   const {data,error}=await sb.from('scene_dates_prises').select('jour').eq('artiste_id',ficheId).gte('jour',auj)
   if(error){flash($('ag-msg'),"L'agenda n'a pas pu se charger. Réessaie dans un instant.",false)}
   prises=new Set((data||[]).map(d=>d.jour))
@@ -1001,7 +1048,7 @@ function safeUrl(u){
 // Statut affiché en français ; classe CSS prise dans une liste fermée
 // Date limite passée = appel clos pour le public ; dates lues en français (heure de La Réunion)
 const today=()=>new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'})
-const ouvert=b=>!b.date_limite||b.date_limite>=today()
+const ouvert=b=>(!b.date_limite||b.date_limite>=today())&&(!b.date_concert||b.date_concert>=today())
 const dateFr=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',year:'numeric'})
 const limite=b=>b.date_limite?("jusqu'au "+dateFr(b.date_limite)):null
 const concert=b=>b.date_concert?('concert le '+dateFr(b.date_concert)):null
@@ -1009,48 +1056,92 @@ const STATUTS={ouvert:'ouvert',pourvu:'pourvu',clos:'clos',envoye:'envoyée',vu:
 const badge=st=>{const k=Object.prototype.hasOwnProperty.call(STATUTS,st)?st:'';return `<span class="badge ${k}">${esc(STATUTS[st]||st||'envoyée')}</span>`}
 
 // --- côté LIEU ---
-$('toggle-new-appel').onclick=()=>show($('new-appel-form'),$('new-appel-form').classList.contains('hide'))
-$('publish-appel').onclick=async()=>{
-  if(!ficheId)return flash($('appels-msg'),"Enregistre d'abord ta fiche lieu, puis publie un appel.",false)
+$('toggle-new-appel').onclick=()=>{
+  if(!ficheId)return signaler($('appels-msg'),"Enregistre d'abord ta fiche lieu (bouton « Enregistrer ma fiche » juste au-dessus), puis publie ta date.",false)
+  const ouvrir=$('new-appel-form').classList.contains('hide');show($('new-appel-form'),ouvrir)
+  if(ouvrir){$('ap-concert').min=$('ap-limite').min=today();$('ap-titre').focus()}
+}
+// Dates d'un appel : la date limite tombe entre aujourd'hui et le concert, le concert n'est pas passé
+function datesInvalides(concert,lim){
+  const auj=today()
+  if(concert&&concert<auj)return "La date du concert est déjà passée."
+  if(lim&&lim<auj)return "La date limite est déjà passée : choisis aujourd'hui ou plus tard."
+  if(concert&&lim&&lim>concert)return "La date limite doit tomber avant le jour du concert, ou le jour même."
+  return null
+}
+$('publish-appel').onclick=()=>occupe($('publish-appel'),'Publication…',async()=>{
+  if(!ficheId)return signaler($('publish-msg'),"Enregistre d'abord ta fiche lieu, puis publie un appel.",false)
   const titre=$('ap-titre').value.trim()
-  if(!titre)return flash($('appels-msg'),"Donne un titre à ton appel.",false)
+  if(!titre)return signaler($('publish-msg'),"Donne un titre à ton appel.",false)
+  const pb=datesInvalides($('ap-concert').value,$('ap-limite').value)
+  if(pb)return signaler($('publish-msg'),pb,false)
   const payload={lieu_id:ficheId,titre,discipline:$('ap-disc').value.trim()||null,periode:$('ap-periode').value.trim()||null,
     date_limite:$('ap-limite').value||null,date_concert:$('ap-concert').value||null,jauge:$('ap-jauge').value?parseInt($('ap-jauge').value):null,
     commune:$('l-commune').value.trim()||null,description:$('ap-desc').value.trim()||null,statut:'ouvert'}
   const res=await sb.from('scene_besoins').insert(payload).select().single()
-  if(res.error)return flash($('appels-msg'),res.error.message,false)
+  if(res.error)return signaler($('publish-msg'),fr(res.error),false)
   ;['ap-titre','ap-disc','ap-periode','ap-concert','ap-limite','ap-jauge','ap-desc'].forEach(i=>$(i).value='')
-  show($('new-appel-form'),false);flash($('appels-msg'),'Appel publié ✓',true);await loadLieuAppels()
-}
+  $('publish-msg').className='msg';show($('new-appel-form'),false);flash($('appels-msg'),'Appel publié ✓',true);await loadLieuAppels()
+})
 
 let besoinsLieu=new Map()
 async function loadLieuAppels(){
   if(!ficheId){$('appels-list').innerHTML='<p class="hint">Enregistre ta fiche lieu pour pouvoir publier des appels.</p>';return}
-  const {data}=await sb.from('scene_besoins').select('*').eq('lieu_id',ficheId).order('created_at',{ascending:false})
-  if(!data||!data.length){$('appels-list').innerHTML='<p class="hint">Aucun appel pour l’instant.</p>';return}
-  $('appels-list').innerHTML=data.map(b=>`
+  const {data,error}=await sb.from('scene_besoins').select('*').eq('lieu_id',ficheId).order('created_at',{ascending:false})
+  if(error){$('appels-list').innerHTML='<p class="hint">Tes appels n’ont pas pu se charger : vérifie ta connexion, puis recharge la page.</p>';return}
+  if(!data||!data.length){$('appels-list').innerHTML='<p class="hint">Aucun appel pour l’instant. Touche « + Nouvel appel » pour publier ta première date.</p>';return}
+  // combien de candidatures par appel, et combien pas encore ouvertes
+  const {data:rep}=await sb.from('scene_reponses').select('besoin_id,statut').in('besoin_id',data.map(b=>b.id))
+  const nb=new Map(),neuves=new Map()
+  ;(rep||[]).forEach(r=>{nb.set(r.besoin_id,(nb.get(r.besoin_id)||0)+1);if(r.statut==='envoye')neuves.set(r.besoin_id,(neuves.get(r.besoin_id)||0)+1)})
+  const libCand=b=>{if(!rep)return 'Voir les candidatures';const n=nb.get(b.id)||0,k=neuves.get(b.id)||0
+    return n?`Voir les candidatures (${n}${k?`, dont ${k} nouvelle${k>1?'s':''}`:''})`:'Pas encore de candidature'}
+  $('appels-list').innerHTML=data.map(b=>{const vivant=ouvert(b);return `
     <div class="appel">
-      <div class="appel-h"><b>${esc(b.titre)}</b>${badge(b.statut==='ouvert'&&!ouvert(b)?'clos':b.statut)}</div>
+      <div class="appel-h"><b>${esc(b.titre)}</b>${badge(b.statut==='ouvert'&&!vivant?'clos':b.statut)}</div>
       <div class="hint">${[concert(b),b.discipline,b.periode,limite(b),b.jauge?('jauge '+b.jauge):null].filter(Boolean).map(esc).join(' · ')}</div>
       <div class="appel-actions">
-        <button class="link" data-cand="${b.id}">Voir les candidatures</button>
-        ${b.statut==='ouvert'?`<button class="link" data-pourvu="${b.id}">Marquer pourvu</button>`:''}
-        ${b.statut==='pourvu'?`<button class="link" data-rouvrir="${b.id}">Rouvrir l’appel</button>`:''}
+        <button class="link" data-cand="${b.id}">${libCand(b)}</button>
+        ${b.statut==='ouvert'&&vivant?`<button class="link" data-pourvu="${b.id}">Marquer pourvu</button>`:''}
+        ${b.statut==='pourvu'&&vivant?`<button class="link" data-rouvrir="${b.id}">Rouvrir l’appel</button>`:''}
+        <button class="link" data-dates="${b.id}">${vivant?'Changer les dates':'Repousser les dates'}</button>
       </div>
+      ${`<div class="dates-form hide" id="dates-${b.id}">
+        <div class="row">
+          <div><label for="dc-${b.id}">Date du concert</label><input type="date" id="dc-${b.id}" min="${today()}" value="${esc(b.date_concert||'')}"></div>
+          <div><label for="dl-${b.id}">Date limite</label><input type="date" id="dl-${b.id}" min="${today()}" value="${esc(b.date_limite||'')}"></div>
+        </div>
+        <div class="appel-actions"><button class="mini ok" data-dates-ok="${b.id}">Enregistrer les dates</button></div>
+        <div class="msg" id="dmsg-${b.id}"></div>
+      </div>`}
       <div class="cand-zone hide" id="cand-${b.id}"></div>
-    </div>`).join('')
+    </div>`}).join('')
   besoinsLieu=new Map(data.map(b=>[b.id,b]))
   $('appels-list').querySelectorAll('[data-cand]').forEach(btn=>btn.onclick=()=>loadCandidatures(btn.dataset.cand))
-  const statutAppel=async(id,statut)=>{const {error}=await sb.from('scene_besoins').update({statut}).eq('id',id);if(error)flash($('appels-msg'),'Le changement n’est pas passé : '+error.message,false);await loadLieuAppels()}
+  const statutAppel=async(id,statut)=>{const {error}=await sb.from('scene_besoins').update({statut}).eq('id',id);await loadLieuAppels();if(error)signaler($('appels-msg'),fr(error),false)}
+  $('appels-list').querySelectorAll('[data-dates]').forEach(btn=>btn.onclick=()=>{const f=$('dates-'+btn.dataset.dates);show(f,f.classList.contains('hide'))})
+  $('appels-list').querySelectorAll('[data-dates-ok]').forEach(btn=>btn.onclick=()=>occupe(btn,'Enregistrement…',async()=>{
+    const id=btn.dataset.datesOk,dc=$('dc-'+id).value||null,dl=$('dl-'+id).value||null,m=$('dmsg-'+id)
+    const pb=datesInvalides(dc,dl);if(pb)return flash(m,pb,false)
+    const {error}=await sb.from('scene_besoins').update({date_concert:dc,date_limite:dl}).eq('id',id)
+    if(error)return flash(m,fr(error),false)
+    await loadLieuAppels();flash($('appels-msg'),'Dates enregistrées ✓',true)
+  }))
   $('appels-list').querySelectorAll('[data-pourvu]').forEach(btn=>btn.onclick=()=>{
     if(confirm('Marquer cet appel comme pourvu ? Il disparaît de la page Découvrir et plus personne ne peut candidater. Tu pourras le rouvrir.'))statutAppel(btn.dataset.pourvu,'pourvu')
   })
   $('appels-list').querySelectorAll('[data-rouvrir]').forEach(btn=>btn.onclick=()=>statutAppel(btn.dataset.rouvrir,'ouvert'))
 }
 
+// L'artiste a-t-il un téléphone ou un e-mail sur sa fiche ?
+const aContact=a=>{const L=a&&a.liens&&typeof a.liens==='object'?a.liens:{};return !!((typeof L.tel==='string'&&L.tel)||(typeof L.email==='string'&&L.email))}
 async function loadCandidatures(besoinId){
   const zone=$('cand-'+besoinId);show(zone,true)
-  const {data}=await sb.from('scene_reponses').select('*, scene_artistes(nom, video_url, disciplines)').eq('besoin_id',besoinId).order('created_at',{ascending:false})
+  // ouvrir les candidatures les marque « vues » (l'artiste le voit dans son espace)
+  const vu=await sb.from('scene_reponses').update({statut:'vu'}).eq('besoin_id',besoinId).eq('statut','envoye')
+  if(!vu.error){const b=document.querySelector(`[data-cand="${besoinId}"]`);if(b)b.textContent=b.textContent.replace(/, dont \d+ nouvelles?/,'')}
+  const {data,error}=await sb.from('scene_reponses').select('*, scene_artistes(nom, video_url, disciplines, liens)').eq('besoin_id',besoinId).order('created_at',{ascending:false})
+  if(error){zone.innerHTML='<p class="hint">Les candidatures n’ont pas pu se charger : vérifie ta connexion et touche à nouveau.</p>';return}
   if(!data||!data.length){zone.innerHTML='<p class="hint">Pas encore de candidature. Les artistes inscrits voient ton appel dans leur espace et sur la page Découvrir.</p>';return}
   // Agenda : qui est déjà pris le jour du concert (on ne sait ni où ni pour qui)
   const jour=besoinsLieu.get(besoinId)?.date_concert
@@ -1070,31 +1161,35 @@ async function loadCandidatures(besoinId){
       ${mentionAgenda(r)}
       ${(a.disciplines&&a.disciplines.length)?`<div class="hint">${esc(a.disciplines.join(', '))}</div>`:''}
       ${r.message?`<div class="cand-msg">${esc(r.message)}</div>`:''}
-      ${safeUrl(a.video_url)?`<a class="vlink" href="${esc(safeUrl(a.video_url))}" target="_blank" rel="noopener nofollow">▶ voir la vidéo</a>`:''}
+      ${safeUrl(a.video_url)?`<a class="vlink" href="${esc(safeUrl(a.video_url))}" target="_blank" rel="noopener nofollow">▶ voir la vidéo (${esc(new URL(safeUrl(a.video_url)).hostname.replace(/^www\./,''))})</a>`:''}
       <a class="vlink" href="fiche.html?type=artiste&id=${encodeURIComponent(r.artiste_id)}" target="_blank" rel="noopener">Voir sa fiche et le contacter →</a>
+      ${aContact(a)?'':'<div class="hint">Pas encore de téléphone ni d’e-mail sur sa fiche. S’il est retenu, il est prévenu dans son espace.</div>'}
       <div class="appel-actions">${(r.statut==='retenu'||r.statut==='refuse')
         ?`<button class="link" data-annul="${r.id}">Revenir sur ma réponse</button>`
         :`<button class="mini ok" data-ret="${r.id}">Retenir</button>
         <button class="mini" data-ref="${r.id}">Refuser</button>`}
       </div>
     </div>`}).join('')
-  const changer=async(id,statut)=>{const {error}=await sb.from('scene_reponses').update({statut}).eq('id',id);if(error)flash($('appels-msg'),'Ta réponse n’est pas passée : '+error.message,false);await loadCandidatures(besoinId)}
-  zone.querySelectorAll('[data-ret]').forEach(b=>b.onclick=()=>changer(b.dataset.ret,'retenu'))
-  zone.querySelectorAll('[data-annul]').forEach(b=>b.onclick=()=>changer(b.dataset.annul,'vu'))
-  zone.querySelectorAll('[data-ref]').forEach(b=>b.onclick=()=>changer(b.dataset.ref,'refuse'))
+  const changer=(b,id,statut)=>occupe(b,'…',async()=>{const {error}=await sb.from('scene_reponses').update({statut}).eq('id',id);await loadCandidatures(besoinId);if(error){const m=document.createElement('div');m.className='msg err';m.textContent=fr(error);zone.prepend(m);m.scrollIntoView({block:'center'})}})
+  zone.querySelectorAll('[data-ret]').forEach(b=>b.onclick=()=>changer(b,b.dataset.ret,'retenu'))
+  zone.querySelectorAll('[data-annul]').forEach(b=>b.onclick=()=>changer(b,b.dataset.annul,'vu'))
+  zone.querySelectorAll('[data-ref]').forEach(b=>b.onclick=()=>{if(confirm('Refuser cette candidature ? L’artiste verra « pas retenue ». Tu pourras revenir sur ta réponse.'))changer(b,b.dataset.ref,'refuse')})
 }
 
 // --- côté ARTISTE ---
 // Contact enregistré sur la fiche (téléphone ou e-mail) : sans lui, un lieu qui retient l'artiste ne peut pas le joindre
 const joignable=()=>!!(($('ct-tel')&&$('ct-tel').value.trim())||($('ct-email')&&$('ct-email').value.trim()))
-let myCandBesoinIds=new Set()
+let myCandBesoinIds=new Set(), myCandErreur=false
 async function loadMyCandidatures(){
   if(!ficheId){$('my-candidatures-list').innerHTML='<p class="hint">Crée et enregistre ta fiche artiste pour pouvoir candidater.</p>';myCandBesoinIds=new Set();return}
-  const {data}=await sb.from('scene_reponses').select('*, scene_besoins(titre, lieu_id, scene_lieux(nom))').eq('artiste_id',ficheId).order('created_at',{ascending:false})
+  const {data,error}=await sb.from('scene_reponses').select('*, scene_besoins(titre, lieu_id, statut, date_limite, date_concert, scene_lieux(nom))').eq('artiste_id',ficheId).order('created_at',{ascending:false})
+  myCandErreur=!!error
+  if(error){$('my-candidatures-list').innerHTML='<p class="hint">Tes candidatures n’ont pas pu se charger : vérifie ta connexion, puis recharge la page.</p>';return}
   myCandBesoinIds=new Set((data||[]).map(r=>r.besoin_id))
   if(!data||!data.length){$('my-candidatures-list').innerHTML='<p class="hint">Tu n’as pas encore candidaté.</p>';return}
   $('my-candidatures-list').innerHTML=data.map(r=>{const b=r.scene_besoins||{};const l=b.scene_lieux||{};return `
     <div class="cand"><b>${esc(b.titre||'Appel')}</b> ${badge(r.statut)}${l.nom?`<div class="hint">${esc(l.nom)}</div>`:''}
+      ${r.statut!=='retenu'&&r.statut!=='refuse'?(b.statut==='pourvu'?'<div class="hint">Appel pourvu : le lieu a choisi un autre artiste.</div>':(b.statut==='clos'||(b.titre&&!ouvert(b)))?'<div class="hint">Appel clos : plus de réponse à attendre.</div>':''):''}
       ${r.statut==='retenu'?(joignable()?'<div class="hint">Le lieu te contacte avec le téléphone ou l’e-mail de ta fiche.</div>':'<div class="alerte">⚠ Le lieu t’a retenu mais ne peut pas te joindre : ajoute ton téléphone ou ton e-mail dans ta fiche, puis enregistre.</div>'):''}
       ${b.lieu_id?`<a class="vlink" href="fiche.html?type=lieu&id=${encodeURIComponent(b.lieu_id)}" target="_blank" rel="noopener">Voir le lieu →</a>`:''}</div>`}).join('')
 }
@@ -1103,7 +1198,8 @@ async function loadOpenAppels(){
   // la liste est redessinée (fiche enregistrée, jour d'agenda, autre candidature) :
   // on garde les mots déjà tapés, sinon une candidature partirait vide
   const brouillons={};document.querySelectorAll('#open-appels-list .cand-input').forEach(i=>{if(i.value)brouillons[i.id]=i.value})
-  const {data:tous}=await sb.from('scene_besoins').select('*, scene_lieux(nom, commune)').eq('statut','ouvert').order('created_at',{ascending:false})
+  const {data:tous,error}=await sb.from('scene_besoins').select('*, scene_lieux(nom, commune)').eq('statut','ouvert').order('created_at',{ascending:false})
+  if(error){$('open-appels-list').innerHTML='<p class="hint">Les appels n’ont pas pu se charger : vérifie ta connexion, puis recharge la page.</p>';return}
   const data=(tous||[]).filter(ouvert)
   if(!data.length){$('open-appels-list').innerHTML='<p class="hint">Aucun appel ouvert pour le moment.</p>';return}
   $('open-appels-list').innerHTML=data.map(b=>{const l=b.scene_lieux||{};const already=myCandBesoinIds.has(b.id);return `
@@ -1112,11 +1208,11 @@ async function loadOpenAppels(){
       <div class="hint">${[l.nom,concert(b),b.discipline,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>
       ${b.date_concert&&prises.has(b.date_concert)&&!already?'<span class="alerte">⚠ Tu as noté ce jour comme déjà pris</span>':''}
       ${b.description?`<div class="cand-msg">${esc(b.description)}</div>`:''}
-      ${already?'<div class="hint" style="color:var(--safran)">✓ Tu as déjà candidaté</div>':`
-        <div class="cand-form"><input class="cand-input" id="msg-${b.id}" placeholder="Un mot pour te présenter…">
-        <button class="mini ok" data-postuler="${b.id}">Candidater</button></div>`}
+      ${already?'<div class="hint" style="color:var(--safran)">✓ Tu as déjà candidaté</div>':myCandErreur?'<div class="hint">Recharge la page pour candidater.</div>':`
+        <div class="cand-form"><input class="cand-input" id="msg-${b.id}" placeholder="Un mot pour te présenter…" aria-label="Ton message pour l’appel ${esc(b.titre)}">
+        <button class="mini ok" data-postuler="${b.id}" aria-label="Candidater à ${esc(b.titre)}">Candidater</button></div>`}
     </div>`}).join('')
-  $('open-appels-list').querySelectorAll('[data-postuler]').forEach(btn=>btn.onclick=()=>candidater(btn.dataset.postuler))
+  $('open-appels-list').querySelectorAll('[data-postuler]').forEach(btn=>btn.onclick=()=>occupe(btn,'Envoi…',()=>candidater(btn.dataset.postuler)))
   for(const [id,v] of Object.entries(brouillons)){const i=document.getElementById(id);if(i)i.value=v}
 }
 
@@ -1124,9 +1220,9 @@ async function candidater(besoinId){
   if(!ficheId)return flash($('artiste-appels-msg'),"Crée et enregistre ta fiche artiste d'abord.",false)
   const inp=$('msg-'+besoinId);const msg=inp?inp.value.trim():''
   const res=await sb.from('scene_reponses').insert({besoin_id:besoinId,artiste_id:ficheId,message:msg||null}).select().single()
-  if(res.error)return flash($('artiste-appels-msg'),res.error.message,false)
-  flash($('artiste-appels-msg'),'Candidature envoyée ✓',true)
+  if(res.error)return signaler($('artiste-appels-msg'),fr(res.error),false)
   await loadMyCandidatures();await loadOpenAppels()
+  signaler($('artiste-appels-msg'),joignable()?'Candidature envoyée ✓':'Candidature envoyée ✓ Ajoute ton téléphone ou ton e-mail dans ta fiche, sinon le lieu ne pourra pas te répondre.',true)
 }
 
 // boot
