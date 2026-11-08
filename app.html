@@ -1077,7 +1077,8 @@ const REMU_AIDE={
   cachet:['Montant ou précision (facultatif)','ex. 150 € pour le duo, 2 × 45 min, chapeau en complément','Sans montant, les artistes lisent « montant à convenir ».'],
   amateur:['Frais remboursés (obligatoire)','ex. déplacement remboursé, ou « aucun »','Lis « Jouer dans un bar » avant de choisir cette option, et précise les frais que tu rembourses, ou écris « aucun ».']}
 let remuChoisie=null
-function choisirRemu(v){remuChoisie=v
+function choisirRemu(v){if(remuChoisie&&remuChoisie!==v)$('ap-remu-detail').value=''   // un montant de cachet ne devient pas des « frais remboursés »
+  remuChoisie=v
   document.querySelectorAll('[data-remu]').forEach(x=>{x.classList.toggle('on',x.dataset.remu===v);x.setAttribute('aria-pressed',x.dataset.remu===v)})
   const a=REMU_AIDE[v];if(!a)return
   $('ap-remu-detail-l').textContent=a[0];$('ap-remu-detail').placeholder=a[1];$('ap-remu-hint').textContent=a[2]}
