@@ -144,7 +144,7 @@ const sb=createClient('https://acxfzftptzgdhaakldve.supabase.co','sb_publishable
 const DISCIPLINES=['Maloya','Séga','Musique','Théâtre','Danse','Conte','Jeune public','Humour','DJ / électro','Cirque / rue']
 const $=id=>document.getElementById(id)
 const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))
-let LIEUX=[],ARTISTES=[],APPELS=[]
+let LIEUX=[],ARTISTES=[],APPELS=[],ERREUR=false
 // Date limite passée = appel clos pour le public ; dates lues en français (heure de La Réunion)
 const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Indian/Reunion'})
 const ouvert=b=>!b.date_limite||b.date_limite>=today
@@ -174,7 +174,7 @@ function render(){
       ${b.description?`<div class="desc">${esc(b.description)}</div>`:''}
       <div class="tagrow">${b.discipline?`<span class="tg kindb">${esc(b.discipline)}</span>`:''}${b.jauge?`<span class="tg">jauge ${b.jauge}</span>`:''}</div>
       <a class="vlink" href="fiche.html?type=lieu&id=${b.lieu_id}">Voir le lieu →</a>
-    </div>`}).join(''):emptyBox('Aucun appel ouvert pour le moment.','Un lieu ? Publie ton premier appel')
+    </div>`}).join(''):vide(APPELS,'appels')
   // lieux
   const lx=LIEUX.filter(l=>(!f.zone||l.zone===f.zone)&&(!f.disc||(l.disciplines||[]).includes(f.disc))&&(matchTxt(l.nom,f.txt)||matchTxt(l.description,f.txt)||matchTxt(l.commune,f.txt)))
   $('c-lieux').textContent=lx.length?`(${lx.length})`:''
@@ -185,7 +185,7 @@ function render(){
       ${l.description?`<div class="desc">${esc(l.description)}</div>`:''}
       <div class="tagrow">${(l.disciplines||[]).map(d=>`<span class="tg kind">${esc(d)}</span>`).join('')}</div>
       <a class="vlink" href="fiche.html?type=lieu&id=${l.id}">Voir la fiche →</a>
-    </div>`).join(''):emptyBox('Aucun lieu inscrit pour le moment.','Inscris ton lieu')
+    </div>`).join(''):vide(LIEUX,'lieux')
   // artistes
   const ax=ARTISTES.filter(a=>(!f.zone||a.zone===f.zone||a.zone==='Toute l\'île')&&(!f.disc||(a.disciplines||[]).includes(f.disc))&&(matchTxt(a.nom,f.txt)||matchTxt(a.bio,f.txt)||matchTxt(a.references_jouees,f.txt)))
   $('c-artistes').textContent=ax.length?`(${ax.length})`:''
@@ -196,9 +196,24 @@ function render(){
       ${a.bio?`<div class="desc">${esc(a.bio)}</div>`:''}
       <div class="tagrow">${(a.disciplines||[]).map(d=>`<span class="tg kindb">${esc(d)}</span>`).join('')}</div>
       <a class="vlink" href="fiche.html?type=artiste&id=${a.id}">Voir la fiche${a.video_url?' (avec vidéo)':''} →</a>
-    </div>`).join(''):emptyBox('Aucun artiste inscrit pour le moment.','Crée ta fiche artiste')
+    </div>`).join(''):vide(ARTISTES,'artistes')
 }
-function emptyBox(t,cta){return `<div class="empty"><b>${t}</b>Sois le premier : <a href="app.html">${cta} →</a></div>`}
+// État vide : on distingue « la base n'a pas répondu », « tes filtres cachent tout » et « rien d'inscrit encore »,
+// et on parle à la bonne personne (un bar qui cherche un artiste ne doit pas lire « crée ta fiche artiste »).
+const VIDES={
+  appels:['Aucun appel ouvert pour le moment.','Tu tiens un bar ou une salle ? <a href="app.html#inscription-lieu">Publie ta première date →</a><br>Tu es artiste ? <a href="app.html#inscription-artiste">Crée ta fiche</a> : les appels arrivent dans ton espace.'],
+  lieux:['Aucun lieu inscrit pour le moment.','Tu tiens un bar ou une salle ? <a href="app.html#inscription-lieu">Inscris ton lieu →</a>'],
+  artistes:['Les premiers artistes s’inscrivent en ce moment.','Tu cherches un artiste ? <a href="app.html#inscription-lieu">Publie ta date →</a> Les artistes inscrits la voient dans leur espace et te répondent.<br>Tu es artiste ? <a href="app.html#inscription-artiste">Crée ta fiche →</a>']
+}
+function vide(tous,cle){
+  if(ERREUR)return `<div class="empty"><b>La liste n’a pas pu se charger.</b>Vérifie ta connexion, puis <a href="#" data-recharger>réessaie →</a></div>`
+  if(tous.length)return `<div class="empty"><b>Rien ne correspond à ta recherche.</b><a href="#" data-effacer>Effacer les filtres →</a></div>`
+  const [t,txt]=VIDES[cle];return `<div class="empty"><b>${t}</b>${txt}</div>`
+}
+document.addEventListener('click',e=>{
+  if(e.target.closest('[data-effacer]')){e.preventDefault();$('f-zone').value='';$('f-disc').value='';$('f-text').value='';render()}
+  if(e.target.closest('[data-recharger]')){e.preventDefault();location.reload()}
+})
 
 $('f-go').onclick=render
 $('f-text').addEventListener('keydown',e=>{if(e.key==='Enter')render()})
@@ -210,6 +225,7 @@ $('f-zone').onchange=render;$('f-disc').onchange=render
     sb.from('scene_lieux').select('id,nom,type_lieu,commune,zone,jauge,disciplines,description').order('created_at',{ascending:false}),
     sb.from('scene_artistes').select('id,nom,disciplines,bio,zone,video_url,references_jouees,tarif_indicatif').order('created_at',{ascending:false})
   ])
+  ERREUR=!!(ra.error||rl.error||rt.error)
   APPELS=(ra.data||[]).filter(ouvert);LIEUX=rl.data||[];ARTISTES=rt.data||[]
   render()
 })()
