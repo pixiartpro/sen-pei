@@ -47,7 +47,8 @@ const CDN = /jsdelivr|unpkg\.com|esm\.sh|cdnjs|skypack|jspm\.io/i;
 // Empreinte d'avant (texte du 03/11/2026) : a2941b303b6d54669fec95b64ad327007fa8e45db7b4644d3dd3aced028b923c
 // Hébergeurs complétés, validés par Guillaume le vendredi 06/11/2026. Empreinte d'avant : 1acf1cdfb5039f5424b1524ed4b85711b885e06518fb98befcc5a6f02670965f
 // Contact public de l'artiste, validé par Guillaume le vendredi 06/11/2026. Empreinte d'avant : d9fc48b510e57a0f29cf588461a6d58028c03a2da93f29c32f98f89a2b92b350
-const EMPREINTE_TEXTE = 'b3c17fa43e6cde0ea9a7bf02d74c6499cc51c5b55a424151ba0d61b0d298ad78';
+// Téléphone GitHub non confirmé retiré (contact gardé), validé par Guillaume le dimanche 08/11/2026. Empreinte d'avant : b3c17fa43e6cde0ea9a7bf02d74c6499cc51c5b55a424151ba0d61b0d298ad78
+const EMPREINTE_TEXTE = '7b2b9cccdee8f4d1688d6d9eaa8e93b85dcc0bc1007ee98a3013a7ec23968ec2';
 
 const resultats = [];
 const verifie = (nom, ok, detail = '') => resultats.push({ nom, ok: !!ok, detail });
