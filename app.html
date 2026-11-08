@@ -40,6 +40,8 @@
     background:linear-gradient(92deg,var(--safran),var(--brique));-webkit-background-clip:text;background-clip:text;color:transparent}
   .sig{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muet);margin-top:4px}
   #whoami{font-size:13px;color:var(--muet);display:flex;align-items:center;gap:12px}
+  #whoami .qui{max-width:9em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  @media (max-width:480px){#whoami .qui{display:none}}
   .link{color:var(--safran);cursor:pointer;background:none;border:none;font-size:14px;min-height:44px;display:inline-flex;align-items:center;padding:0 4px}
 
   .card{background:linear-gradient(180deg,var(--panel),var(--terre2));border:1px solid var(--ligne);border-radius:18px;padding:26px;margin-top:26px}
@@ -741,11 +743,11 @@ async function afterLogin(user){
   profil=await ensureProfil(user)
   if(!profil)return
   show($('auth'),false);show($('espace'),true);window.scrollTo(0,0)
-  $('whoami').innerHTML=`${esc(profil.nom||user.email)} · <button class="link" id="logout">Déconnexion</button>`
+  $('whoami').innerHTML=`<span class="qui">${esc(profil.nom||user.email)}</span><button class="link" id="logout">Déconnexion</button>`
   $('logout').onclick=async()=>{if((ficheModifiee||ftModifiee)&&!confirm('Tu as des changements pas encore enregistrés. Te déconnecter quand même ?'))return;ficheModifiee=ftModifiee=false;await sb.auth.signOut();location.reload()}
   const isLieu=profil.type==='lieu'
   $('hello').textContent=isLieu?'Mon espace lieu':'Mon espace artiste'
-  $('espace-sub').textContent=isLieu?'Renseigne ta fiche : elle apparaîtra dans l’annuaire et tu pourras publier tes besoins.':'Renseigne ta fiche avec ta vidéo : c’est elle qui te rend visible des lieux.'
+  $('espace-sub').textContent=isLieu?'Remplis ta fiche, puis touche « Enregistrer ma fiche » en bas : elle apparaît alors dans l’annuaire, et tu peux publier tes appels.':'Remplis ta fiche avec ta vidéo, puis touche « Enregistrer ma fiche » en bas : c’est elle qui te rend visible des lieux.'
   show($('form-lieu'),isLieu);show($('form-artiste'),!isLieu)
   await loadFiche()
   if(isLieu){ oublierVise(); show($('lieu-appels'),true); await loadLieuAppels() }
@@ -1019,7 +1021,8 @@ function dessinerAgenda(){
   }
   if(fj)g.querySelector('[data-jour="'+fj+'"]')?.focus()
   const n=prises.size
-  $('ag-resume').textContent=n?(n+(n>1?' dates notées':' date notée')+'. Enregistré tout de suite, pas de bouton à toucher.'):'Aucune date notée pour l’instant.'
+  const proch=[...prises].sort().slice(0,3).map(k=>new Date(k+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})).join(', ')
+  $('ag-resume').textContent=n?(n+(n>1?' dates notées':' date notée')+(proch?' (prochaines : '+proch+(n>3?'…':'')+')':'')+'. Enregistré tout de suite, pas de bouton à toucher.'):'Aucune date notée pour l’instant.'
 }
 async function basculer(k){
   if(enCours.has(k)||!ficheId)return
@@ -1171,6 +1174,7 @@ async function loadCandidatures(besoinId){
         :`<button class="mini ok" data-ret="${r.id}">Retenir</button>
         <button class="mini" data-ref="${r.id}">Refuser</button>`}
       </div>
+      ${r.statut==='retenu'?'':'<div class="hint">« Retenir » prévient l’artiste dans son espace que tu l’as choisi. Vous fixez ensuite ensemble l’heure et le cachet, avec le contact de sa fiche.</div>'}
     </div>`}).join('')
   const changer=(b,id,statut)=>occupe(b,'…',async()=>{const {error}=await sb.from('scene_reponses').update({statut}).eq('id',id);await loadCandidatures(besoinId);if(error){const m=document.createElement('div');m.className='msg err';m.textContent=fr(error);zone.prepend(m);m.scrollIntoView({block:'center'})}})
   zone.querySelectorAll('[data-ret]').forEach(b=>b.onclick=()=>changer(b,b.dataset.ret,'retenu'))

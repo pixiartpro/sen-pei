@@ -190,7 +190,7 @@ function panne(){C.innerHTML='<div class="notfound">Connexion impossible pour l�
 
   if(type==='lieu'){
     const {data:ap}=await sb.from('scene_besoins').select('*').eq('lieu_id',id).eq('statut','ouvert').order('created_at',{ascending:false})
-    const appels=(ap||[]).filter(ouvert).map(b=>`<div class="appel"><b>${esc(b.titre)}</b><div class="m">${[b.discipline,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>${b.description?`<div class="desc" style="margin-top:8px;font-size:14px">${esc(b.description)}</div>`:''}<a class="candidater" href="app.html?appel=${encodeURIComponent(b.id)}">Candidater à cet appel →</a></div>`).join('')
+    const appels=(ap||[]).filter(ouvert).map(b=>`<div class="appel"><b>${esc(b.titre)}</b><div class="m">${[b.discipline,b.periode,limite(b)].filter(Boolean).map(esc).join(' · ')}</div>${b.description?`<div class="desc" style="margin-top:8px;font-size:14px">${esc(b.description)}</div>`:''}<a class="candidater" href="app.html?appel=${encodeURIComponent(b.id)}">Préparer ma candidature →</a></div>`).join('')
     C.innerHTML=`<div class="card">
       <span class="kind lieu">Lieu</span>
       <h1>${esc(data.nom)}</h1>
@@ -228,7 +228,7 @@ function panne(){C.innerHTML='<div class="notfound">Connexion impossible pour l�
     const contactHtml=`<div class="field contact"><div class="l">Lui proposer une date</div>${boutons
       ?`<div class="liens">${boutons}</div>`
       :(liens.length?`<div class="v">Écris-lui sur ses réseaux, juste au-dessus.</div>`
-        :`<div class="v">Cette fiche n'indique pas encore de contact. Si l'artiste a candidaté à ton appel, il est prévenu dans son espace Sén Péi. Sinon, publie ta date : il pourra y répondre. <a class="publier" href="app.html#inscription-lieu">Publier une date →</a></div>`)}</div>`
+        :`<div class="v">Cette fiche n'indique pas encore de contact. Si l'artiste a candidaté à ton appel, il est prévenu dans son espace Sén Péi. Sinon, publie un appel : il pourra y répondre. <a class="publier" href="app.html#inscription-lieu">Publier un appel auquel il pourra répondre →</a></div>`)}</div>`
     if(ftHtml)document.getElementById('ft-css').textContent=FT.CSS
     C.innerHTML=`<div class="card">
       <span class="kind artiste">Artiste</span>
